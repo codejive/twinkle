@@ -1,0 +1,69 @@
+project:
+  name: twinkle
+  description: Java TUI Library
+  longDescription: |
+    Twinkle is a Java library for creating advanced text-based user interfaces.
+  authors:
+    - Tako Schotanus
+  tags:
+    - java
+    - tui
+    - console
+  license: Apache-2.0
+  links:
+    homepage: https://github.com/codejive/java-twinkle
+  languages:
+    java:
+      groupId: org.codejive.twinkle
+      version: '8'
+  inceptionYear: '2025'
+  stereotype: NONE
+
+assemble:
+  javaArchive:
+    twinkle:
+      active: ALWAYS
+      formats:
+        - ZIP
+        - TGZ
+      mainJar:
+        path: 'target/{{distributionName}}-{{projectVersion}}.jar'
+      jars:
+        - pattern: 'target/binary/lib/*.jar'
+      fileSets:
+        - input: '.'
+          includes:
+            - 'LICENSE'
+
+deploy:
+  maven:
+    mavenCentral:
+      twinkle:
+        active: RELEASE
+        url: https://central.sonatype.com/api/v1/publisher
+        stagingRepositories:
+          - target/staging-deploy
+
+release:
+  github:
+    owner: codejive
+    name: java-twinkle
+    overwrite: true
+    changelog:
+      formatted: ALWAYS
+      preset: conventional-commits
+      contributors:
+        format: '- {{contributorName}}{{#contributorUsernameAsLink}} ({{.}}){{/contributorUsernameAsLink}}'
+
+checksum:
+  individual: true
+
+signing:
+  active: ALWAYS
+  armored: true
+
+distributions:
+  twinkle:
+    artifacts:
+      - path: target/jreleaser/assemble/{{distributionName}}/java-archive/{{distributionName}}-{{projectVersion}}.zip
+      - path: target/jreleaser/assemble/{{distributionName}}/java-archive/{{distributionName}}-{{projectVersion}}.zip
