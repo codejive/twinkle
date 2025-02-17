@@ -3,18 +3,18 @@ package org.codejive.context.terminal;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
-import org.codejive.context.events.Event;
 import org.codejive.context.events.EventEmitter;
 import org.codejive.context.events.EventTarget;
+import org.codejive.context.events.ResizeEvent;
 import org.jline.terminal.Attributes;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp;
 
-public class Term implements Flushable, Closeable, EventTarget {
-    final Terminal terminal;
-    final EventEmitter<TermResizeEvent> onResize = new EventEmitter<>();
-    private final Attributes savedAttributes;
+public class Term implements Flushable, Closeable, Resizeable, EventTarget {
+    protected final Terminal terminal;
+    protected final EventEmitter<ResizeEvent<Term>> resizeEmitter = new EventEmitter<>();
+    protected final Attributes savedAttributes;
 
     public static Term create() throws IOException {
         return new Term();
@@ -35,18 +35,21 @@ public class Term implements Flushable, Closeable, EventTarget {
     }
 
     public Screen fullScreen() {
-        Size size = size();
-        return sizedScreen(size.width(), size.height());
+        return sizedScreen(-1, -1);
+    }
+
+    public Screen wideScreen(int height) {
+        return sizedScreen(-1, height);
     }
 
     public Screen sizedScreen(int width, int height) {
-        if (width == 0) {
-            width = 80;
-        }
-        if (height == 0) {
-            height = 40;
-        }
-        return new ScreenImpl(this, width, height);
+        return screen(0, 0, width, height);
+    }
+
+    public Screen screen(int left, int top, int width, int height) {
+        assert left >= 0;
+        assert top >= 0;
+        return new BufferedScreen(this, 0, 0, width, height);
     }
 
     public Input input() {
@@ -54,7 +57,7 @@ public class Term implements Flushable, Closeable, EventTarget {
     }
 
     @Override
-    public void flush() throws IOException {
+    public void flush() {
         terminal.flush();
     }
 
@@ -64,24 +67,12 @@ public class Term implements Flushable, Closeable, EventTarget {
         terminal.close();
     }
 
-    public class TermResizeEvent implements Event {
-        private final Size size;
-
-        public TermResizeEvent(Size size) {
-            this.size = size;
-        }
-
-        public Size size() {
-            return size;
-        }
-
-        @Override
-        public EventTarget target() {
-            return Term.this;
-        }
+    protected void handleResize(Terminal.Signal signal) {
+        onResize(size());
     }
 
-    private void handleResize(Terminal.Signal signal) {
-        onResize.dispatch(new TermResizeEvent(size()));
+    @Override
+    public void onResize(Size newSize) {
+        resizeEmitter.dispatch(new ResizeEvent<>(newSize, this));
     }
 }

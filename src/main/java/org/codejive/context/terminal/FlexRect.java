@@ -1,5 +1,9 @@
 package org.codejive.context.terminal;
 
+/**
+ * This class defines a rectangle (similar to <code>Rect</code>) but with the ability to have
+ * negative width and height which means that the width or height is relative to the available size.
+ */
 public class FlexRect {
     private final int left, top, width, height;
 
