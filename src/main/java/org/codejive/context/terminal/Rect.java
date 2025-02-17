@@ -25,6 +25,10 @@ public class Rect extends Size {
         return top + height() - 1;
     }
 
+    public Size size() {
+        return new Size(width(), height());
+    }
+
     public boolean outside(Rect other) {
         return top() > other.bottom()
                 || bottom() < other.top()

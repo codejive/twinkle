@@ -1,5 +1,5 @@
 package org.codejive.context.events;
 
-public interface Event {
-    EventTarget target();
+public interface Event<T extends EventTarget> {
+    T target();
 }

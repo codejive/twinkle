@@ -1,5 +1,7 @@
 package org.codejive.context.terminal;
 
+import java.util.Objects;
+
 public class Size {
     private final int width;
     private final int height;
@@ -17,6 +19,18 @@ public class Size {
 
     public int height() {
         return height;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Size size = (Size) o;
+        return width == size.width && height == size.height;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(width, height);
     }
 
     @Override
