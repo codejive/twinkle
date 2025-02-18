@@ -1,24 +1,25 @@
 package org.codejive.context.render;
 
+import org.codejive.context.terminal.Canvas;
 import org.codejive.context.terminal.Screen;
 import org.jline.utils.AttributedString;
 
 public class BoxRenderer {
-    private final Screen screen;
+    private final Canvas canvas;
 
-    public BoxRenderer(Screen screen) {
-        this.screen = screen;
+    public BoxRenderer(Canvas canvas) {
+        this.canvas = canvas;
     }
 
     public void render(Box box) {
-        if (box.rect().outside(screen.rect())) {
+        if (box.rect().outside(canvas.rect())) {
             return;
         }
         int x = box.left();
         int y = box.top();
         int i = 0;
         for (AttributedString str : box.content()) {
-            screen.printAt(x, y + i, str);
+            canvas.printAt(x, y + i, str);
             i++;
         }
     }

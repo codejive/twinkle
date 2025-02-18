@@ -1,15 +1,15 @@
 package org.codejive.context.render;
 
+import org.codejive.context.terminal.Canvas;
 import org.codejive.context.terminal.Rect;
-import org.codejive.context.terminal.Screen;
 import org.codejive.context.util.Util;
 import org.jline.utils.AttributedString;
 
 public class BorderRenderer {
-    private final Screen screen;
+    private final Canvas canvas;
 
-    public BorderRenderer(Screen screen) {
-        this.screen = screen;
+    public BorderRenderer(Canvas canvas) {
+        this.canvas = canvas;
     }
 
     public void render(Box box) {
@@ -23,7 +23,7 @@ public class BorderRenderer {
         }
         // Calculate the rectangle to draw the border in
         Rect r = box.rect().grow(lw, tw, rw, bw);
-        if (r.outside(screen.rect())) {
+        if (r.outside(canvas.rect())) {
             return;
         }
 
@@ -33,10 +33,10 @@ public class BorderRenderer {
         int h = r.height();
         AttributedString tbs = new AttributedString(String.format("+%s+", Util.repeat("-", w - 2)));
         AttributedString ins = new AttributedString(String.format("|%s|", Util.repeat(" ", w - 2)));
-        screen.printAt(x, y, tbs);
+        canvas.printAt(x, y, tbs);
         for (int i = 1; i < h - 1; i++) {
-            screen.printAt(x, y + i, ins);
+            canvas.printAt(x, y + i, ins);
         }
-        screen.printAt(x, y + h - 1, tbs);
+        canvas.printAt(x, y + h - 1, tbs);
     }
 }
