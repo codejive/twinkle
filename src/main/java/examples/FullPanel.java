@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Collections;
 import org.codejive.context.render.BorderRenderer;
 import org.codejive.context.render.Box;
+import org.codejive.context.terminal.Canvas;
 import org.codejive.context.terminal.Screen;
 import org.codejive.context.terminal.Term;
 import org.jline.utils.AttributedStringBuilder;
@@ -35,17 +36,17 @@ public class FullPanel {
         return 0;
     }
 
-    private void draw(Screen screen) throws IOException {
-        int displayWidth = screen.rect().width();
-        int displayHeight = screen.rect().height();
+    private void draw(Canvas canvas) {
+        int displayWidth = canvas.rect().width();
+        int displayHeight = canvas.rect().height();
 
         Box b = createBox(displayWidth, displayHeight);
-        BorderRenderer br = new BorderRenderer(screen);
+        BorderRenderer br = new BorderRenderer(canvas);
         br.render(b);
 
         AttributedStringBuilder cb = new AttributedStringBuilder();
         cb.append(displayWidth + "x" + displayHeight);
-        screen.printAt(
+        canvas.printAt(
                 displayWidth / 2 - cb.length() / 2, displayHeight / 2, cb.toAttributedString());
     }
 
