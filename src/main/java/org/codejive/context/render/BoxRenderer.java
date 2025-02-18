@@ -1,7 +1,6 @@
 package org.codejive.context.render;
 
 import org.codejive.context.terminal.Canvas;
-import org.codejive.context.terminal.Screen;
 import org.jline.utils.AttributedString;
 
 public class BoxRenderer {
