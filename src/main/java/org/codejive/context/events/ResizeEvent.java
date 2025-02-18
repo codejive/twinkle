@@ -2,7 +2,7 @@ package org.codejive.context.events;
 
 import org.codejive.context.terminal.Size;
 
-public class ResizeEvent<T extends EventTarget> implements Event<T> {
+public class ResizeEvent<T> implements Event<T> {
     private final T target;
     private final Size size;
 

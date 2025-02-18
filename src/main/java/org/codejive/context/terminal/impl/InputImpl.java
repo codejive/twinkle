@@ -1,16 +1,14 @@
 package org.codejive.context.terminal.impl;
 
+import java.io.IOException;
 import org.codejive.context.terminal.Input;
-import org.codejive.context.terminal.Term;
 import org.jline.utils.NonBlockingReader;
 
-import java.io.IOException;
-
 public class InputImpl implements Input {
-    private final Term term;
+    private final JlineTerm term;
     private final NonBlockingReader reader;
 
-    public InputImpl(Term term) {
+    public InputImpl(JlineTerm term) {
         this.term = term;
         this.reader = term.terminal.reader();
     }

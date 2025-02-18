@@ -1,17 +1,18 @@
-package org.codejive.context.terminal;
+package org.codejive.context.terminal.impl;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.codejive.context.events.EventEmitter;
 import org.codejive.context.events.ResizeEvent;
+import org.codejive.context.terminal.*;
 import org.jline.utils.AttributedCharSequence;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.Display;
 
 public class BufferedScreen implements Screen {
-    protected final Term term;
+    protected final JlineTerm term;
     protected final FlexRect flexRect;
     protected final Display display;
     protected final EventEmitter<ResizeEvent<Screen>> resizeEmitter = new EventEmitter<>();
@@ -23,11 +24,11 @@ public class BufferedScreen implements Screen {
         return flexRect.actualRect(term.size());
     }
 
-    protected BufferedScreen(Term term, int left, int top, int width, int height) {
+    BufferedScreen(JlineTerm term, int left, int top, int width, int height) {
         this(term, new FlexRect(left, top, width, height));
     }
 
-    protected BufferedScreen(Term term, FlexRect flexRect) {
+    BufferedScreen(JlineTerm term, FlexRect flexRect) {
         this.term = term;
         this.flexRect = flexRect;
         this.display = new Display(term.terminal, false);
@@ -94,7 +95,7 @@ public class BufferedScreen implements Screen {
         display.update(lines(), 0);
     }
 
-    protected void handleTermResizeEvent(ResizeEvent<Term> event) {
+    protected void handleTermResizeEvent(ResizeEvent<? extends Term> event) {
         handleResize(event.size());
     }
 
