@@ -1,0 +1,16 @@
+name: twinkle
+description: Twinkle is a Java library for creating advanced text-based user interfaces.
+authors:
+- Tako Schotanus (tako@codejive.org)
+links:
+  homepage: https://github.com/codejive/java-twinkle
+  repository: https://github.com/codejive/java-twinkle
+  documentation: https://github.com/codejive/java-twinkle/blob/main/README.md
+java: 8
+dependencies:
+actions:
+  clean: ./mvnw clean
+  build: ./mvnw spotless:apply package -DskipTests
+  test: ./mvnw test
+  runbar: java -cp twinkle-chart/target/twinkle-chart-1.0-SNAPSHOT.jar:twinkle-core/target/twinkle-core-1.0-SNAPSHOT.jar:twinkle-ansi/target/twinkle-ansi-1.0-SNAPSHOT.jar:twinkle-chart/target/test-classes examples.BarDemo
+  runplot: java -cp twinkle-chart/target/twinkle-chart-1.0-SNAPSHOT.jar:twinkle-core/target/twinkle-core-1.0-SNAPSHOT.jar:twinkle-ansi/target/twinkle-ansi-1.0-SNAPSHOT.jar:twinkle-chart/target/test-classes examples.PlotDemo

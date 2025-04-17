@@ -24,10 +24,10 @@ hs_err_pid*
 
 .vscode
 .idea
+*.iml
 
 target
 build
 lib
 out
 dependency-reduced-pom.xml
-
