@@ -1,0 +1,16 @@
+{
+  "aliases": {
+    "BarDemo": {
+      "script-ref": "twinkle-chart\\src\\test\\java\\examples\\BarDemo.java",
+      "dependencies": [
+        "org.codejive.twinkle:twinkle-chart:1.0-SNAPSHOT"
+      ]
+    },
+    "MathPlotDemo": {
+      "script-ref": "twinkle-chart\\src\\test\\java\\examples\\MathPlotDemo.java",
+      "dependencies": [
+        "org.codejive.twinkle:twinkle-chart:1.0-SNAPSHOT"
+      ]
+    }
+  }
+}
