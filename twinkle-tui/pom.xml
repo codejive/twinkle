@@ -18,7 +18,7 @@
         <maven.compiler.target>8</maven.compiler.target>
         <mainClass>examples.Boxes</mainClass>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <version.jline>3.22.0</version.jline>
+        <version.jline>3.30.6</version.jline>
     </properties>
 
     <dependencies>
