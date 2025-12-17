@@ -57,7 +57,13 @@ public class Ansi {
         if (styles == null || styles.length == 0) {
             return "";
         }
-        StringBuilder sb = new StringBuilder();
+        return style(new StringBuilder(), styles).toString();
+    }
+
+    public static StringBuilder style(StringBuilder sb, Object... styles) {
+        if (styles == null || styles.length == 0) {
+            return sb;
+        }
         sb.append(CSI);
         for (int i = 0; i < styles.length; i++) {
             sb.append(styles[i]);
@@ -66,7 +72,7 @@ public class Ansi {
             }
         }
         sb.append("m");
-        return sb.toString();
+        return sb;
     }
 
     public static String foreground(int index) {

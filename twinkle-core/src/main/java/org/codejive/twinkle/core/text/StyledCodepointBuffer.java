@@ -285,7 +285,7 @@ public class StyledCodepointBuffer implements StyledBuffer {
         for (int i = 0; i < length(); i++) {
             if (styleBuffer[i] != lastStyleState) {
                 Style style = Style.of(styleBuffer[i]);
-                sb.append(style.toAnsiString());
+                style.toAnsiString(sb);
                 lastStyleState = styleBuffer[i];
             }
             int cp = cpBuffer[i];

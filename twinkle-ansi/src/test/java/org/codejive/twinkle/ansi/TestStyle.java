@@ -2,15 +2,9 @@ package org.codejive.twinkle.ansi;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class TestStyle {
-    @BeforeEach
-    public void init() {
-        Style.fastOverShort = false;
-    }
-
     @Test
     public void testStyleCreation() {
         Style style1 = Style.of(Style.F_BOLD);
@@ -193,34 +187,5 @@ public class TestStyle {
                                 Ansi.INVERSE,
                                 Ansi.INVISIBLE,
                                 Ansi.CROSSEDOUT));
-    }
-
-    @Test
-    public void testToAnsiFastVsShort() {
-        long currentStyleState =
-                Style.F_BOLD
-                        | Style.F_FAINT
-                        | Style.F_ITALIC
-                        | Style.F_UNDERLINED
-                        | Style.F_BLINK
-                        | Style.F_INVERSE
-                        | Style.F_HIDDEN
-                        | Style.F_STRIKETHROUGH;
-        String ansiCode = Style.UNSTYLED.bold().toAnsiString(currentStyleState);
-        assertThat(ansiCode).isEqualTo(Ansi.style(Ansi.RESET, Ansi.BOLD));
-        Style.fastOverShort = true;
-        ansiCode = Style.UNSTYLED.bold().toAnsiString(currentStyleState);
-        assertThat(ansiCode)
-                .isEqualTo(
-                        Ansi.style(
-                                Ansi.NORMAL,
-                                Ansi.BOLD,
-                                Ansi.NOTITALICIZED,
-                                Ansi.NOTUNDERLINED,
-                                Ansi.STEADY,
-                                Ansi.POSITIVE,
-                                Ansi.VISIBLE,
-                                Ansi.NOTCROSSEDOUT));
-        Style.fastOverShort = false;
     }
 }

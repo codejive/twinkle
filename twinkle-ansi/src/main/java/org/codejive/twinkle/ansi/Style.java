@@ -37,8 +37,6 @@ public class Style {
     public static final Style HIDDEN = UNSTYLED.hidden();
     public static final Style STRIKETHROUGH = UNSTYLED.strikethrough();
 
-    public static final String PROP_TOANSI = "twinkle.styledbuffer.toAnsi";
-
     public static @NonNull Style ofFgColor(@NonNull Color color) {
         return UNSTYLED.fgColor(color);
     }
@@ -349,31 +347,28 @@ public class Style {
         return sb.toString();
     }
 
-    static boolean fastOverShort = System.getProperty(PROP_TOANSI, "fast").equals("fast");
-
     public String toAnsiString() {
         return toAnsiString(UNSTYLED);
+    }
+
+    public StringBuilder toAnsiString(StringBuilder sb) {
+        return toAnsiString(sb, Style.UNSTYLED);
     }
 
     public String toAnsiString(Style currentStyle) {
         return toAnsiString(currentStyle.state());
     }
 
-    public String toAnsiString(long currentStyleState) {
-        if (fastOverShort) {
-            List<Object> styles = new ArrayList<>();
-            return toAnsiString(styles, currentStyleState);
-        } else {
-            List<Object> styles1 = new ArrayList<>();
-            List<Object> styles2 = new ArrayList<>();
-            styles2.add(Ansi.RESET);
-            String ansi1 = toAnsiString(styles1, currentStyleState);
-            String ansi2 = toAnsiString(styles2, F_UNSTYLED);
-            return (ansi1.length() <= ansi2.length()) ? ansi1 : ansi2;
-        }
+    public StringBuilder toAnsiString(StringBuilder sb, Style currentStyle) {
+        return toAnsiString(sb, currentStyle.state());
     }
 
-    private String toAnsiString(List<Object> styles, long currentStyleState) {
+    public String toAnsiString(long currentStyleState) {
+        return toAnsiString(new StringBuilder(), currentStyleState).toString();
+    }
+
+    public StringBuilder toAnsiString(StringBuilder sb, long currentStyleState) {
+        List<Object> styles = new ArrayList<>();
         if ((currentStyleState & (F_BOLD | F_FAINT)) != (state & (F_BOLD | F_FAINT))) {
             // First we switch to NORMAL to clear both BOLD and FAINT
             if ((currentStyleState & (F_BOLD | F_FAINT)) != 0) {
@@ -431,6 +426,6 @@ public class Style {
         if ((currentStyleState & MASK_BG_COLOR) != (state & MASK_BG_COLOR)) {
             styles.add(bgColor().toAnsiBg());
         }
-        return Ansi.style(styles.toArray());
+        return Ansi.style(sb, styles.toArray());
     }
 }
