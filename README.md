@@ -26,8 +26,8 @@ An easier way to run the demos is using [JBang](https://www.jbang.dev/):
 
 ```bash
 ./mvnw install -DskipTests
-jbang run examples/BarDemo.java
-jbang run examples/MathPlotDemo.java
+jbang run BarDemo
+jbang run MathPlotDemo
 ```
 
 These demos only show Twinkle's Ansi output capabilities. There is no interactivity being shown.
