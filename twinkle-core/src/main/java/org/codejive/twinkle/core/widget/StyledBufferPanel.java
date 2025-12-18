@@ -75,21 +75,11 @@ public class StyledBufferPanel implements Panel {
     }
 
     @Override
-    public void setCharAt(int x, int y, @NonNull Style style, char c) {
-        setCharAt(x, y, style.state(), c);
-    }
-
-    @Override
     public void setCharAt(int x, int y, long styleState, char c) {
         if (outside(x, y, 0)) {
             return;
         }
         line(y).setCharAt(applyXOffset(x), styleState, c);
-    }
-
-    @Override
-    public void setCharAt(int x, int y, @NonNull Style style, int cp) {
-        setCharAt(x, y, style.state(), cp);
     }
 
     @Override
@@ -101,21 +91,11 @@ public class StyledBufferPanel implements Panel {
     }
 
     @Override
-    public void setCharAt(int x, int y, @NonNull Style style, @NonNull CharSequence grapheme) {
-        setCharAt(x, y, style.state(), grapheme);
-    }
-
-    @Override
     public void setCharAt(int x, int y, long styleState, @NonNull CharSequence grapheme) {
         if (outside(x, y, 0)) {
             return;
         }
         line(y).setCharAt(applyXOffset(x), styleState, grapheme);
-    }
-
-    @Override
-    public int putStringAt(int x, int y, @NonNull Style style, @NonNull CharSequence str) {
-        return putStringAt(x, y, style.state(), str);
     }
 
     @Override
@@ -132,6 +112,29 @@ public class StyledBufferPanel implements Panel {
             return str.length();
         }
         return line(y).putStringAt(applyXOffset(x), str);
+    }
+
+    @Override
+    public void drawHLineAt(int x, int y, int x2, long styleState, char c) {
+        for (int i = x; i < x2; i++) {
+            setCharAt(i, y, styleState, c);
+        }
+    }
+
+    @Override
+    public void drawVLineAt(int x, int y, int y2, long styleState, char c) {
+        for (int i = y; i < y2; i++) {
+            setCharAt(x, i, styleState, c);
+        }
+    }
+
+    @Override
+    public void copyTo(Canvas canvas, int x, int y) {
+        for (int i = 0; i < lines.length; i++) {
+            for (int j = 0; j < lines[i].length(); j++) {
+                canvas.setCharAt(x + j, y + i, styleAt(j, i), charAt(j, i));
+            }
+        }
     }
 
     @Override
