@@ -11,18 +11,18 @@ public class FracBarRenderer {
 
     private static final char[] TEXT_BLOCK = {'#'};
     private static final char[] COLOR_BLOCK = {' '};
-    private static final char[] BLOCK_FULL = {'\u2588'};
-    private static final char[] BLOCK_HALF_L2R = {'\u2588', '\u258c'}; // full, left half
-    private static final char[] BLOCK_HALF_R2L = {'\u2588', '\u2590'}; // full, right half
-    private static final char[] BLOCK_HALF_T2B = {'\u2588', '\u2580'}; // full, top half
-    private static final char[] BLOCK_HALF_B2T = {'\u2588', '\u2584'}; // full, bottom half
+    private static final char[] BLOCK_FULL = {'█'};
+    private static final char[] BLOCK_HALF_L2R = {'█', '▌'}; // full, left half
+    private static final char[] BLOCK_HALF_R2L = {'█', '▐'}; // full, right half
+    private static final char[] BLOCK_HALF_T2B = {'█', '▀'}; // full, top half
+    private static final char[] BLOCK_HALF_B2T = {'█', '▄'}; // full, bottom half
     private static final char[] BLOCK_FRAC_L2R = {
-        '\u2588', '\u258f', '\u258e', '\u258d', '\u258c', '\u258b', '\u258a', '\u2589'
+        '█', '▏', '▎', '▍', '▌', '▋', '▊', '▉'
     }; // full, left 1/8 .. 7/8
     private static final char[] BLOCK_FRAC_B2T = {
-        '\u2588', '\u2581', '\u2582', '\u2583', '\u2584', '\u2585', '\u2586', '\u2587'
+        '█', '▁', '▂', '▃', '▄', '▅', '▆', '▇'
     }; // full, lower 1/8 .. 7/8
-    private static final char BLOCK_OVERFLOW = '\u2593'; // dark shade block
+    private static final char BLOCK_OVERFLOW = '▓'; // dark shade block
 
     public FracBarRenderer() {
         this(FracBarConfig.create());

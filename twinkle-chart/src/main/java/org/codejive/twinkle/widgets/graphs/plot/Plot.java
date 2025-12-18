@@ -14,26 +14,26 @@ public class Plot implements Widget {
     private final Size plotSize;
     private long currentStyleState = Style.F_UNSTYLED;
 
-    private static final char BLOCK_FULL = '\u2588';
+    private static final char BLOCK_FULL = '█';
     private static final char EMPTY = ' ';
 
-    private static final char DOT_LOWER_LEFT = '\u2596';
-    private static final char DOT_LOWER_RIGHT = '\u2597';
-    private static final char DOT_UPPER_LEFT = '\u2598';
-    private static final char DOT_UPPER_RIGHT = '\u259d';
+    private static final char DOT_LOWER_LEFT = '▖';
+    private static final char DOT_LOWER_RIGHT = '▗';
+    private static final char DOT_UPPER_LEFT = '▘';
+    private static final char DOT_UPPER_RIGHT = '▝';
 
-    private static final char DOTS_TL_BR = '\u259a';
-    private static final char DOTS_BL_TR = '\u259e';
+    private static final char DOTS_TL_BR = '▚';
+    private static final char DOTS_BL_TR = '▞';
 
-    private static final char BLOCK_LEFT_HALF = '\u258c'; // full, left half
-    private static final char BLOCK_RIGHT_HALF = '\u2590'; // full, right half
-    private static final char BLOCK_TOP_HALF = '\u2580'; // full, top half
-    private static final char BLOCK_BOTTOM_HALF = '\u2584'; // full, bottom half
+    private static final char BLOCK_LEFT_HALF = '▌'; // full, left half
+    private static final char BLOCK_RIGHT_HALF = '▐'; // full, right half
+    private static final char BLOCK_TOP_HALF = '▀'; // full, top half
+    private static final char BLOCK_BOTTOM_HALF = '▄'; // full, bottom half
 
-    private static final char HOLE_LOWER_LEFT = '\u259c';
-    private static final char HOLE_LOWER_RIGHT = '\u259b';
-    private static final char HOLE_UPPER_LEFT = '\u259f';
-    private static final char HOLE_UPPER_RIGHT = '\u2599';
+    private static final char HOLE_LOWER_LEFT = '▜';
+    private static final char HOLE_LOWER_RIGHT = '▛';
+    private static final char HOLE_UPPER_LEFT = '▟';
+    private static final char HOLE_UPPER_RIGHT = '▙';
 
     private static final char[] ALL_DOTS = {
         EMPTY, DOT_LOWER_LEFT, DOT_LOWER_RIGHT, BLOCK_BOTTOM_HALF,
