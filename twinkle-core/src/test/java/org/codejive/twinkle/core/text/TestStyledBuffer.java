@@ -46,7 +46,7 @@ public class TestStyledBuffer {
                         Ansi.STYLE_RESET
                                 + Ansi.style(Ansi.ITALICIZED)
                                 + "abcde"
-                                + Ansi.style(Ansi.UNDERLINED)
+                                + Ansi.style(Ansi.NOTITALICIZED, Ansi.UNDERLINED)
                                 + "fghij");
     }
 
@@ -58,7 +58,7 @@ public class TestStyledBuffer {
             buffer.setCharAt(i, style, (char) ('a' + i));
         }
         assertThat(buffer.toAnsiString(Style.F_ITALIC))
-                .isEqualTo("abcde" + Ansi.style(Ansi.UNDERLINED) + "fghij");
+                .isEqualTo("abcde" + Ansi.style(Ansi.NOTITALICIZED, Ansi.UNDERLINED) + "fghij");
     }
 
     @Test
@@ -73,7 +73,7 @@ public class TestStyledBuffer {
                         Ansi.STYLE_RESET
                                 + Ansi.style(Ansi.ITALICIZED)
                                 + "fghij"
-                                + Ansi.style(Ansi.UNDERLINED)
+                                + Ansi.style(Ansi.NOTITALICIZED, Ansi.UNDERLINED)
                                 + "klmno");
     }
 

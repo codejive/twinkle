@@ -2,6 +2,7 @@ package org.codejive.twinkle.ansi;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.jspecify.annotations.NonNull;
 
 public class Style {
@@ -421,11 +422,24 @@ public class Style {
             }
         }
         if ((currentStyleState & MASK_FG_COLOR) != (state & MASK_FG_COLOR)) {
-            styles.add(fgColor().toAnsiFg());
+            styles.add(extractSgrParams(fgColor().toAnsiFg()));
         }
         if ((currentStyleState & MASK_BG_COLOR) != (state & MASK_BG_COLOR)) {
-            styles.add(bgColor().toAnsiBg());
+            styles.add(extractSgrParams(bgColor().toAnsiBg()));
         }
         return Ansi.style(sb, styles.toArray());
+    }
+
+    /**
+     * Converts a full SGR ANSI escape sequence (e.g. {@code ESC[38;2;255;0;0m}) into just the
+     * contained SGR parameters (e.g. {@code "38;2;255;0;0"}), so it can be safely embedded into
+     * another {@code ESC[...m} sequence without producing broken output.
+     */
+    private static String extractSgrParams(String ansi) {
+        if (ansi == null || ansi.isEmpty()) return "";
+        if (ansi.startsWith(Ansi.CSI) && ansi.endsWith("m")) {
+            return ansi.substring(Ansi.CSI.length(), ansi.length() - 1);
+        }
+        return ansi;
     }
 }

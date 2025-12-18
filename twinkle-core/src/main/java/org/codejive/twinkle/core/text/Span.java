@@ -31,6 +31,14 @@ public class Span implements Renderable {
         return length;
     }
 
+    public String text() {
+        return text;
+    }
+
+    public long styleState() {
+        return styleState;
+    }
+
     @Override
     public void render(Canvas canvas) {
         canvas.putStringAt(0, 0, styleState, text);

@@ -53,6 +53,15 @@ public class Ansi {
     public static final int COLORS_RGB = 2;
     public static final int COLORS_INDEXED = 5;
 
+    // OSC 8 hyperlinks (BEL-terminated)
+    public static String osc8Open(String url) {
+        return "\u001B]8;;" + url + "\u0007";
+    }
+
+    public static String osc8Close() {
+        return "\u001B]8;;\u0007";
+    }
+
     public static String style(Object... styles) {
         if (styles == null || styles.length == 0) {
             return "";
@@ -100,19 +109,23 @@ public class Ansi {
     }
 
     public static String foregroundIndexed(int index) {
-        return FOREGROUND_COLORS + ":" + COLORS_INDEXED + ":" + index;
+        // Standard SGR: 38;5;<n>
+        return FOREGROUND_COLORS + ";" + COLORS_INDEXED + ";" + index;
     }
 
     public static String foregroundRgb(int r, int g, int b) {
-        return FOREGROUND_COLORS + ":" + COLORS_RGB + ":" + r + ":" + g + ":" + b;
+        // Standard SGR truecolor: 38;2;<r>;<g>;<b>
+        return FOREGROUND_COLORS + ";" + COLORS_RGB + ";" + r + ";" + g + ";" + b;
     }
 
     public static String backgroundIndexed(int index) {
-        return BACKGROUND_COLORS + ":" + COLORS_INDEXED + ":" + index;
+        // Standard SGR: 48;5;<n>
+        return BACKGROUND_COLORS + ";" + COLORS_INDEXED + ";" + index;
     }
 
     public static String backgroundRgb(int r, int g, int b) {
-        return BACKGROUND_COLORS + ":" + COLORS_RGB + ":" + r + ":" + g + ":" + b;
+        // Standard SGR truecolor: 48;2;<r>;<g>;<b>
+        return BACKGROUND_COLORS + ";" + COLORS_RGB + ";" + r + ";" + g + ";" + b;
     }
 
     private Ansi() {}
