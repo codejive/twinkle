@@ -56,7 +56,7 @@ public class Plot implements Widget {
         return new Plot(canvas);
     }
 
-    public Plot(Canvas canvas) {
+    protected Plot(Canvas canvas) {
         this.canvas = canvas;
         this.cOrgX = 0;
         this.cOrgY = canvas.size().height() - 1;
@@ -91,8 +91,8 @@ public class Plot implements Widget {
     }
 
     @Override
-    public void render() {
-        // There's nothing to do here since Plot directly manipulates the canvas
+    public void render(Canvas canvas) {
+        this.canvas.copyTo(canvas, 0, 0);
     }
 
     public Plot plot(int x, int y) {

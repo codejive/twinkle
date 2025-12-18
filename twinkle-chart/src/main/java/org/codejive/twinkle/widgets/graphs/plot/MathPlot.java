@@ -41,7 +41,7 @@ public class MathPlot implements Widget {
         return new MathPlot(plot);
     }
 
-    public MathPlot(Plot plot) {
+    protected MathPlot(Plot plot) {
         this.plot = plot;
         ranges(-1.0d, 1.0d, -1.0d, 1.0d);
         origin(Origin.CENTER);
@@ -265,7 +265,7 @@ public class MathPlot implements Widget {
     }
 
     @Override
-    public void render() {
-        plot.render();
+    public void render(Canvas canvas) {
+        plot.render(canvas);
     }
 }
