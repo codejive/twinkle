@@ -2,7 +2,7 @@ package org.codejive.twinkle.tui.terminal;
 
 import java.io.Flushable;
 import java.io.IOException;
-import org.codejive.twinkle.core.component.Size;
+import org.codejive.twinkle.core.widget.Size;
 import org.codejive.twinkle.tui.terminal.impl.JlineTerm;
 
 public interface Term extends Flushable, AutoCloseable, Resizeable {

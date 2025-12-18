@@ -1,7 +1,7 @@
 package org.codejive.twinkle.tui.render;
 
-import org.codejive.twinkle.core.component.Canvas;
-import org.codejive.twinkle.core.component.Rect;
+import org.codejive.twinkle.core.widget.Canvas;
+import org.codejive.twinkle.core.widget.Rect;
 import org.codejive.twinkle.tui.util.Util;
 import org.jline.utils.AttributedString;
 

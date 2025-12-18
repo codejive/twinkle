@@ -1,4 +1,4 @@
-package org.codejive.twinkle.components.graphs.bar;
+package org.codejive.twinkle.widgets.graphs.bar;
 
 public class FracBarConfig extends BarConfig {
     private Design design;

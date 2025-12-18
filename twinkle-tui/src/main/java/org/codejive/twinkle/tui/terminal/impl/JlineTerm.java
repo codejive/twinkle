@@ -1,7 +1,7 @@
 package org.codejive.twinkle.tui.terminal.impl;
 
 import java.io.IOException;
-import org.codejive.twinkle.core.component.Size;
+import org.codejive.twinkle.core.widget.Size;
 import org.codejive.twinkle.tui.events.EventEmitter;
 import org.codejive.twinkle.tui.events.EventTarget;
 import org.codejive.twinkle.tui.events.ResizeEvent;

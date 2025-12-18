@@ -1,7 +1,7 @@
 package examples;
 
-import org.codejive.twinkle.components.graphs.plot.MathPlot;
-import org.codejive.twinkle.core.component.Panel;
+import org.codejive.twinkle.core.widget.Panel;
+import org.codejive.twinkle.widgets.graphs.plot.MathPlot;
 
 public class MathPlotDemo {
     public static void main(String[] args) {

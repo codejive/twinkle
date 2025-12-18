@@ -6,7 +6,7 @@ import static examples.Util.setSize;
 
 import java.io.IOException;
 import java.util.Collections;
-import org.codejive.twinkle.core.component.Canvas;
+import org.codejive.twinkle.core.widget.Canvas;
 import org.codejive.twinkle.tui.render.BorderRenderer;
 import org.codejive.twinkle.tui.render.Box;
 import org.codejive.twinkle.tui.terminal.Screen;

@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.codejive.twinkle.ansi.Color;
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.core.component.Canvas;
-import org.codejive.twinkle.core.component.Panel;
-import org.codejive.twinkle.core.component.PanelView;
-import org.codejive.twinkle.core.component.Size;
+import org.codejive.twinkle.core.widget.Canvas;
+import org.codejive.twinkle.core.widget.Panel;
+import org.codejive.twinkle.core.widget.PanelView;
+import org.codejive.twinkle.core.widget.Size;
 import org.junit.jupiter.api.Test;
 
 public class TestPanel {

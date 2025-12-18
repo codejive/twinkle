@@ -1,13 +1,13 @@
-package org.codejive.twinkle.components.graphs.plot;
+package org.codejive.twinkle.widgets.graphs.plot;
 
 import java.util.function.Function;
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.core.component.Canvas;
-import org.codejive.twinkle.core.component.Component;
-import org.codejive.twinkle.core.component.Size;
+import org.codejive.twinkle.core.widget.Canvas;
+import org.codejive.twinkle.core.widget.Size;
+import org.codejive.twinkle.core.widget.Widget;
 import org.jspecify.annotations.NonNull;
 
-public class MathPlot implements Component {
+public class MathPlot implements Widget {
     private final Plot plot;
     private Origin origin;
     private Number minXValue;

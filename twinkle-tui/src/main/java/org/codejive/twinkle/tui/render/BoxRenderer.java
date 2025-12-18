@@ -1,6 +1,6 @@
 package org.codejive.twinkle.tui.render;
 
-import org.codejive.twinkle.core.component.Canvas;
+import org.codejive.twinkle.core.widget.Canvas;
 import org.jline.utils.AttributedString;
 
 public class BoxRenderer {

@@ -1,12 +1,12 @@
-package org.codejive.twinkle.core.components;
+package org.codejive.twinkle.widgets;
 
-import org.codejive.twinkle.core.component.Canvas;
-import org.codejive.twinkle.core.component.Component;
-import org.codejive.twinkle.core.component.Panel;
-import org.codejive.twinkle.core.component.Size;
+import org.codejive.twinkle.core.widget.Canvas;
+import org.codejive.twinkle.core.widget.Panel;
+import org.codejive.twinkle.core.widget.Size;
+import org.codejive.twinkle.core.widget.Widget;
 import org.jspecify.annotations.NonNull;
 
-public class Frame implements Component {
+public class Frame implements Widget {
     private final Canvas canvas;
     private final Canvas innerCanvas;
 

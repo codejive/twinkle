@@ -1,8 +1,8 @@
 package org.codejive.twinkle.tui.render;
 
 import java.util.List;
-import org.codejive.twinkle.core.component.Rect;
-import org.codejive.twinkle.core.component.Rectangular;
+import org.codejive.twinkle.core.widget.Rect;
+import org.codejive.twinkle.core.widget.Rectangular;
 import org.codejive.twinkle.tui.styles.Property;
 import org.codejive.twinkle.tui.styles.Style;
 import org.jline.utils.AttributedString;

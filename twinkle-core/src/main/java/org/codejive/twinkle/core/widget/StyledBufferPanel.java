@@ -1,4 +1,4 @@
-package org.codejive.twinkle.core.component;
+package org.codejive.twinkle.core.widget;
 
 import static org.codejive.twinkle.core.text.StyledBuffer.REPLACEMENT_CHAR;
 

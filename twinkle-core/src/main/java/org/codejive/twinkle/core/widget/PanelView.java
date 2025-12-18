@@ -1,4 +1,4 @@
-package org.codejive.twinkle.core.component;
+package org.codejive.twinkle.core.widget;
 
 public interface PanelView extends Panel {
     PanelView moveTo(int x, int y);

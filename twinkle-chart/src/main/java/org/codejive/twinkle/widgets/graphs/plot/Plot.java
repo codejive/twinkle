@@ -1,13 +1,13 @@
-package org.codejive.twinkle.components.graphs.plot;
+package org.codejive.twinkle.widgets.graphs.plot;
 
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.core.component.Canvas;
-import org.codejive.twinkle.core.component.Component;
-import org.codejive.twinkle.core.component.Panel;
-import org.codejive.twinkle.core.component.Size;
+import org.codejive.twinkle.core.widget.Canvas;
+import org.codejive.twinkle.core.widget.Panel;
+import org.codejive.twinkle.core.widget.Size;
+import org.codejive.twinkle.core.widget.Widget;
 import org.jspecify.annotations.NonNull;
 
-public class Plot implements Component {
+public class Plot implements Widget {
     private final Canvas canvas;
     private final int cOrgX;
     private final int cOrgY;

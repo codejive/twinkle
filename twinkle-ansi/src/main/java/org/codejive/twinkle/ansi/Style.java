@@ -73,9 +73,9 @@ public class Style {
      * Bits 1-8: Color index
      *
      * If color mode is RGB:
-     * Bits 1-8: Red component
-     * Bits 9-16: Green component
-     * Bits 17-24: Blue component
+     * Bits 1-8: Red widget
+     * Bits 9-16: Green widget
+     * Bits 17-24: Blue widget
      */
 
     private static final int SHIFT_FG_COLOR = 14;

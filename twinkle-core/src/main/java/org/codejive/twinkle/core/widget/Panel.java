@@ -1,4 +1,4 @@
-package org.codejive.twinkle.core.component;
+package org.codejive.twinkle.core.widget;
 
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.core.text.StyledBuffer;

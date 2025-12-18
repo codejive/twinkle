@@ -1,10 +1,10 @@
 package examples;
 
-import org.codejive.twinkle.components.graphs.bar.Bar;
-import org.codejive.twinkle.components.graphs.bar.BarConfig;
-import org.codejive.twinkle.components.graphs.bar.FracBarConfig;
-import org.codejive.twinkle.core.component.Canvas;
-import org.codejive.twinkle.core.component.Panel;
+import org.codejive.twinkle.core.widget.Canvas;
+import org.codejive.twinkle.core.widget.Panel;
+import org.codejive.twinkle.widgets.graphs.bar.Bar;
+import org.codejive.twinkle.widgets.graphs.bar.BarConfig;
+import org.codejive.twinkle.widgets.graphs.bar.FracBarConfig;
 
 public class BarDemo {
     public static void main(String[] args) {

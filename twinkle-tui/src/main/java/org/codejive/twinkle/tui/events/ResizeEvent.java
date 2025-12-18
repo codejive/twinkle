@@ -1,6 +1,6 @@
 package org.codejive.twinkle.tui.events;
 
-import org.codejive.twinkle.core.component.Size;
+import org.codejive.twinkle.core.widget.Size;
 
 public class ResizeEvent<T> implements Event<T> {
     private final T target;
