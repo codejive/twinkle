@@ -26,6 +26,10 @@ public class Size {
         return height;
     }
 
+    public Size grow(int dw, int dh) {
+        return of(width + dw, height + dh);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
