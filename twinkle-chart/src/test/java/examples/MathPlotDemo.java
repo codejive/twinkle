@@ -45,7 +45,7 @@ public class MathPlotDemo {
                 f.render(pnl);
                 System.out.println(pnl);
 
-                Thread.sleep(40);
+                Thread.sleep(20);
             }
         } finally {
             System.out.print(Ansi.showCursor());
