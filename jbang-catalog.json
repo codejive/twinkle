@@ -17,6 +17,12 @@
       "dependencies": [
         "org.codejive.twinkle:twinkle-chart:1.0-SNAPSHOT"
       ]
+    },
+    "MathPlotFourDemo": {
+      "script-ref": "twinkle-chart\\src\\test\\java\\examples\\MathPlotFourDemo.java",
+      "dependencies": [
+        "org.codejive.twinkle:twinkle-chart:1.0-SNAPSHOT"
+      ]
     }
   }
 }
