@@ -100,19 +100,19 @@ public class Ansi {
     }
 
     public static String foregroundIndexed(int index) {
-        return FOREGROUND_COLORS + ":" + COLORS_INDEXED + ":" + index;
+        return FOREGROUND_COLORS + ";" + COLORS_INDEXED + ";" + index;
     }
 
     public static String foregroundRgb(int r, int g, int b) {
-        return FOREGROUND_COLORS + ":" + COLORS_RGB + ":" + r + ":" + g + ":" + b;
+        return FOREGROUND_COLORS + ";" + COLORS_RGB + ";" + r + ";" + g + ";" + b;
     }
 
     public static String backgroundIndexed(int index) {
-        return BACKGROUND_COLORS + ":" + COLORS_INDEXED + ":" + index;
+        return BACKGROUND_COLORS + ";" + COLORS_INDEXED + ";" + index;
     }
 
     public static String backgroundRgb(int r, int g, int b) {
-        return BACKGROUND_COLORS + ":" + COLORS_RGB + ":" + r + ":" + g + ":" + b;
+        return BACKGROUND_COLORS + ";" + COLORS_RGB + ";" + r + ";" + g + ";" + b;
     }
 
     private Ansi() {}
