@@ -11,6 +11,12 @@
       "dependencies": [
         "org.codejive.twinkle:twinkle-chart:1.0-SNAPSHOT"
       ]
+    },
+    "MathPlotColorDemo": {
+      "script-ref": "twinkle-chart\\src\\test\\java\\examples\\MathPlotColorDemo.java",
+      "dependencies": [
+        "org.codejive.twinkle:twinkle-chart:1.0-SNAPSHOT"
+      ]
     }
   }
 }
