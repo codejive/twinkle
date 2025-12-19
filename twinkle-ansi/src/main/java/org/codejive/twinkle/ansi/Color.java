@@ -24,9 +24,43 @@ public interface Color {
         return RgbColor.of(r, g, b);
     }
 
-    String toAnsiFg();
+    /**
+     * Convert this color to ANSI escape code for setting the foreground color to the color
+     * represented by this instance. This is NOT the full CSI sequence, to get the full sequence
+     * pass the result to <code>Ansi.style()</code> or use <code>toAnsiFg()</code>.
+     *
+     * @return Embeddable ANSI escape code string
+     */
+    String toAnsiFgArgs();
 
-    String toAnsiBg();
+    /**
+     * Convert this color to ANSI escape code for setting the foreground color to the color
+     * represented by this instance.
+     *
+     * @return ANSI CSI escape code string
+     */
+    default String toAnsiFg() {
+        return Ansi.style(toAnsiFgArgs());
+    }
+
+    /**
+     * Convert this color to ANSI escape code for setting the background color to the color
+     * represented by this instance. This is NOT the full CSI sequence, to get the full sequence
+     * pass the result to <code>Ansi.style()</code> or use <code>toAnsiBg()</code>.
+     *
+     * @return Embeddable ANSI escape code string
+     */
+    String toAnsiBgArgs();
+
+    /**
+     * Convert this color to ANSI escape code for setting the background color to the color
+     * represented by this instance.
+     *
+     * @return ANSI CSI escape code string
+     */
+    default String toAnsiBg() {
+        return Ansi.style(toAnsiBgArgs());
+    }
 
     class DefaultColor implements Color {
         private static final DefaultColor INSTANCE = new DefaultColor();
@@ -38,13 +72,13 @@ public interface Color {
         }
 
         @Override
-        public String toAnsiFg() {
-            return STYLE_DEFAULT_FOREGROUND;
+        public String toAnsiFgArgs() {
+            return String.valueOf(DEFAULT_FOREGROUND);
         }
 
         @Override
-        public String toAnsiBg() {
-            return STYLE_DEFAULT_BACKGROUND;
+        public String toAnsiBgArgs() {
+            return String.valueOf(DEFAULT_BACKGROUND);
         }
     }
 
@@ -181,22 +215,22 @@ public interface Color {
             }
         }
 
-        public String toAnsiFg() {
+        public String toAnsiFgArgs() {
             return fgAnsi;
         }
 
-        public String toAnsiBg() {
+        public String toAnsiBgArgs() {
             return bgAnsi;
         }
 
         private static String fgAnsi(int index, Intensity intensity) {
             switch (intensity) {
                 case normal:
-                    return Ansi.style(Ansi.foreground(index));
+                    return Ansi.foreground(index);
                 case dark:
-                    return Ansi.style(Ansi.foregroundDark(index));
+                    return Ansi.foregroundDark(index);
                 case bright:
-                    return Ansi.style(Ansi.foregroundBright(index));
+                    return Ansi.foregroundBright(index);
                 default:
                     throw new IllegalArgumentException("Unknown mode: " + intensity);
             }
@@ -205,11 +239,11 @@ public interface Color {
         private static String bgAnsi(int index, Intensity intensity) {
             switch (intensity) {
                 case normal:
-                    return Ansi.style(Ansi.background(index));
+                    return Ansi.background(index);
                 case dark:
-                    return Ansi.style(Ansi.backgroundDark(index));
+                    return Ansi.backgroundDark(index);
                 case bright:
-                    return Ansi.style(Ansi.backgroundBright(index));
+                    return Ansi.backgroundBright(index);
                 default:
                     throw new IllegalArgumentException("Unknown mode: " + intensity);
             }
@@ -266,21 +300,21 @@ public interface Color {
         }
 
         @Override
-        public String toAnsiFg() {
+        public String toAnsiFgArgs() {
             return fgAnsi;
         }
 
         @Override
-        public String toAnsiBg() {
+        public String toAnsiBgArgs() {
             return bgAnsi;
         }
 
         private static String fgAnsi(int index) {
-            return Ansi.style(Ansi.foregroundIndexed(index));
+            return Ansi.foregroundIndexed(index);
         }
 
         private static String bgAnsi(int index) {
-            return Ansi.style(Ansi.backgroundIndexed(index));
+            return Ansi.backgroundIndexed(index);
         }
 
         @Override
@@ -335,21 +369,21 @@ public interface Color {
         }
 
         @Override
-        public String toAnsiFg() {
+        public String toAnsiFgArgs() {
             return fgAnsi;
         }
 
         @Override
-        public String toAnsiBg() {
+        public String toAnsiBgArgs() {
             return bgAnsi;
         }
 
         private static String fgAnsi(int r, int g, int b) {
-            return Ansi.style(Ansi.foregroundRgb(r, g, b));
+            return Ansi.foregroundRgb(r, g, b);
         }
 
         private static String bgAnsi(int r, int g, int b) {
-            return Ansi.style(Ansi.backgroundRgb(r, g, b));
+            return Ansi.backgroundRgb(r, g, b);
         }
 
         @Override
