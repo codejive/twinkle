@@ -58,11 +58,11 @@ class AnimatingMathPlot implements Widget {
     private final Framed f;
 
     // random generator and mutable parameter bases/variations
-    Random rng = new Random();
-    double a1Base, a2Base, a1Var, a2Var;
-    double k1Base, k2Base, k1Var, k2Var;
-    double speed1, speed2;
-    int frame = 0;
+    private static Random rng = new Random();
+    private double a1Base, a2Base, a1Var, a2Var;
+    private double k1Base, k2Base, k1Var, k2Var;
+    private double speed1, speed2;
+    private int frame = 0;
 
     AnimatingMathPlot(Size size, String title) {
         p = MathPlot.of(size.grow(-2, -2)).ranges(-2 * Math.PI, 2 * Math.PI, -2.0, 2.0);
