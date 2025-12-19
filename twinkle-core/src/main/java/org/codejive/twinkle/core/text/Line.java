@@ -3,6 +3,7 @@ package org.codejive.twinkle.core.text;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.core.widget.Canvas;
 import org.codejive.twinkle.core.widget.Renderable;
@@ -36,6 +37,7 @@ public class Line implements Renderable {
         int x = 0;
         for (Span span : spans) {
             span.render(canvas.view(x, 0, span.length(), 1));
+            x += span.length();
         }
     }
 }
