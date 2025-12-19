@@ -177,6 +177,14 @@ public class MathPlot implements Widget {
     }
 
     public MathPlot plot(Function<Double, Double> func) {
+        return plot(func, currentStyleState());
+    }
+
+    public MathPlot plot(Function<Double, Double> func, Style style) {
+        return plot(func, style.state());
+    }
+
+    public MathPlot plot(Function<Double, Double> func, long styleState) {
         double xRange = maxXValue.doubleValue() - minXValue.doubleValue();
         double yRange = maxYValue.doubleValue() - minYValue.doubleValue();
         Size plotSize = plot.plotSize();
@@ -233,7 +241,7 @@ public class MathPlot implements Widget {
 
                 while (true) {
                     if (x0 >= 0 && x0 < width && y0 >= 0 && y0 < height) {
-                        plot.plot(x0, y0);
+                        plot.plot(x0, y0, styleState);
                     }
                     if (x0 == x1 && y0 == y1) {
                         break;
@@ -252,7 +260,7 @@ public class MathPlot implements Widget {
                 prevY = py;
             } else if (currValid) {
                 // start new segment (or single point) and record as previous
-                plot.plot(px, py);
+                plot.plot(px, py, styleState);
                 prevX = px;
                 prevY = py;
                 prevValid = true;

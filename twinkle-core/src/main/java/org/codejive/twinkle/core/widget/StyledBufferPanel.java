@@ -132,7 +132,7 @@ public class StyledBufferPanel implements Panel {
     public void copyTo(Canvas canvas, int x, int y) {
         for (int i = 0; i < lines.length; i++) {
             for (int j = 0; j < lines[i].length(); j++) {
-                canvas.setCharAt(x + j, y + i, styleAt(j, i), charAt(j, i));
+                canvas.setCharAt(x + j, y + i, styleStateAt(j, i), charAt(j, i));
             }
         }
     }
