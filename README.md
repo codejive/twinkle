@@ -20,6 +20,7 @@ To see a couple of very early demos, run the following commands:
 ```bash
 java -cp twinkle-chart/target/twinkle-chart-1.0-SNAPSHOT.jar:twinkle-core/target/twinkle-core-1.0-SNAPSHOT.jar:twinkle-ansi/target/twinkle-ansi-1.0-SNAPSHOT.jar:twinkle-chart/target/test-classes examples.BarDemo
 java -cp twinkle-chart/target/twinkle-chart-1.0-SNAPSHOT.jar:twinkle-core/target/twinkle-core-1.0-SNAPSHOT.jar:twinkle-ansi/target/twinkle-ansi-1.0-SNAPSHOT.jar:twinkle-chart/target/test-classes examples.MathPlotDemo
+java -cp twinkle-chart/target/twinkle-chart-1.0-SNAPSHOT.jar:twinkle-core/target/twinkle-core-1.0-SNAPSHOT.jar:twinkle-ansi/target/twinkle-ansi-1.0-SNAPSHOT.jar:twinkle-chart/target/test-classes examples.MathPlotColorDemo
 ```
 
 An easier way to run the demos is using [JBang](https://www.jbang.dev/):
@@ -28,6 +29,7 @@ An easier way to run the demos is using [JBang](https://www.jbang.dev/):
 ./mvnw install -DskipTests
 jbang run BarDemo
 jbang run MathPlotDemo
+jbang run MathPlotColorDemo
 ```
 
 These demos only show Twinkle's Ansi output capabilities. There is no interactivity being shown.
