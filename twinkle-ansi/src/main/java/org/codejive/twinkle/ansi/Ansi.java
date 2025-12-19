@@ -55,6 +55,15 @@ public class Ansi {
     public static final int COLORS_RGB = 2;
     public static final int COLORS_INDEXED = 5;
 
+    public static final char CURSOR_UP = 'A';
+    public static final char CURSOR_DOWN = 'B';
+    public static final char CURSOR_FORWARD = 'C';
+    public static final char CURSOR_BACK = 'D';
+    public static final char CURSOR_NEXT_LINE = 'E';
+    public static final char CURSOR_PREV_LINE = 'F';
+    public static final char CURSOR_HORIZONTAL_ABS = 'G';
+    public static final char CURSOR_POSITION = 'H';
+
     public static String style(Object... styles) {
         if (styles == null || styles.length == 0) {
             return "";
@@ -123,6 +132,30 @@ public class Ansi {
 
     public static String linkEnd() {
         return OSC + "8;;" + OSC_END;
+    }
+
+    public static String cursorMove(char command) {
+        return cursorMove(command, 1);
+    }
+
+    public static String cursorMove(char command, int amount) {
+        return CSI + amount + command;
+    }
+
+    public static String cursorPos(int row, int col) {
+        return CSI + row + ";" + col + "H";
+    }
+
+    public static String hideCursor() {
+        return CSI + "?25l";
+    }
+
+    public static String showCursor() {
+        return CSI + "?25h";
+    }
+
+    public static String clearScreen() {
+        return CSI + "2J";
     }
 
     private Ansi() {}
