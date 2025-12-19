@@ -421,10 +421,10 @@ public class Style {
             }
         }
         if ((currentStyleState & MASK_FG_COLOR) != (state & MASK_FG_COLOR)) {
-            styles.add(fgColor().toAnsiFg());
+            styles.add(fgColor().toAnsiFgArgs());
         }
         if ((currentStyleState & MASK_BG_COLOR) != (state & MASK_BG_COLOR)) {
-            styles.add(bgColor().toAnsiBg());
+            styles.add(bgColor().toAnsiBgArgs());
         }
         return Ansi.style(sb, styles.toArray());
     }
