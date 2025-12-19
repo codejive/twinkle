@@ -1,6 +1,7 @@
 // java
 package examples;
 
+import java.util.Random;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.core.text.Line;
 import org.codejive.twinkle.core.widget.Panel;
@@ -16,6 +17,28 @@ public class MathPlotDemo {
 
         System.out.print(Ansi.hideCursor());
         try {
+            // random generator and mutable parameter bases/variations
+            Random rng = new Random();
+            double a1Base, a2Base, a1Var, a2Var;
+            double k1Base, k2Base, k1Var, k2Var;
+            double speed1, speed2;
+
+            a1Base = 0.5 + rng.nextDouble() * 0.7; // 0.5 .. 1.2
+            a1Var = 0.2 + rng.nextDouble() * 0.6; // 0.2 .. 0.8
+            a2Base = 0.3 + rng.nextDouble() * 0.6; // 0.3 .. 0.9
+            a2Var = 0.1 + rng.nextDouble() * 0.5; // 0.1 .. 0.6
+
+            k1Base = 0.8 + rng.nextDouble() * 1.2; // 0.8 .. 2.0
+            k1Var = 0.2 + rng.nextDouble() * 1.05; // 0.2 .. 1.2
+            k2Base = 1.5 + rng.nextDouble() * 1.5; // 1.5 .. 3.0
+            k2Var = 0.3 + rng.nextDouble() * 1.2; // 0.3 .. 1.5
+
+            speed1 = 0.6 + rng.nextDouble() * 1.6; // 0.6 .. 2.2
+            speed2 = 0.3 + rng.nextDouble() * 1.1; // 0.3 .. 1.4
+            if (Math.abs(speed1 - speed2) < 0.3) {
+                speed2 += 0.4; // ensure noticeable difference
+            }
+
             for (int i = 0; i < 400; i++) {
                 if (i > 0) {
                     System.out.print(Ansi.cursorMove(Ansi.CURSOR_PREV_LINE, 22));
@@ -25,17 +48,15 @@ public class MathPlotDemo {
                 // time parameter
                 double t = i * 0.08;
 
-                // amplitudes vary slowly
-                double a1 = 0.8 + 0.4 * Math.sin(t * 0.7);
-                double a2 = 0.6 + 0.3 * Math.cos(t * 0.5);
+                // amplitudes vary slowly around randomized bases
+                double a1 = a1Base + a1Var * Math.sin(t * 0.7);
+                double a2 = a2Base + a2Var * Math.cos(t * 0.5);
 
-                // spatial frequencies (strides) vary with time
-                double k1 = 1.0 + 0.6 * Math.sin(t * 0.4);
-                double k2 = 2.0 + 0.9 * Math.cos(t * 0.3);
+                // spatial frequencies (strides) vary with time around randomized bases
+                double k1 = k1Base + k1Var * Math.sin(t * 0.4);
+                double k2 = k2Base + k2Var * Math.cos(t * 0.3);
 
-                // phases to make waves drift from right to left at differing speeds
-                double speed1 = 1.2; // faster wave
-                double speed2 = 0.6; // slower wave
+                // phases to make waves drift from right to left at differing speeds (positive)
                 double phase1 = t * speed1;
                 double phase2 = t * speed2;
 
