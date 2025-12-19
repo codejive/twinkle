@@ -264,6 +264,11 @@ public class MathPlot implements Widget {
         return this;
     }
 
+    public MathPlot clear() {
+        plot.clear();
+        return this;
+    }
+
     @Override
     public void render(Canvas canvas) {
         plot.render(canvas);
