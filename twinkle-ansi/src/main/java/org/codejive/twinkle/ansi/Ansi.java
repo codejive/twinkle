@@ -1,9 +1,11 @@
 package org.codejive.twinkle.ansi;
 
 public class Ansi {
-    public static final char ESC = 27;
+    public static final char ESC = '\u001B';
 
     public static final String CSI = ESC + "["; // Control Sequence Introducer
+    public static final String OSC = ESC + "]"; // Operating System Command
+    public static final String OSC_END = "\u0007"; // Bell character
 
     // Style codes
     public static final int RESET = 0; // Reset all attributes
@@ -113,6 +115,14 @@ public class Ansi {
 
     public static String backgroundRgb(int r, int g, int b) {
         return BACKGROUND_COLORS + ";" + COLORS_RGB + ";" + r + ";" + g + ";" + b;
+    }
+
+    public static String linkStart(String url) {
+        return OSC + "8;;" + url + OSC_END;
+    }
+
+    public static String linkEnd() {
+        return OSC + "8;;" + OSC_END;
     }
 
     private Ansi() {}
