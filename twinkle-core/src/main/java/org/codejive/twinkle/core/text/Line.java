@@ -36,6 +36,7 @@ public class Line implements Renderable {
         int x = 0;
         for (Span span : spans) {
             span.render(canvas.view(x, 0, span.length(), 1));
+            x += span.length();
         }
     }
 }
