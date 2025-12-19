@@ -1,13 +1,10 @@
-package org.codejive.twinkle.core.text;
+package org.codejive.twinkle.core.widget;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.codejive.twinkle.ansi.Color;
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.core.widget.Canvas;
-import org.codejive.twinkle.core.widget.Panel;
-import org.codejive.twinkle.core.widget.PanelView;
-import org.codejive.twinkle.core.widget.Size;
+import org.codejive.twinkle.core.text.StyledBuffer;
 import org.junit.jupiter.api.Test;
 
 public class TestPanel {
