@@ -1,7 +1,7 @@
 
-# Context
+# Twinkle
 
-Context is a Java library for creating advanced user interfaces inside a console window
+Twinkle is a Java library for creating advanced text-based user interfaces.
 
 This is a very early proof of concept, nothing to see here (yet)
 
@@ -10,20 +10,28 @@ This is a very early proof of concept, nothing to see here (yet)
 To build the project, run the following command:
 
 ```bash
-mvn clean package
+./mvnw clean package
 ```
 
 ## Running
 
-To see a simple demo of panels being drawn randomly on the screen, run the following command:
+To see a couple of very early demos, run the following commands:
 
 ```bash
-java -cp target/context-1.0-SNAPSHOT.jar <example_class>
+java -cp twinkle-chart/target/twinkle-chart-1.0-SNAPSHOT.jar:twinkle-core/target/twinkle-core-1.0-SNAPSHOT.jar:twinkle-ansi/target/twinkle-ansi-1.0-SNAPSHOT.jar:twinkle-chart/target/test-classes examples.BarDemo
+java -cp twinkle-chart/target/twinkle-chart-1.0-SNAPSHOT.jar:twinkle-core/target/twinkle-core-1.0-SNAPSHOT.jar:twinkle-ansi/target/twinkle-ansi-1.0-SNAPSHOT.jar:twinkle-chart/target/test-classes examples.MathPlotDemo
+java -cp twinkle-chart/target/twinkle-chart-1.0-SNAPSHOT.jar:twinkle-core/target/twinkle-core-1.0-SNAPSHOT.jar:twinkle-ansi/target/twinkle-ansi-1.0-SNAPSHOT.jar:twinkle-chart/target/test-classes examples.MathPlotColorDemo
+java -cp twinkle-chart/target/twinkle-chart-1.0-SNAPSHOT.jar:twinkle-core/target/twinkle-core-1.0-SNAPSHOT.jar:twinkle-ansi/target/twinkle-ansi-1.0-SNAPSHOT.jar:twinkle-chart/target/test-classes examples.MathPlotFourDemo
 ```
 
-Where `<example_class>` is one of the following:
+An easier way to run the demos is using [JBang](https://www.jbang.dev/):
 
-- examples.Boxes
-- examples.FullPanel
-- examples.InlinePanel
-- examples.SimpleDom
+```bash
+./mvnw install -DskipTests
+jbang run BarDemo
+jbang run MathPlotDemo
+jbang run MathPlotColorDemo
+jbang run MathPlotFourDemo
+```
+
+These demos only show Twinkle's Ansi output capabilities. There is no interactivity being shown.
