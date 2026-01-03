@@ -1,6 +1,8 @@
 // java
 package examples;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Random;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Color;
@@ -15,7 +17,7 @@ import org.codejive.twinkle.widgets.graphs.plot.MathPlot;
 import org.jspecify.annotations.NonNull;
 
 public class MathPlotFourDemo {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, IOException {
         Panel pnl = Panel.of(60, 40);
         AnimatingMathPlot p1 = new AnimatingMathPlot(Size.of(30, 20), " Interfering Waves 1 ");
         AnimatingMathPlot p2 = new AnimatingMathPlot(Size.of(30, 20), " Interfering Waves 2 ");
@@ -26,11 +28,12 @@ public class MathPlotFourDemo {
         Canvas v3 = pnl.view(0, 20, 30, 20);
         Canvas v4 = pnl.view(30, 20, 30, 20);
 
-        System.out.print(Ansi.hideCursor());
+        PrintWriter pout = new PrintWriter(System.out);
+        pout.print(Ansi.hideCursor());
         try {
             for (int i = 0; i < 400; i++) {
                 if (i > 0) {
-                    System.out.print(Ansi.cursorMove(Ansi.CURSOR_PREV_LINE, pnl.size().height()));
+                    pout.print(Ansi.cursorMove(Ansi.CURSOR_PREV_LINE, pnl.size().height()));
                 }
 
                 p1.update();
@@ -43,12 +46,13 @@ public class MathPlotFourDemo {
                 p3.render(v3);
                 p4.render(v4);
 
-                System.out.println(pnl.toAnsiString());
+                pnl.toAnsi(pout);
+                pout.println();
 
                 Thread.sleep(20);
             }
         } finally {
-            System.out.print(Ansi.showCursor());
+            pout.print(Ansi.showCursor());
         }
     }
 }

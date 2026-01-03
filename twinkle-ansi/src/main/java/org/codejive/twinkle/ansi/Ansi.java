@@ -1,5 +1,7 @@
 package org.codejive.twinkle.ansi;
 
+import java.io.IOException;
+
 public class Ansi {
     public static final char ESC = '\u001B';
 
@@ -68,22 +70,26 @@ public class Ansi {
         if (styles == null || styles.length == 0) {
             return "";
         }
-        return style(new StringBuilder(), styles).toString();
+        try {
+            return style(new StringBuilder(), styles).toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static StringBuilder style(StringBuilder sb, Object... styles) {
+    public static Appendable style(Appendable appendable, Object... styles) throws IOException {
         if (styles == null || styles.length == 0) {
-            return sb;
+            return appendable;
         }
-        sb.append(CSI);
+        appendable.append(CSI);
         for (int i = 0; i < styles.length; i++) {
-            sb.append(styles[i]);
+            appendable.append(styles[i].toString());
             if (i < styles.length - 1) {
-                sb.append(";");
+                appendable.append(";");
             }
         }
-        sb.append("m");
-        return sb;
+        appendable.append("m");
+        return appendable;
     }
 
     public static String foreground(int index) {

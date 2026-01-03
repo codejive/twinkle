@@ -1,5 +1,6 @@
 package org.codejive.twinkle.core.text;
 
+import java.io.IOException;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
 import org.jspecify.annotations.NonNull;
@@ -255,8 +256,17 @@ public class StyledCodepointBuffer implements StyledBuffer {
         // plus 20 extra for escape codes
         int initialCapacity = length() + 20;
         StringBuilder sb = new StringBuilder(initialCapacity);
-        sb.append(Ansi.STYLE_RESET);
-        return toAnsiString(sb, Style.UNSTYLED.state()).toString();
+        try {
+            return toAnsi(sb).toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public @NonNull Appendable toAnsi(Appendable appendable) throws IOException {
+        appendable.append(Ansi.STYLE_RESET);
+        return toAnsi(appendable, Style.UNSTYLED.state());
     }
 
     /**
@@ -278,22 +288,36 @@ public class StyledCodepointBuffer implements StyledBuffer {
         // plus 20 extra for escape codes
         int initialCapacity = length() + 20;
         StringBuilder sb = new StringBuilder(initialCapacity);
-        return toAnsiString(sb, styleState).toString();
+        try {
+            return toAnsi(sb, styleState).toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private @NonNull StringBuilder toAnsiString(StringBuilder sb, long lastStyleState) {
+    @Override
+    public @NonNull Appendable toAnsi(Appendable appendable, long lastStyleState)
+            throws IOException {
         for (int i = 0; i < length(); i++) {
             if (styleBuffer[i] != lastStyleState) {
                 Style style = Style.of(styleBuffer[i]);
-                style.toAnsiString(sb, lastStyleState);
+                style.toAnsi(appendable, lastStyleState);
                 lastStyleState = styleBuffer[i];
             }
             int cp = cpBuffer[i];
             if (cp == '\0') {
                 cp = ' ';
             }
-            sb.appendCodePoint(cp);
+            if (Character.isBmpCodePoint(cp)) {
+                appendable.append((char) cp);
+            } else if (Character.isValidCodePoint(cp)) {
+                appendable.append(Character.lowSurrogate(cp));
+                appendable.append(Character.highSurrogate(cp));
+            } else {
+                throw new IllegalArgumentException(
+                        String.format("Not a valid Unicode code point: 0x%X", cp));
+            }
         }
-        return sb;
+        return appendable;
     }
 }

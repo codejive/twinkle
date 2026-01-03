@@ -1,9 +1,10 @@
 package org.codejive.twinkle.core.text;
 
+import org.codejive.twinkle.ansi.Printable;
 import org.codejive.twinkle.ansi.Style;
 import org.jspecify.annotations.NonNull;
 
-public interface StyledBuffer extends StyledCharSequence {
+public interface StyledBuffer extends StyledCharSequence, Printable {
 
     char REPLACEMENT_CHAR = '\uFFFD';
 
@@ -34,36 +35,6 @@ public interface StyledBuffer extends StyledCharSequence {
     int putStringAt(int index, @NonNull StyledCharSequence str);
 
     @NonNull StyledBuffer resize(int newSize);
-
-    /**
-     * Converts the buffer to an ANSI string, including ANSI escape codes for styles. This method
-     * resets the current style to default at the start of the string.
-     *
-     * @return The ANSI string representation of the styled buffer.
-     */
-    @NonNull String toAnsiString();
-
-    /**
-     * Converts the buffer to an ANSI string, including ANSI escape codes for styles. This method
-     * takes into account the provided current style to generate a result that is as efficient as
-     * possible in terms of ANSI codes.
-     *
-     * @param currentStyle The current style to start with.
-     * @return The ANSI string representation of the styled buffer.
-     */
-    default @NonNull String toAnsiString(Style currentStyle) {
-        return toAnsiString(currentStyle.state());
-    }
-
-    /**
-     * Converts the buffer to an ANSI string, including ANSI escape codes for styles. This method
-     * takes into account the provided current style to generate a result that is as efficient as
-     * possible in terms of ANSI codes.
-     *
-     * @param currentStyle The current style to start with.
-     * @return The ANSI string representation of the styled buffer.
-     */
-    @NonNull String toAnsiString(long currentStyle);
 
     StyledBuffer EMPTY =
             new StyledCodepointBuffer(0) {

@@ -22,18 +22,18 @@ public class BarDemo {
         Panel pnl = Panel.of(20, 1);
         Bar b = Bar.bar().setValue(42);
         b.render(pnl);
-        System.out.println(pnl.toString());
+        System.out.println(pnl);
     }
 
     private static void printHorizontalBars() {
         Panel pnl = Panel.of(20, 4);
         FracBarConfig cfg = FracBarConfig.create();
         renderHorizontal(pnl, cfg);
-        System.out.println(pnl.toString());
+        System.out.println(pnl);
 
         cfg.direction(BarConfig.Direction.R2L);
         renderHorizontal(pnl, cfg);
-        System.out.println(pnl.toString());
+        System.out.println(pnl);
     }
 
     private static void renderHorizontal(Panel pnl, FracBarConfig cfg) {
@@ -48,11 +48,11 @@ public class BarDemo {
         Panel pnl = Panel.of(16, 8);
         FracBarConfig cfg = FracBarConfig.create().direction(BarConfig.Direction.B2T);
         renderVertical(pnl, cfg);
-        System.out.println(pnl.toString());
+        System.out.println(pnl);
 
         cfg.direction(BarConfig.Direction.T2B);
         renderVertical(pnl, cfg);
-        System.out.println(pnl.toString());
+        System.out.println(pnl);
     }
 
     private static void renderVertical(Panel pnl, FracBarConfig cfg) {
