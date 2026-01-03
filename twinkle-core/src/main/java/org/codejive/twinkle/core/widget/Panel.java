@@ -1,10 +1,10 @@
 package org.codejive.twinkle.core.widget;
 
-import org.codejive.twinkle.ansi.Style;
+import org.codejive.twinkle.ansi.Printable;
 import org.codejive.twinkle.core.text.StyledBuffer;
 import org.jspecify.annotations.NonNull;
 
-public interface Panel extends Canvas {
+public interface Panel extends Canvas, Printable {
 
     @NonNull Panel resize(@NonNull Size newSize);
 
@@ -15,14 +15,6 @@ public interface Panel extends Canvas {
 
     @Override
     @NonNull PanelView view(@NonNull Rect rect);
-
-    String toAnsiString();
-
-    default String toAnsiString(Style currentStyle) {
-        return toAnsiString(currentStyle.state());
-    }
-
-    String toAnsiString(long currentStyleState);
 
     static @NonNull Panel of(int width, int height) {
         return of(Size.of(width, height));

@@ -2,6 +2,7 @@ package org.codejive.twinkle.core.widget;
 
 import static org.codejive.twinkle.core.text.StyledBuffer.REPLACEMENT_CHAR;
 
+import java.io.IOException;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.core.text.StyledBuffer;
@@ -206,33 +207,49 @@ public class StyledBufferPanel implements Panel {
     }
 
     @Override
-    public String toAnsiString() {
+    public @NonNull String toAnsiString() {
         // Assuming only single-width characters for capacity estimation
         // plus 20 extra for escape codes and newline
         int initialCapacity = (size().width() + 20) * size().height();
         StringBuilder sb = new StringBuilder(initialCapacity);
         sb.append(Ansi.STYLE_RESET);
-        return toAnsiString(sb, Style.F_UNSTYLED).toString();
+        try {
+            return toAnsi(sb, Style.F_UNSTYLED).toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public String toAnsiString(long currentStyleState) {
+    public @NonNull Appendable toAnsi(Appendable appendable) throws IOException {
+        appendable.append(Ansi.STYLE_RESET);
+        return toAnsi(appendable, Style.F_UNSTYLED);
+    }
+
+    @Override
+    public @NonNull String toAnsiString(long currentStyleState) {
         // Assuming only single-width characters for capacity estimation
         // plus 20 extra for escape codes and newline
         int initialCapacity = (size().width() + 1) * size().height();
         StringBuilder sb = new StringBuilder(initialCapacity);
-        return toAnsiString(sb, currentStyleState).toString();
+        try {
+            return toAnsi(sb, currentStyleState).toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private @NonNull StringBuilder toAnsiString(StringBuilder sb, long currentStyleState) {
+    @Override
+    public @NonNull Appendable toAnsi(Appendable appendable, long currentStyleState)
+            throws IOException {
         for (int y = 0; y < size().height(); y++) {
-            sb.append(line(y).toAnsiString(currentStyleState));
+            line(y).toAnsi(appendable, currentStyleState);
             currentStyleState = line(y).styleStateAt(size().width() - 1);
             if (y < size().height() - 1) {
-                sb.append('\n');
+                appendable.append('\n');
             }
         }
-        return sb;
+        return appendable;
     }
 
     public static class StyledBufferPanelView extends StyledBufferPanel implements PanelView {

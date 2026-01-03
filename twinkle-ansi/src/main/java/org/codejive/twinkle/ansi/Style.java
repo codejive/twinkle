@@ -1,10 +1,11 @@
 package org.codejive.twinkle.ansi;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.jspecify.annotations.NonNull;
 
-public class Style {
+public class Style implements Printable {
     private final long state;
 
     private static final long IDX_BOLD = 0;
@@ -347,27 +348,32 @@ public class Style {
         return sb.toString();
     }
 
-    public String toAnsiString() {
+    @Override
+    public @NonNull String toAnsiString() {
         return toAnsiString(UNSTYLED);
     }
 
-    public StringBuilder toAnsiString(StringBuilder sb) {
-        return toAnsiString(sb, Style.UNSTYLED);
+    @Override
+    public @NonNull Appendable toAnsi(Appendable appendable) throws IOException {
+        try {
+            return toAnsi(appendable, Style.UNSTYLED);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public String toAnsiString(Style currentStyle) {
-        return toAnsiString(currentStyle.state());
+    @Override
+    public @NonNull String toAnsiString(long currentStyleState) {
+        try {
+            return toAnsi(new StringBuilder(), currentStyleState).toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public StringBuilder toAnsiString(StringBuilder sb, Style currentStyle) {
-        return toAnsiString(sb, currentStyle.state());
-    }
-
-    public String toAnsiString(long currentStyleState) {
-        return toAnsiString(new StringBuilder(), currentStyleState).toString();
-    }
-
-    public StringBuilder toAnsiString(StringBuilder sb, long currentStyleState) {
+    @Override
+    public @NonNull Appendable toAnsi(Appendable appendable, long currentStyleState)
+            throws IOException {
         List<Object> styles = new ArrayList<>();
         if ((currentStyleState & (F_BOLD | F_FAINT)) != (state & (F_BOLD | F_FAINT))) {
             // First we switch to NORMAL to clear both BOLD and FAINT
@@ -426,6 +432,6 @@ public class Style {
         if ((currentStyleState & MASK_BG_COLOR) != (state & MASK_BG_COLOR)) {
             styles.add(bgColor().toAnsiBgArgs());
         }
-        return Ansi.style(sb, styles.toArray());
+        return Ansi.style(appendable, styles.toArray());
     }
 }
