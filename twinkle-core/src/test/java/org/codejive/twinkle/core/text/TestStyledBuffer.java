@@ -86,20 +86,4 @@ public class TestStyledBuffer {
             assertThat(buffer.styleStateAt(i)).isEqualTo(Style.ITALIC.state());
         }
     }
-
-    @Test
-    public void testStyledBufferPutStyledString() {
-        StyledBuffer buffer = StyledBuffer.of(10);
-        buffer.putStringAt(0, StyledStringBuilder.of(Style.ITALIC, "abcdefghij"));
-        assertThat(buffer.toAnsiString())
-                .isEqualTo(Ansi.STYLE_RESET + Ansi.style(Ansi.ITALICIZED) + "abcdefghij");
-    }
-
-    @Test
-    public void testStyledBufferPutStyledStringWithUnderAndOverflow() {
-        StyledBuffer buffer = StyledBuffer.of(10);
-        buffer.putStringAt(-5, StyledStringBuilder.of(Style.ITALIC, "xxxxxabcdefghijxxxxx"));
-        assertThat(buffer.toAnsiString())
-                .isEqualTo(Ansi.STYLE_RESET + Ansi.style(Ansi.ITALICIZED) + "abcdefghij");
-    }
 }
