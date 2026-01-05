@@ -213,11 +213,16 @@ class LineBufferImpl implements LineBuffer {
                 break;
             }
             if (iter.width() == 0) {
-                // We shouldn't be getting any of these from a StyledIterator, but just in case...
+                // Skip any zero-width characters
                 continue;
             }
+            long style = iter.styleState();
+            if (iter.width() == 2 && (cnt + 1) >= len) {
+                // Not enough space for a wide character
+                setCharAt_(startIndex + cnt, style, REPLACEMENT_CHAR);
+                break;
+            }
             if (cnt < len) {
-                long style = iter.styleState();
                 if (iter.isComplex()) {
                     setCharAt_(startIndex + cnt, style, iter.sequence());
                 } else {
