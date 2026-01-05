@@ -1,5 +1,6 @@
 package org.codejive.twinkle.widgets;
 
+import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.core.decor.SimpleBorderRenderer;
 import org.codejive.twinkle.core.text.Canvas;
 import org.codejive.twinkle.core.text.Line;
@@ -56,7 +57,8 @@ public class Framed implements Widget {
             borderRenderer.render(canvas);
         }
         if (title != null) {
-            title.render(canvas.view(2, 0, canvas.size().width() - 4, 1));
+            Canvas view = canvas.view(2, 0, canvas.size().width() - 4, 1);
+            view.putStringAt(0, 0, Style.F_UNKNOWN, title.toAnsiString());
         }
         if (widget != null) {
             widget.render(canvas.view(Rect.of(canvas.size()).grow(-1, -1, -1, -1)));

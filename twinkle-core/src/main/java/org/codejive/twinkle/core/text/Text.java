@@ -1,13 +1,15 @@
 package org.codejive.twinkle.core.text;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.core.widget.Renderable;
+import org.codejive.twinkle.util.Printable;
 import org.codejive.twinkle.util.StyledIterator;
+import org.jspecify.annotations.NonNull;
 
-public class Text implements Renderable {
+public class Text implements Printable {
     private final List<Line> lines;
 
     public static Text of(String text) {
@@ -40,11 +42,30 @@ public class Text implements Renderable {
     }
 
     @Override
-    public void render(Canvas canvas) {
-        int y = 0;
+    public @NonNull String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Text{lines=[\n");
         for (Line line : lines) {
-            line.render(canvas.view(0, y, canvas.size().width(), 1));
-            y++;
+            sb.append("   ").append(line.toString()).append(",\n");
         }
+        sb.append("]}");
+        return sb.toString();
+    }
+
+    @Override
+    public @NonNull Appendable toAnsi(Appendable appendable, long currentStyleState)
+            throws IOException {
+        boolean first = true;
+        for (Line line : lines) {
+            if (!first) {
+                appendable.append('\n');
+            }
+            line.toAnsi(appendable, currentStyleState);
+            if (!line.spans().isEmpty()) {
+                currentStyleState = line.spans().get(line.spans().size() - 1).style().state();
+            }
+            first = false;
+        }
+        return appendable;
     }
 }

@@ -1,14 +1,20 @@
 package org.codejive.twinkle.core.text;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.core.widget.Renderable;
+import org.codejive.twinkle.util.Printable;
 import org.codejive.twinkle.util.StyledIterator;
+import org.jspecify.annotations.NonNull;
 
-public class Line implements Renderable {
+public class Line implements Printable {
     private final List<Span> spans;
+
+    public List<Span> spans() {
+        return Collections.unmodifiableList(spans);
+    }
 
     public static Line of(String text) {
         return new Line((Span.of(text)));
@@ -34,7 +40,7 @@ public class Line implements Renderable {
     public static Line of(StyledIterator iter) {
         List<Span> spans = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
-        long currentStyleState = -1;
+        long currentStyleState = Style.F_UNKNOWN;
         while (iter.hasNext()) {
             long cp = iter.next();
             if (cp == '\n') {
@@ -56,11 +62,23 @@ public class Line implements Renderable {
     }
 
     @Override
-    public void render(Canvas canvas) {
-        int x = 0;
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Line{spans=[");
         for (Span span : spans) {
-            span.render(canvas.view(x, 0, span.length(), 1));
-            x += span.length();
+            sb.append(span.text()).append(", ");
         }
+        sb.append("]}");
+        return sb.toString();
+    }
+
+    @Override
+    public @NonNull Appendable toAnsi(Appendable appendable, long currentStyleState)
+            throws IOException {
+        for (Span span : spans) {
+            span.toAnsi(appendable, currentStyleState);
+            currentStyleState = span.style().state();
+        }
+        return appendable;
     }
 }

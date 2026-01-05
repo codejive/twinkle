@@ -2,8 +2,8 @@ package org.codejive.twinkle.core.text;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.util.SequenceIterator;
 import org.codejive.twinkle.util.StyledIterator;
 import org.junit.jupiter.api.Test;
 
@@ -11,26 +11,23 @@ public class TestText {
 
     @Test
     public void testOfSimpleString() {
-        Buffer buf = Buffer.of(11, 1);
-        Text.of("Hello World").render(buf);
-        assertThat(buf.toString()).isEqualTo("Hello World");
+        Text t = Text.of("Hello World");
+        assertThat(t.toAnsiString()).isEqualTo(Ansi.STYLE_RESET + "Hello World");
     }
 
     @Test
     public void testOfStyledString() {
         Style style = Style.BOLD;
-        Buffer buf = Buffer.of(11, 1);
-        Text.of("Hello World", style).render(buf);
-        assertThat(buf.toAnsiString(Style.F_UNSTYLED))
+        Text t = Text.of("Hello World", style);
+        assertThat(t.toAnsiString(Style.F_UNSTYLED))
                 .isEqualTo(style.toAnsiString() + "Hello World");
     }
 
     @Test
     public void testOfStyleState() {
         Style style = Style.BOLD;
-        Buffer buf = Buffer.of(11, 1);
-        Text.of("Hello World", style.state()).render(buf);
-        assertThat(buf.toAnsiString(Style.F_UNSTYLED))
+        Text t = Text.of("Hello World", style.state());
+        assertThat(t.toAnsiString(Style.F_UNSTYLED))
                 .isEqualTo(style.toAnsiString() + "Hello World");
     }
 
@@ -38,16 +35,14 @@ public class TestText {
     public void testOfLines() {
         Line line1 = Line.of("Line 1");
         Line line2 = Line.of("Line 2");
-        Buffer buf = Buffer.of(6, 2);
-        Text.of(line1, line2).render(buf);
-        assertThat(buf.toString()).isEqualTo("Line 1\nLine 2");
+        Text t = Text.of(line1, line2);
+        assertThat(t.toAnsiString()).isEqualTo(Ansi.STYLE_RESET + "Line 1\nLine 2");
     }
 
     @Test
     public void testOfStyledIterator() {
-        StyledIterator iter = new StyledIterator(SequenceIterator.of("Line 1\nLine 2"));
-        Buffer buf = Buffer.of(6, 2);
-        Text.of(iter).render(buf);
-        assertThat(buf.toString()).isEqualTo("Line 1\nLine 2");
+        StyledIterator iter = StyledIterator.of("Line 1\nLine 2");
+        Text t = Text.of(iter);
+        assertThat(t.toAnsiString()).isEqualTo("Line 1\nLine 2");
     }
 }

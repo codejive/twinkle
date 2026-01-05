@@ -468,6 +468,10 @@ public class Style implements Printable {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("StyleImpl{");
+        if (state == F_UNKNOWN) {
+            sb.append("UNKNOWN}");
+            return sb.toString();
+        }
         if (isBold()) sb.append("bold, ");
         if (isFaint()) sb.append("faint, ");
         if (isItalic()) sb.append("italic, ");
@@ -516,6 +520,7 @@ public class Style implements Printable {
         }
         if (currentStyleState == F_UNKNOWN) {
             appendable.append(Ansi.STYLE_RESET);
+            currentStyleState = F_UNSTYLED;
         }
         List<Object> styles = new ArrayList<>();
         if ((currentStyleState & (F_BOLD | F_FAINT)) != (state & (F_BOLD | F_FAINT))) {
