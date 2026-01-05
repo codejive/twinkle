@@ -115,12 +115,10 @@ abstract class BaseSequenceIterator implements SequenceIterator {
     }
 
     protected int calculateWidth(int cp) {
-        // ANSI escapes and Control characters (except space) are 0 width
-        if (cp == Ansi.ESC || (cp < 0x20 && cp != '\n' && cp != '\r') || cp == 0x7F) {
-            return 0;
-        }
-        // Line breaks are handled as 0-width movements
-        if (cp == '\n' || cp == '\r') {
+        int type = Character.getType(cp);
+        if (type == Character.CONTROL // Cc: Control characters (like \n, \t)
+                || type == Character.FORMAT // Cf: Format (like Zero Width Joiner)
+                || type == Character.UNASSIGNED) { // Cn: Unassigned (reserved)
             return 0;
         }
 
