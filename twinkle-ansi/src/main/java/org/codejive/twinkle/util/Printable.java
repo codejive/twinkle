@@ -11,7 +11,9 @@ public interface Printable {
      *
      * @return The ANSI string representation of the object.
      */
-    @NonNull String toAnsiString();
+    default @NonNull String toAnsiString() {
+        return toAnsiString(Style.F_UNKNOWN);
+    }
 
     /**
      * Outputs the object as an ANSI string, including ANSI escape codes for styles. This method
@@ -20,7 +22,9 @@ public interface Printable {
      * @param appendable The <code>Appendable</code> to write the ANSI output to.
      * @return The <code>Appendable</code> passed as parameter.
      */
-    @NonNull Appendable toAnsi(Appendable appendable) throws IOException;
+    default @NonNull Appendable toAnsi(Appendable appendable) throws IOException {
+        return toAnsi(appendable, Style.F_UNKNOWN);
+    }
 
     /**
      * Converts the object to an ANSI string, including ANSI escape codes for styles. This method
@@ -56,7 +60,14 @@ public interface Printable {
      * @param currentStyleState The current style to start with.
      * @return The ANSI string representation of the object.
      */
-    @NonNull String toAnsiString(long currentStyleState);
+    default @NonNull String toAnsiString(long currentStyleState) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            return toAnsi(sb, currentStyleState).toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Outputs the object as an ANSI string, including ANSI escape codes for styles. This method

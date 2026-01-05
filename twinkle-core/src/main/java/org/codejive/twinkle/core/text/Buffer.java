@@ -3,7 +3,6 @@ package org.codejive.twinkle.core.text;
 import static org.codejive.twinkle.core.text.LineBuffer.REPLACEMENT_CHAR;
 
 import java.io.IOException;
-import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.core.util.Rect;
 import org.codejive.twinkle.core.util.Size;
@@ -236,26 +235,6 @@ class BufferImpl implements Buffer {
             }
         }
         return sb.toString();
-    }
-
-    @Override
-    public @NonNull String toAnsiString() {
-        // Assuming only single-width characters for capacity estimation
-        // plus 20 extra for escape codes and newline
-        int initialCapacity = (size().width() + 20) * size().height();
-        StringBuilder sb = new StringBuilder(initialCapacity);
-        sb.append(Ansi.STYLE_RESET);
-        try {
-            return toAnsi(sb, Style.F_UNSTYLED).toString();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public @NonNull Appendable toAnsi(Appendable appendable) throws IOException {
-        appendable.append(Ansi.STYLE_RESET);
-        return toAnsi(appendable, Style.F_UNSTYLED);
     }
 
     @Override
