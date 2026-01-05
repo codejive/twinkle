@@ -1,10 +1,10 @@
-package org.codejive.twinkle.core.widget;
+package org.codejive.twinkle.core.text;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.codejive.twinkle.ansi.Color;
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.core.text.LineBuffer;
+import org.codejive.twinkle.core.util.Size;
 import org.junit.jupiter.api.Test;
 
 public class TestBuffer {

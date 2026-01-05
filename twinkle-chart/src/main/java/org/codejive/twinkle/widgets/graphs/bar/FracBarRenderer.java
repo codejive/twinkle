@@ -1,8 +1,8 @@
 package org.codejive.twinkle.widgets.graphs.bar;
 
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.core.widget.Canvas;
-import org.codejive.twinkle.core.widget.Size;
+import org.codejive.twinkle.core.text.Canvas;
+import org.codejive.twinkle.core.util.Size;
 import org.codejive.twinkle.widgets.graphs.bar.BarConfig.*;
 import org.codejive.twinkle.widgets.graphs.bar.FracBarConfig.*;
 

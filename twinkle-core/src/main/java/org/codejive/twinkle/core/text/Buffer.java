@@ -1,11 +1,12 @@
-package org.codejive.twinkle.core.widget;
+package org.codejive.twinkle.core.text;
 
 import static org.codejive.twinkle.core.text.LineBuffer.REPLACEMENT_CHAR;
 
 import java.io.IOException;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.core.text.LineBuffer;
+import org.codejive.twinkle.core.util.Rect;
+import org.codejive.twinkle.core.util.Size;
 import org.codejive.twinkle.util.Printable;
 import org.codejive.twinkle.util.StyledIterator;
 import org.jspecify.annotations.NonNull;

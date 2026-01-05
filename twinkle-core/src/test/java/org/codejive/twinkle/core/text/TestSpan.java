@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.core.widget.Buffer;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 

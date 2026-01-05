@@ -1,7 +1,7 @@
 package examples;
 
-import org.codejive.twinkle.core.widget.Buffer;
-import org.codejive.twinkle.core.widget.Canvas;
+import org.codejive.twinkle.core.text.Buffer;
+import org.codejive.twinkle.core.text.Canvas;
 import org.codejive.twinkle.widgets.graphs.bar.Bar;
 import org.codejive.twinkle.widgets.graphs.bar.BarConfig;
 import org.codejive.twinkle.widgets.graphs.bar.FracBarConfig;

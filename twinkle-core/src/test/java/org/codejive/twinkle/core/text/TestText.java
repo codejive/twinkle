@@ -3,7 +3,6 @@ package org.codejive.twinkle.core.text;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.core.widget.Buffer;
 import org.codejive.twinkle.util.SequenceIterator;
 import org.codejive.twinkle.util.StyledIterator;
 import org.junit.jupiter.api.Test;

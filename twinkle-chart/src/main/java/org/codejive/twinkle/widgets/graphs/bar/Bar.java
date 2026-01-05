@@ -1,6 +1,6 @@
 package org.codejive.twinkle.widgets.graphs.bar;
 
-import org.codejive.twinkle.core.widget.Canvas;
+import org.codejive.twinkle.core.text.Canvas;
 import org.codejive.twinkle.core.widget.Renderable;
 
 public class Bar implements Renderable {

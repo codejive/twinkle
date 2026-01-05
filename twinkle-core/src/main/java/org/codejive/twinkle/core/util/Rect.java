@@ -1,4 +1,4 @@
-package org.codejive.twinkle.core.widget;
+package org.codejive.twinkle.core.util;
 
 import org.jspecify.annotations.NonNull;
 
