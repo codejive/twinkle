@@ -19,6 +19,7 @@ public class Style implements Printable {
     private static final long IDX_CROSSEDOUT = 7;
     // private static final long DOUBLEUNDERLINE = 8;
 
+    public static final long F_UNKNOWN = -1L;
     public static final long F_UNSTYLED = 0L;
     public static final long F_BOLD = 1 << IDX_BOLD;
     public static final long F_FAINT = 1 << IDX_FAINT;
@@ -509,6 +510,13 @@ public class Style implements Printable {
     @Override
     public @NonNull Appendable toAnsi(Appendable appendable, long currentStyleState)
             throws IOException {
+        if (state == F_UNKNOWN) {
+            // Do nothing, we keep the current state
+            return appendable;
+        }
+        if (currentStyleState == F_UNKNOWN) {
+            appendable.append(Ansi.STYLE_RESET);
+        }
         List<Object> styles = new ArrayList<>();
         if ((currentStyleState & (F_BOLD | F_FAINT)) != (state & (F_BOLD | F_FAINT))) {
             // First we switch to NORMAL to clear both BOLD and FAINT
