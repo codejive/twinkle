@@ -207,7 +207,6 @@ class LineBufferImpl implements LineBuffer {
         int len = maxIndex - startIndex;
         int cnt = 0;
         while (iter.hasNext()) {
-            long style = iter.next();
             int cp = iter.next();
             if (cp == '\n') {
                 // We only deal with single lines here, so stop at newline
@@ -218,6 +217,7 @@ class LineBufferImpl implements LineBuffer {
                 continue;
             }
             if (cnt < len) {
+                long style = iter.styleState();
                 if (iter.isComplex()) {
                     setCharAt_(startIndex + cnt, style, iter.sequence());
                 } else {

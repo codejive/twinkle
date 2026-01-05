@@ -17,11 +17,11 @@ public class StyledIterator implements SequenceIterator {
     private boolean exhausted = false;
 
     /**
-     * Creates a StyledIterator that wraps the given SequenceIterator and starts with an unstyled
-     * initial state.
+     * Creates a StyledIterator that wraps the given SequenceIterator and starts with an unknown
+     * initial style state.
      */
-    public StyledIterator(SequenceIterator delegate) {
-        this(delegate, Style.F_UNSTYLED);
+    protected StyledIterator(SequenceIterator delegate) {
+        this(delegate, Style.F_UNKNOWN);
     }
 
     /**
@@ -113,15 +113,15 @@ public class StyledIterator implements SequenceIterator {
     }
 
     public static StyledIterator of(CharSequence text) {
-        return of(text, Style.F_UNSTYLED);
+        return of(text, Style.F_UNKNOWN);
     }
 
     public static StyledIterator of(Reader input) {
-        return of(input, Style.F_UNSTYLED);
+        return of(input, Style.F_UNKNOWN);
     }
 
     public static StyledIterator of(SequenceIterator iter) {
-        return of(iter, Style.F_UNSTYLED);
+        return of(iter, Style.F_UNKNOWN);
     }
 
     public static StyledIterator of(CharSequence text, long currentStyleState) {
