@@ -1,7 +1,7 @@
 package org.codejive.twinkle.core.decor;
 
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.core.widget.Canvas;
+import org.codejive.twinkle.core.text.Canvas;
 import org.codejive.twinkle.core.widget.Renderable;
 
 public class SimpleBorderRenderer implements Renderable {

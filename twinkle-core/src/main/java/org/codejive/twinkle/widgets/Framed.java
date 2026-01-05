@@ -1,11 +1,11 @@
 package org.codejive.twinkle.widgets;
 
 import org.codejive.twinkle.core.decor.SimpleBorderRenderer;
+import org.codejive.twinkle.core.text.Canvas;
 import org.codejive.twinkle.core.text.Line;
-import org.codejive.twinkle.core.widget.Canvas;
-import org.codejive.twinkle.core.widget.Rect;
+import org.codejive.twinkle.core.util.Rect;
+import org.codejive.twinkle.core.util.Size;
 import org.codejive.twinkle.core.widget.Renderable;
-import org.codejive.twinkle.core.widget.Size;
 import org.codejive.twinkle.core.widget.Widget;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

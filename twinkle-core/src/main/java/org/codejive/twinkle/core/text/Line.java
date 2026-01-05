@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.core.widget.Canvas;
 import org.codejive.twinkle.core.widget.Renderable;
 import org.codejive.twinkle.util.StyledIterator;
 

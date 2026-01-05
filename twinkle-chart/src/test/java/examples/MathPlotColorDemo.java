@@ -5,9 +5,9 @@ import java.util.Random;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Color;
 import org.codejive.twinkle.ansi.Style;
+import org.codejive.twinkle.core.text.Buffer;
 import org.codejive.twinkle.core.text.Line;
-import org.codejive.twinkle.core.widget.Buffer;
-import org.codejive.twinkle.core.widget.Size;
+import org.codejive.twinkle.core.util.Size;
 import org.codejive.twinkle.widgets.Framed;
 import org.codejive.twinkle.widgets.graphs.plot.MathPlot;
 

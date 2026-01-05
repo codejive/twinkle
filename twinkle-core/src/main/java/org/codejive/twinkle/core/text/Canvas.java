@@ -1,6 +1,8 @@
-package org.codejive.twinkle.core.widget;
+package org.codejive.twinkle.core.text;
 
 import org.codejive.twinkle.ansi.Style;
+import org.codejive.twinkle.core.util.Rect;
+import org.codejive.twinkle.core.util.Sized;
 import org.codejive.twinkle.util.StyledIterator;
 import org.jspecify.annotations.NonNull;
 

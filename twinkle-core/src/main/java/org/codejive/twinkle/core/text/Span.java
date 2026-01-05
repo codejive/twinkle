@@ -1,7 +1,6 @@
 package org.codejive.twinkle.core.text;
 
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.core.widget.Canvas;
 import org.codejive.twinkle.core.widget.Renderable;
 
 public class Span implements Renderable {
