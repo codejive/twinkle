@@ -1,7 +1,6 @@
 package org.codejive.twinkle.core.text;
 
 import java.io.IOException;
-import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.util.Printable;
 import org.codejive.twinkle.util.StyledIterator;
@@ -329,25 +328,6 @@ class LineBufferImpl implements LineBuffer {
             }
         }
         return sb.toString();
-    }
-
-    @Override
-    public @NonNull String toAnsiString() {
-        // Assuming only single-width characters for capacity estimation
-        // plus 20 extra for escape codes
-        int initialCapacity = length() + 20;
-        StringBuilder sb = new StringBuilder(initialCapacity);
-        try {
-            return toAnsi(sb).toString();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public @NonNull Appendable toAnsi(Appendable appendable) throws IOException {
-        appendable.append(Ansi.STYLE_RESET);
-        return toAnsi(appendable, Style.UNSTYLED.state());
     }
 
     /**
