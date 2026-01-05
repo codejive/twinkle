@@ -1,7 +1,8 @@
 package org.codejive.twinkle.core.text;
 
-import org.codejive.twinkle.ansi.Printable;
 import org.codejive.twinkle.ansi.Style;
+import org.codejive.twinkle.util.Printable;
+import org.codejive.twinkle.util.StyledIterator;
 import org.jspecify.annotations.NonNull;
 
 public interface StyledBuffer extends StyledCharSequence, Printable {
@@ -33,6 +34,8 @@ public interface StyledBuffer extends StyledCharSequence, Printable {
     int putStringAt(int index, long styleState, @NonNull CharSequence str);
 
     int putStringAt(int index, @NonNull StyledCharSequence str);
+
+    int putStringAt(int index, @NonNull StyledIterator iter);
 
     @NonNull StyledBuffer resize(int newSize);
 

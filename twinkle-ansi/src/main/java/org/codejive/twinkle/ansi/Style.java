@@ -3,6 +3,7 @@ package org.codejive.twinkle.ansi;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.codejive.twinkle.util.Printable;
 import org.jspecify.annotations.NonNull;
 
 public class Style implements Printable {
@@ -229,7 +230,7 @@ public class Style implements Printable {
     }
 
     public @NonNull Style fgColor(@NonNull Color color) {
-        long newState = (state & ~MASK_FG_COLOR) | (encodeColor(color) << SHIFT_FG_COLOR);
+        long newState = applyFgColor(state, color);
         return of(newState);
     }
 
@@ -239,7 +240,7 @@ public class Style implements Printable {
     }
 
     public @NonNull Style bgColor(@NonNull Color color) {
-        long newState = (state & ~MASK_BG_COLOR) | (encodeColor(color) << SHIFT_BG_COLOR);
+        long newState = applyBgColor(state, color);
         return of(newState);
     }
 
@@ -313,6 +314,140 @@ public class Style implements Printable {
             result = Color.rgb(r, g, b);
         }
         return result;
+    }
+
+    public static long parse(@NonNull String ansiSequence) {
+        return parse(F_UNSTYLED, ansiSequence);
+    }
+
+    public static long parse(long currentStyleState, @NonNull String ansiSequence) {
+        if (!ansiSequence.startsWith(Ansi.CSI) || !ansiSequence.endsWith("m")) {
+            return currentStyleState;
+        }
+
+        String content = ansiSequence.substring(2, ansiSequence.length() - 1);
+        String[] parts = content.split("[;:]", -1);
+        int[] codes = new int[parts.length];
+        for (int i = 0; i < parts.length; i++) {
+            try {
+                // Empty parameters are assumed to be 0 otherwise parse as integer
+                codes[i] = parts[i].isEmpty() ? 0 : Integer.parseInt(parts[i]);
+            } catch (NumberFormatException e) {
+                codes[i] = -1; // Invalid code, will be ignored
+            }
+        }
+
+        long state = currentStyleState;
+        for (int i = 0; i < codes.length; i++) {
+            int code = codes[i];
+            switch (code) {
+                case -1:
+                    // Invalid code, ignore
+                    break;
+                case 0:
+                    state = 0;
+                    break;
+                case 1:
+                    state |= F_BOLD;
+                    break;
+                case 2:
+                    state |= F_FAINT;
+                    break;
+                case 3:
+                    state |= F_ITALIC;
+                    break;
+                case 4:
+                    state |= F_UNDERLINED;
+                    break;
+                case 5:
+                    state |= F_BLINK;
+                    break;
+                case 7:
+                    state |= F_INVERSE;
+                    break;
+                case 8:
+                    state |= F_HIDDEN;
+                    break;
+                case 9:
+                    state |= F_STRIKETHROUGH;
+                    break;
+                case 22:
+                    state &= ~(F_BOLD | F_FAINT);
+                    break;
+                case 23:
+                    state &= ~F_ITALIC;
+                    break;
+                case 24:
+                    state &= ~F_UNDERLINED;
+                    break;
+                case 25:
+                    state &= ~F_BLINK;
+                    break;
+                case 27:
+                    state &= ~F_INVERSE;
+                    break;
+                case 28:
+                    state &= ~F_HIDDEN;
+                    break;
+                case 29:
+                    state &= ~F_STRIKETHROUGH;
+                    break;
+                case 39:
+                    state &= ~MASK_FG_COLOR;
+                    break;
+                case 49:
+                    state &= ~MASK_BG_COLOR;
+                    break;
+                default:
+                    if (code >= 30 && code <= 37) {
+                        Color c = Color.basic(code - 30, Color.BasicColor.Intensity.normal);
+                        state = applyFgColor(state, c);
+                    } else if (code >= 90 && code <= 97) {
+                        Color c = Color.basic(code - 90, Color.BasicColor.Intensity.bright);
+                        state = applyFgColor(state, c);
+                    } else if (code >= 40 && code <= 47) {
+                        Color c = Color.basic(code - 40, Color.BasicColor.Intensity.normal);
+                        state = applyBgColor(state, c);
+                    } else if (code >= 100 && code <= 107) {
+                        Color c = Color.basic(code - 100, Color.BasicColor.Intensity.bright);
+                        state = applyBgColor(state, c);
+                    } else if (code == 38 || code == 48) {
+                        boolean isFg = (code == 38);
+                        if (i + 1 < codes.length) {
+                            int type = codes[i + 1];
+                            if (type == 5 && i + 2 < codes.length) {
+                                Color c = Color.indexed(codes[i + 2]);
+                                if (isFg) {
+                                    state = applyFgColor(state, c);
+                                } else {
+                                    state = applyBgColor(state, c);
+                                }
+                                i += 2;
+                            } else if (type == 2 && i + 4 < codes.length) {
+                                Color c = Color.rgb(codes[i + 2], codes[i + 3], codes[i + 4]);
+                                if (isFg) {
+                                    state = applyFgColor(state, c);
+                                } else {
+                                    state = applyBgColor(state, c);
+                                }
+                                i += 4;
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+        return state;
+    }
+
+    private static long applyFgColor(long state, Color color) {
+        long encoded = encodeColor(color);
+        return (state & ~MASK_FG_COLOR) | (encoded << SHIFT_FG_COLOR);
+    }
+
+    private static long applyBgColor(long state, Color color) {
+        long encoded = encodeColor(color);
+        return (state & ~MASK_BG_COLOR) | (encoded << SHIFT_BG_COLOR);
     }
 
     @Override

@@ -3,23 +3,27 @@ package org.codejive.twinkle.core.text;
 import java.io.IOException;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
+import org.codejive.twinkle.util.StyledIterator;
 import org.jspecify.annotations.NonNull;
 
 public class StyledCodepointBuffer implements StyledBuffer {
     protected int[] cpBuffer;
+    protected String[] graphemeBuffer;
     protected long[] styleBuffer;
 
     public StyledCodepointBuffer(int size) {
         cpBuffer = new int[size];
+        graphemeBuffer = new String[size];
         styleBuffer = new long[size];
     }
 
-    protected StyledCodepointBuffer(int[] cpBuffer, long[] styleBuffer) {
-        if (cpBuffer.length != styleBuffer.length) {
+    protected StyledCodepointBuffer(int[] cpBuffer, String[] graphemeBuffer, long[] styleBuffer) {
+        if (cpBuffer.length != styleBuffer.length || cpBuffer.length != graphemeBuffer.length) {
             throw new IllegalArgumentException(
-                    "Codepoint buffer and style buffer must have the same length");
+                    "Codepoint, grapheme and style buffers must have the same length");
         }
         this.cpBuffer = cpBuffer;
+        this.graphemeBuffer = graphemeBuffer;
         this.styleBuffer = styleBuffer;
     }
 
@@ -33,7 +37,7 @@ public class StyledCodepointBuffer implements StyledBuffer {
         if (invalidIndex(index)) {
             return REPLACEMENT_CHAR;
         }
-        if (Character.charCount(cpBuffer[index]) == 2) {
+        if (graphemeBuffer[index] != null || Character.charCount(cpBuffer[index]) == 2) {
             // TODO log warning about extended Unicode characters not being supported
             return REPLACEMENT_CHAR;
         }
@@ -52,6 +56,9 @@ public class StyledCodepointBuffer implements StyledBuffer {
     public @NonNull String graphemeAt(int index) {
         if (invalidIndex(index)) {
             return String.valueOf(REPLACEMENT_CHAR);
+        }
+        if (graphemeBuffer[index] != null) {
+            return graphemeBuffer[index];
         }
         return new String(Character.toChars(cpBuffer[index]));
     }
@@ -90,6 +97,7 @@ public class StyledCodepointBuffer implements StyledBuffer {
             ch = REPLACEMENT_CHAR;
         }
         cpBuffer[index] = ch;
+        graphemeBuffer[index] = null;
         styleBuffer[index] = styleState;
     }
 
@@ -103,6 +111,7 @@ public class StyledCodepointBuffer implements StyledBuffer {
 
     private void setCharAt_(int index, long styleState, int cp) {
         cpBuffer[index] = cp;
+        graphemeBuffer[index] = null;
         styleBuffer[index] = styleState;
     }
 
@@ -118,14 +127,8 @@ public class StyledCodepointBuffer implements StyledBuffer {
         if (grapheme.length() == 0) {
             return;
         }
-        int cp;
-        if (codepointCount(grapheme) > 1) {
-            // TODO log warning about extended Unicode graphemes not being supported
-            cp = REPLACEMENT_CHAR;
-        } else {
-            cp = codepointAt(grapheme, 0);
-        }
-        cpBuffer[index] = cp;
+        cpBuffer[index] = -1;
+        graphemeBuffer[index] = grapheme.toString();
         styleBuffer[index] = styleState;
     }
 
@@ -170,6 +173,31 @@ public class StyledCodepointBuffer implements StyledBuffer {
     }
 
     @Override
+    public int putStringAt(int index, @NonNull StyledIterator iter) {
+        int minIndex = 0;
+        int maxIndex = cpBuffer.length;
+        int startIndex = Math.max(index, minIndex);
+        int len = maxIndex - startIndex;
+        int cnt = 0;
+        while (iter.hasNext()) {
+            long style = iter.next();
+            int cp = iter.next();
+            if (cp == '\n') {
+                break;
+            }
+            if (cnt < len) {
+                if (iter.isComplex()) {
+                    setCharAt_(startIndex + cnt, style, iter.sequence());
+                } else {
+                    setCharAt_(startIndex + cnt, style, cp);
+                }
+            }
+            cnt++;
+        }
+        return cnt;
+    }
+
+    @Override
     public @NonNull StyledCharSequence subSequence(int start, int end) {
         if (start < 0 || end > length() || start > end) {
             throw new IndexOutOfBoundsException(
@@ -177,10 +205,12 @@ public class StyledCodepointBuffer implements StyledBuffer {
         }
         int subLength = end - start;
         int[] subCpBuffer = new int[subLength];
+        String[] subGraphemeBuffer = new String[subLength];
         long[] subStyleBuffer = new long[subLength];
         System.arraycopy(cpBuffer, start, subCpBuffer, 0, subLength);
+        System.arraycopy(graphemeBuffer, start, subGraphemeBuffer, 0, subLength);
         System.arraycopy(styleBuffer, start, subStyleBuffer, 0, subLength);
-        return new StyledCodepointBuffer(subCpBuffer, subStyleBuffer);
+        return new StyledCodepointBuffer(subCpBuffer, subGraphemeBuffer, subStyleBuffer);
     }
 
     @Override
@@ -189,11 +219,14 @@ public class StyledCodepointBuffer implements StyledBuffer {
             return this;
         }
         int[] newCpBuffer = new int[newSize];
+        String[] newGraphemeBuffer = new String[newSize];
         long[] newStyleBuffer = new long[newSize];
         int copyLength = Math.min(newSize, length());
         System.arraycopy(cpBuffer, 0, newCpBuffer, 0, copyLength);
+        System.arraycopy(graphemeBuffer, 0, newGraphemeBuffer, 0, copyLength);
         System.arraycopy(styleBuffer, 0, newStyleBuffer, 0, copyLength);
         cpBuffer = newCpBuffer;
+        graphemeBuffer = newGraphemeBuffer;
         styleBuffer = newStyleBuffer;
         return this;
     }
@@ -241,11 +274,15 @@ public class StyledCodepointBuffer implements StyledBuffer {
         int initialCapacity = length();
         StringBuilder sb = new StringBuilder(initialCapacity);
         for (int i = 0; i < length(); i++) {
-            int cp = cpBuffer[i];
-            if (cp == '\0') {
-                cp = ' ';
+            if (graphemeBuffer[i] != null) {
+                sb.append(graphemeBuffer[i]);
+            } else {
+                int cp = cpBuffer[i];
+                if (cp == '\0') {
+                    cp = ' ';
+                }
+                sb.appendCodePoint(cp);
             }
-            sb.appendCodePoint(cp);
         }
         return sb.toString();
     }
@@ -304,18 +341,22 @@ public class StyledCodepointBuffer implements StyledBuffer {
                 style.toAnsi(appendable, lastStyleState);
                 lastStyleState = styleBuffer[i];
             }
-            int cp = cpBuffer[i];
-            if (cp == '\0') {
-                cp = ' ';
-            }
-            if (Character.isBmpCodePoint(cp)) {
-                appendable.append((char) cp);
-            } else if (Character.isValidCodePoint(cp)) {
-                appendable.append(Character.lowSurrogate(cp));
-                appendable.append(Character.highSurrogate(cp));
+            if (graphemeBuffer[i] != null) {
+                appendable.append(graphemeBuffer[i]);
             } else {
-                throw new IllegalArgumentException(
-                        String.format("Not a valid Unicode code point: 0x%X", cp));
+                int cp = cpBuffer[i];
+                if (cp == '\0') {
+                    cp = ' ';
+                }
+                if (Character.isBmpCodePoint(cp)) {
+                    appendable.append((char) cp);
+                } else if (Character.isValidCodePoint(cp)) {
+                    appendable.append(Character.lowSurrogate(cp));
+                    appendable.append(Character.highSurrogate(cp));
+                } else {
+                    throw new IllegalArgumentException(
+                            String.format("Not a valid Unicode code point: 0x%X", cp));
+                }
             }
         }
         return appendable;

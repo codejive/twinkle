@@ -1,7 +1,7 @@
 package org.codejive.twinkle.core.widget;
 
-import org.codejive.twinkle.ansi.Printable;
 import org.codejive.twinkle.core.text.StyledBuffer;
+import org.codejive.twinkle.util.Printable;
 import org.jspecify.annotations.NonNull;
 
 public interface Panel extends Canvas, Printable {

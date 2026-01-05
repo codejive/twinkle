@@ -1,6 +1,7 @@
-package org.codejive.twinkle.ansi;
+package org.codejive.twinkle.util;
 
 import java.io.IOException;
+import org.codejive.twinkle.ansi.Style;
 import org.jspecify.annotations.NonNull;
 
 public interface Printable {
