@@ -28,16 +28,4 @@ public interface StyledCharSequence {
 
     // @Override
     @NonNull StyledCharSequence subSequence(int start, int end);
-
-    static @NonNull StyledCharSequence fromString(@NonNull Style style, @NonNull String str) {
-        StyledStringBuilder builder = new StyledStringBuilder(str.length());
-        builder.append(style, str);
-        return builder;
-    }
-
-    static @NonNull StyledCharSequence fromString(long styleState, @NonNull String str) {
-        StyledStringBuilder builder = new StyledStringBuilder(str.length());
-        builder.append(styleState, str);
-        return builder;
-    }
 }
