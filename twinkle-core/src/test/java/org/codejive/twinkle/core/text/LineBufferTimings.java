@@ -1,6 +1,6 @@
 package org.codejive.twinkle.core.text;
 
-public class StyledBufferTimings {
+public class LineBufferTimings {
     private static int iterations = 1_000_000;
 
     public static void main(String[] args) {
@@ -39,13 +39,13 @@ public class StyledBufferTimings {
                 });
 
         System.out.println("Timing simple strings:");
-        timeSimpleString(StyledBuffer.of(1000));
+        timeSimpleString(LineBuffer.of(1000));
 
         System.out.println("Timing strings with surrogates:");
-        timeStringWithSurrogates(StyledBuffer.of(1000));
+        timeStringWithSurrogates(LineBuffer.of(1000));
     }
 
-    private static void timeSimpleString(StyledBuffer buffer) {
+    private static void timeSimpleString(LineBuffer buffer) {
         titer(
                 buffer.getClass().getSimpleName(),
                 () -> {
@@ -58,7 +58,7 @@ public class StyledBufferTimings {
                 });
     }
 
-    private static void timeStringWithSurrogates(StyledBuffer buffer) {
+    private static void timeStringWithSurrogates(LineBuffer buffer) {
         titer(
                 buffer.getClass().getSimpleName(),
                 () -> {

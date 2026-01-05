@@ -6,16 +6,16 @@ import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
 import org.junit.jupiter.api.Test;
 
-public class TestStyledBuffer {
+public class TestLineBuffer {
     @Test
     public void testStyledBufferCreation() {
-        StyledBuffer buffer = StyledBuffer.of(10);
+        LineBuffer buffer = LineBuffer.of(10);
         assertThat(buffer.length()).isEqualTo(10);
     }
 
     @Test
     public void testStyledBufferPutGetChar() {
-        StyledBuffer buffer = StyledBuffer.of(10);
+        LineBuffer buffer = LineBuffer.of(10);
         for (int i = 0; i < buffer.length(); i++) {
             buffer.setCharAt(i, Style.ITALIC.state(), (char) ('a' + i));
         }
@@ -27,7 +27,7 @@ public class TestStyledBuffer {
 
     @Test
     public void testStyledBufferPutCharToString() {
-        StyledBuffer buffer = StyledBuffer.of(10);
+        LineBuffer buffer = LineBuffer.of(10);
         for (int i = 0; i < buffer.length(); i++) {
             buffer.setCharAt(i, Style.ITALIC.state(), (char) ('a' + i));
         }
@@ -36,7 +36,7 @@ public class TestStyledBuffer {
 
     @Test
     public void testStyledBufferPutCharToAnsiString() {
-        StyledBuffer buffer = StyledBuffer.of(10);
+        LineBuffer buffer = LineBuffer.of(10);
         for (int i = 0; i < buffer.length(); i++) {
             Style style = i < 5 ? Style.ITALIC : Style.UNDERLINED;
             buffer.setCharAt(i, style, (char) ('a' + i));
@@ -52,7 +52,7 @@ public class TestStyledBuffer {
 
     @Test
     public void testStyledBufferPutCharToAnsiStringWithCurrentStyle() {
-        StyledBuffer buffer = StyledBuffer.of(10);
+        LineBuffer buffer = LineBuffer.of(10);
         for (int i = 0; i < buffer.length(); i++) {
             Style style = i < 5 ? Style.ITALIC : Style.UNDERLINED;
             buffer.setCharAt(i, style, (char) ('a' + i));
@@ -63,7 +63,7 @@ public class TestStyledBuffer {
 
     @Test
     public void testStyledBufferPutCharToAnsiStringWithUnderAndOverflow() {
-        StyledBuffer buffer = StyledBuffer.of(10);
+        LineBuffer buffer = LineBuffer.of(10);
         for (int i = 0; i < buffer.length() + 10; i++) {
             Style style = i < 10 ? Style.ITALIC : Style.UNDERLINED;
             buffer.setCharAt(i - 5, style, (char) ('a' + i));
@@ -79,7 +79,7 @@ public class TestStyledBuffer {
 
     @Test
     public void testStyledBufferPutStringGetChar() {
-        StyledBuffer buffer = StyledBuffer.of(10);
+        LineBuffer buffer = LineBuffer.of(10);
         buffer.putStringAt(0, Style.ITALIC, "abcdefghij");
         for (int i = 0; i < buffer.length(); i++) {
             assertThat(buffer.charAt(i)).isEqualTo((char) ('a' + i));
