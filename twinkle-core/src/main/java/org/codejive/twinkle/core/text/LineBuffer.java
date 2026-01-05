@@ -54,9 +54,9 @@ public interface LineBuffer extends Printable {
     @NonNull LineBuffer resize(int newSize);
 
     LineBuffer EMPTY =
-            new CodepointBuffer(0) {
+            new LineBufferImpl(0) {
                 @Override
-                public @NonNull CodepointBuffer resize(int newSize) {
+                public @NonNull LineBufferImpl resize(int newSize) {
                     if (newSize != 0) {
                         throw new UnsupportedOperationException("Cannot resize EMPTY");
                     }
@@ -65,22 +65,22 @@ public interface LineBuffer extends Printable {
             };
 
     static @NonNull LineBuffer of(int width) {
-        return new CodepointBuffer(width);
+        return new LineBufferImpl(width);
     }
 }
 
-class CodepointBuffer implements LineBuffer {
+class LineBufferImpl implements LineBuffer {
     protected int[] cpBuffer;
     protected String[] graphemeBuffer;
     protected long[] styleBuffer;
 
-    public CodepointBuffer(int size) {
+    public LineBufferImpl(int size) {
         cpBuffer = new int[size];
         graphemeBuffer = new String[size];
         styleBuffer = new long[size];
     }
 
-    protected CodepointBuffer(int[] cpBuffer, String[] graphemeBuffer, long[] styleBuffer) {
+    protected LineBufferImpl(int[] cpBuffer, String[] graphemeBuffer, long[] styleBuffer) {
         if (cpBuffer.length != styleBuffer.length || cpBuffer.length != graphemeBuffer.length) {
             throw new IllegalArgumentException(
                     "Codepoint, grapheme and style buffers must have the same length");
@@ -242,7 +242,7 @@ class CodepointBuffer implements LineBuffer {
     }
 
     @Override
-    public @NonNull CodepointBuffer subSequence(int start, int end) {
+    public @NonNull LineBufferImpl subSequence(int start, int end) {
         if (start < 0 || end > length() || start > end) {
             throw new IndexOutOfBoundsException(
                     "Invalid subsequence range: " + start + " to " + end);
@@ -254,11 +254,11 @@ class CodepointBuffer implements LineBuffer {
         System.arraycopy(cpBuffer, start, subCpBuffer, 0, subLength);
         System.arraycopy(graphemeBuffer, start, subGraphemeBuffer, 0, subLength);
         System.arraycopy(styleBuffer, start, subStyleBuffer, 0, subLength);
-        return new CodepointBuffer(subCpBuffer, subGraphemeBuffer, subStyleBuffer);
+        return new LineBufferImpl(subCpBuffer, subGraphemeBuffer, subStyleBuffer);
     }
 
     @Override
-    public @NonNull CodepointBuffer resize(int newSize) {
+    public @NonNull LineBufferImpl resize(int newSize) {
         if (newSize == cpBuffer.length) {
             return this;
         }
