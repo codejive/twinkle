@@ -197,24 +197,7 @@ class CodepointBuffer implements LineBuffer {
 
     @Override
     public int putStringAt(int index, long styleState, @NonNull CharSequence str) {
-        if (outside(index, str.length())) {
-            return str.length();
-        }
-        // TODO this code can be optimized by avoiding calculating codepointCount
-        //  and simply looping until the end of the char sequence is reached
-        int cpsCount = codepointCount(str);
-        int minIndex = 0;
-        int maxIndex = cpBuffer.length;
-        int startIndex = Math.max(index, minIndex);
-        int strStart = Math.max(startIndex - index, 0);
-        int endIndex = Math.min(index + cpsCount, maxIndex);
-        int len = endIndex - startIndex;
-        for (int i = 0; i < len; ) {
-            int cp = codepointAt(str, strStart + i);
-            setCharAt_(startIndex + i, styleState, cp);
-            i += Character.charCount(cp);
-        }
-        return cpsCount;
+        return putStringAt(index, StyledIterator.of(str, styleState));
     }
 
     @Override
@@ -228,7 +211,12 @@ class CodepointBuffer implements LineBuffer {
             long style = iter.next();
             int cp = iter.next();
             if (cp == '\n') {
+                // We only deal with single lines here, so stop at newline
                 break;
+            }
+            if (iter.width() == 0) {
+                // We shouldn't be getting any of these from a StyledIterator, but just in case...
+                continue;
             }
             if (cnt < len) {
                 if (iter.isComplex()) {
@@ -238,8 +226,19 @@ class CodepointBuffer implements LineBuffer {
                 }
             }
             cnt++;
+            if (iter.width() == 2 && cnt < len) {
+                // We're dealing with a wide character, so we need to mark the next cell as skipped
+                setSkipAt(startIndex + cnt);
+                cnt++;
+            }
         }
         return cnt;
+    }
+
+    private void setSkipAt(int index) {
+        cpBuffer[index] = -1;
+        graphemeBuffer[index] = null;
+        styleBuffer[index] = -1;
     }
 
     @Override
