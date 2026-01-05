@@ -1,5 +1,6 @@
 package org.codejive.twinkle.util;
 
+import java.io.Reader;
 import java.util.NoSuchElementException;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
@@ -109,5 +110,29 @@ public class StyledIterator implements SequenceIterator {
         }
         exhausted = true;
         primed = true;
+    }
+
+    public static StyledIterator of(CharSequence text) {
+        return of(text, Style.F_UNSTYLED);
+    }
+
+    public static StyledIterator of(Reader input) {
+        return of(input, Style.F_UNSTYLED);
+    }
+
+    public static StyledIterator of(SequenceIterator iter) {
+        return of(iter, Style.F_UNSTYLED);
+    }
+
+    public static StyledIterator of(CharSequence text, long currentStyleState) {
+        return of(SequenceIterator.of(text), currentStyleState);
+    }
+
+    public static StyledIterator of(Reader input, long currentStyleState) {
+        return of(SequenceIterator.of(input), currentStyleState);
+    }
+
+    public static StyledIterator of(SequenceIterator iter, long currentStyleState) {
+        return new StyledIterator(iter, currentStyleState);
     }
 }
