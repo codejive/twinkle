@@ -4,67 +4,67 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.codejive.twinkle.ansi.Color;
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.core.text.StyledBuffer;
+import org.codejive.twinkle.core.text.LineBuffer;
 import org.junit.jupiter.api.Test;
 
-public class TestPanel {
+public class TestBuffer {
 
     @Test
     public void testPanelCreation() {
-        Panel panel = Panel.of(10, 5);
-        Size size = panel.size();
+        Buffer buffer = Buffer.of(10, 5);
+        Size size = buffer.size();
         assertThat(size.width()).isEqualTo(10);
         assertThat(size.height()).isEqualTo(5);
     }
 
     @Test
     public void testPanelDefaultInnerContent() {
-        Panel panel = Panel.of(10, 5);
-        Size size = panel.size();
+        Buffer buffer = Buffer.of(10, 5);
+        Size size = buffer.size();
         for (int y = 0; y < size.height(); y++) {
             for (int x = 0; x < size.width(); x++) {
-                assertThat(panel.charAt(x, y)).isEqualTo('\0');
-                assertThat(panel.styleAt(x, y)).isEqualTo(Style.UNSTYLED);
+                assertThat(buffer.charAt(x, y)).isEqualTo('\0');
+                assertThat(buffer.styleAt(x, y)).isEqualTo(Style.UNSTYLED);
             }
         }
     }
 
     @Test
     public void testPanelDefaultOuterContent() {
-        Panel panel = Panel.of(10, 5);
-        Size size = panel.size();
+        Buffer buffer = Buffer.of(10, 5);
+        Size size = buffer.size();
         for (int y = -5; y < size.height() + 5; y++) {
             for (int x = -5; x < size.width() + 5; x++) {
                 if (x >= 0 && x < size.width() && y >= 0 && y < size.height()) {
                     continue; // Skip inner content
                 }
-                assertThat(panel.charAt(x, y)).isEqualTo(StyledBuffer.REPLACEMENT_CHAR);
-                assertThat(panel.styleAt(x, y)).isEqualTo(Style.UNSTYLED);
+                assertThat(buffer.charAt(x, y)).isEqualTo(LineBuffer.REPLACEMENT_CHAR);
+                assertThat(buffer.styleAt(x, y)).isEqualTo(Style.UNSTYLED);
             }
         }
     }
 
     @Test
     public void testPanelNewContents() {
-        Panel panel = createPanel();
-        Size size = panel.size();
+        Buffer buffer = createPanel();
+        Size size = buffer.size();
         for (int y = 0; y < size.height(); y++) {
             for (int x = 0; x < size.width(); x++) {
-                assertThat(panel.charAt(x, y)).isEqualTo((char) ('A' + x + y * size.width()));
-                assertThat(panel.styleAt(x, y)).isEqualTo(Style.ofFgColor(Color.indexed(x)));
+                assertThat(buffer.charAt(x, y)).isEqualTo((char) ('A' + x + y * size.width()));
+                assertThat(buffer.styleAt(x, y)).isEqualTo(Style.ofFgColor(Color.indexed(x)));
             }
         }
     }
 
     @Test
     public void testPanelView() {
-        Panel panel = createPanel();
-        Canvas view = panel.view(1, 1, 3, 3);
+        Buffer buffer = createPanel();
+        Canvas view = buffer.view(1, 1, 3, 3);
         Size size = view.size();
         for (int y = 0; y < size.height(); y++) {
             for (int x = 0; x < size.width(); x++) {
                 assertThat(view.charAt(x, y))
-                        .isEqualTo((char) ('G' + x + y * panel.size().width()));
+                        .isEqualTo((char) ('G' + x + y * buffer.size().width()));
                 assertThat(view.styleAt(x, y)).isEqualTo(Style.ofFgColor(Color.indexed(x + 1)));
             }
         }
@@ -72,15 +72,15 @@ public class TestPanel {
 
     @Test
     public void testPanelViewOutside() {
-        Panel panel = createPanel();
-        Canvas view = panel.view(1, 1, 3, 3);
+        Buffer buffer = createPanel();
+        Canvas view = buffer.view(1, 1, 3, 3);
         Size size = view.size();
         for (int y = -2; y < size.height() + 2; y++) {
             for (int x = -2; x < size.width() + 2; x++) {
                 if (x >= 0 && x < size.width() && y >= 0 && y < size.height()) {
                     continue; // Skip inner content
                 }
-                assertThat(view.charAt(x, y)).isEqualTo(StyledBuffer.REPLACEMENT_CHAR);
+                assertThat(view.charAt(x, y)).isEqualTo(LineBuffer.REPLACEMENT_CHAR);
                 assertThat(view.styleAt(x, y)).isEqualTo(Style.UNSTYLED);
             }
         }
@@ -88,14 +88,14 @@ public class TestPanel {
 
     @Test
     public void testPanelNestedView() {
-        Panel panel = createPanel();
-        Panel view1 = panel.view(1, 1, 3, 3);
-        Panel view2 = view1.view(1, 1, 2, 2);
+        Buffer buffer = createPanel();
+        Buffer view1 = buffer.view(1, 1, 3, 3);
+        Buffer view2 = view1.view(1, 1, 2, 2);
         Size size = view2.size();
         for (int y = 0; y < size.height(); y++) {
             for (int x = 0; x < size.width(); x++) {
                 assertThat(view2.charAt(x, y))
-                        .isEqualTo((char) ('M' + x + y * panel.size().width()));
+                        .isEqualTo((char) ('M' + x + y * buffer.size().width()));
                 assertThat(view2.styleAt(x, y)).isEqualTo(Style.ofFgColor(Color.indexed(x + 2)));
             }
         }
@@ -103,16 +103,16 @@ public class TestPanel {
 
     @Test
     public void testPanelNestedViewOutside() {
-        Panel panel = createPanel();
-        Panel view1 = panel.view(1, 1, 3, 3);
-        Panel view2 = view1.view(1, 1, 2, 2);
+        Buffer buffer = createPanel();
+        Buffer view1 = buffer.view(1, 1, 3, 3);
+        Buffer view2 = view1.view(1, 1, 2, 2);
         Size size = view2.size();
         for (int y = -2; y < size.height() + 2; y++) {
             for (int x = -2; x < size.width() + 2; x++) {
                 if (x >= 0 && x < size.width() && y >= 0 && y < size.height()) {
                     continue; // Skip inner content
                 }
-                assertThat(view2.charAt(x, y)).isEqualTo(StyledBuffer.REPLACEMENT_CHAR);
+                assertThat(view2.charAt(x, y)).isEqualTo(LineBuffer.REPLACEMENT_CHAR);
                 assertThat(view2.styleAt(x, y)).isEqualTo(Style.UNSTYLED);
             }
         }
@@ -120,9 +120,9 @@ public class TestPanel {
 
     @Test
     public void testPanelNestedViewMoved() {
-        Panel panel = createPanel();
-        PanelView view1 = panel.view(1, 1, 3, 3);
-        Panel view2 = view1.view(1, 1, 2, 2);
+        Buffer buffer = createPanel();
+        Buffer.View view1 = buffer.view(1, 1, 3, 3);
+        Buffer view2 = view1.view(1, 1, 2, 2);
 
         view1.moveBy(1, 1);
 
@@ -130,7 +130,7 @@ public class TestPanel {
         for (int y = 0; y < size.height(); y++) {
             for (int x = 0; x < size.width(); x++) {
                 assertThat(view2.charAt(x, y))
-                        .isEqualTo((char) ('S' + x + y * panel.size().width()));
+                        .isEqualTo((char) ('S' + x + y * buffer.size().width()));
                 assertThat(view2.styleAt(x, y)).isEqualTo(Style.ofFgColor(Color.indexed(x + 3)));
             }
         }
@@ -138,16 +138,16 @@ public class TestPanel {
 
     @Test
     public void testPanelNestedViewMovedFullyOutside() {
-        Panel panel = createPanel();
-        PanelView view1 = panel.view(1, 1, 3, 3);
-        Panel view2 = view1.view(1, 1, 2, 2);
+        Buffer buffer = createPanel();
+        Buffer.View view1 = buffer.view(1, 1, 3, 3);
+        Buffer view2 = view1.view(1, 1, 2, 2);
 
         view1.moveBy(10, 10);
 
         Size size = view2.size();
         for (int y = 0; y < size.height(); y++) {
             for (int x = 0; x < size.width(); x++) {
-                assertThat(view2.charAt(x, y)).isEqualTo(StyledBuffer.REPLACEMENT_CHAR);
+                assertThat(view2.charAt(x, y)).isEqualTo(LineBuffer.REPLACEMENT_CHAR);
                 assertThat(view2.styleAt(x, y)).isEqualTo(Style.UNSTYLED);
             }
         }
@@ -155,9 +155,9 @@ public class TestPanel {
 
     @Test
     public void testPanelNestedViewMovedPartiallyOutside() {
-        Panel panel = createPanel();
-        PanelView view1 = panel.view(1, 1, 3, 3);
-        Panel view2 = view1.view(1, 1, 2, 2);
+        Buffer buffer = createPanel();
+        Buffer.View view1 = buffer.view(1, 1, 3, 3);
+        Buffer view2 = view1.view(1, 1, 2, 2);
 
         view1.moveTo(3, 3);
 
@@ -169,26 +169,26 @@ public class TestPanel {
                     assertThat(view2.styleAt(x, y))
                             .isEqualTo(Style.ofFgColor(Color.indexed(x + 4)));
                 } else {
-                    assertThat(view2.charAt(x, y)).isEqualTo(StyledBuffer.REPLACEMENT_CHAR);
+                    assertThat(view2.charAt(x, y)).isEqualTo(LineBuffer.REPLACEMENT_CHAR);
                     assertThat(view2.styleAt(x, y)).isEqualTo(Style.UNSTYLED);
                 }
             }
         }
     }
 
-    private Panel createPanel() {
-        Panel panel = Panel.of(5, 5);
-        Size size = panel.size();
+    private Buffer createPanel() {
+        Buffer buffer = Buffer.of(5, 5);
+        Size size = buffer.size();
         for (int y = 0; y < size.height(); y++) {
             for (int x = 0; x < size.width(); x++) {
-                panel.setCharAt(
+                buffer.setCharAt(
                         x,
                         y,
                         Style.ofFgColor(Color.indexed(x)),
                         (char) ('A' + x + y * size.width()));
             }
         }
-        return panel;
+        return buffer;
     }
 
     private void printCanvas(Canvas canvas) {

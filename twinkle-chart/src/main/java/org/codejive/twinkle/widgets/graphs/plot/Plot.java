@@ -1,8 +1,8 @@
 package org.codejive.twinkle.widgets.graphs.plot;
 
 import org.codejive.twinkle.ansi.Style;
+import org.codejive.twinkle.core.widget.Buffer;
 import org.codejive.twinkle.core.widget.Canvas;
-import org.codejive.twinkle.core.widget.Panel;
 import org.codejive.twinkle.core.widget.Size;
 import org.codejive.twinkle.core.widget.Widget;
 import org.jspecify.annotations.NonNull;
@@ -49,7 +49,7 @@ public class Plot implements Widget {
     private static final int dotIndex[] = {1, 2, 4, 7, 6, 13, 14, 8, 9, 11};
 
     public static Plot of(Size size) {
-        return new Plot(Panel.of(size));
+        return new Plot(Buffer.of(size));
     }
 
     public static Plot of(Canvas canvas) {

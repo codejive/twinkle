@@ -3,21 +3,84 @@ package org.codejive.twinkle.core.text;
 import java.io.IOException;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
+import org.codejive.twinkle.util.Printable;
 import org.codejive.twinkle.util.StyledIterator;
 import org.jspecify.annotations.NonNull;
 
-public class StyledCodepointBuffer implements StyledBuffer {
+public interface LineBuffer extends Printable {
+
+    char REPLACEMENT_CHAR = '\uFFFD';
+
+    int length();
+
+    char charAt(int index);
+
+    int codepointAt(int i);
+
+    @NonNull String graphemeAt(int i);
+
+    long styleStateAt(int i);
+
+    @NonNull Style styleAt(int i);
+
+    default void setCharAt(int index, @NonNull Style style, char c) {
+        setCharAt(index, style.state(), c);
+    }
+
+    void setCharAt(int index, long styleState, char c);
+
+    default void setCharAt(int index, @NonNull Style style, int cp) {
+        setCharAt(index, style.state(), cp);
+    }
+
+    void setCharAt(int index, long styleState, int cp);
+
+    default void setCharAt(int index, @NonNull Style style, @NonNull CharSequence grapheme) {
+        setCharAt(index, style.state(), grapheme);
+    }
+
+    void setCharAt(int index, long styleState, @NonNull CharSequence grapheme);
+
+    default int putStringAt(int index, @NonNull Style style, @NonNull CharSequence str) {
+        return putStringAt(index, style.state(), str);
+    }
+
+    int putStringAt(int index, long styleState, @NonNull CharSequence str);
+
+    int putStringAt(int index, @NonNull StyledIterator iter);
+
+    @NonNull LineBuffer subSequence(int start, int end);
+
+    @NonNull LineBuffer resize(int newSize);
+
+    LineBuffer EMPTY =
+            new CodepointBuffer(0) {
+                @Override
+                public @NonNull CodepointBuffer resize(int newSize) {
+                    if (newSize != 0) {
+                        throw new UnsupportedOperationException("Cannot resize EMPTY");
+                    }
+                    return this;
+                }
+            };
+
+    static @NonNull LineBuffer of(int width) {
+        return new CodepointBuffer(width);
+    }
+}
+
+class CodepointBuffer implements LineBuffer {
     protected int[] cpBuffer;
     protected String[] graphemeBuffer;
     protected long[] styleBuffer;
 
-    public StyledCodepointBuffer(int size) {
+    public CodepointBuffer(int size) {
         cpBuffer = new int[size];
         graphemeBuffer = new String[size];
         styleBuffer = new long[size];
     }
 
-    protected StyledCodepointBuffer(int[] cpBuffer, String[] graphemeBuffer, long[] styleBuffer) {
+    protected CodepointBuffer(int[] cpBuffer, String[] graphemeBuffer, long[] styleBuffer) {
         if (cpBuffer.length != styleBuffer.length || cpBuffer.length != graphemeBuffer.length) {
             throw new IllegalArgumentException(
                     "Codepoint, grapheme and style buffers must have the same length");
@@ -155,24 +218,6 @@ public class StyledCodepointBuffer implements StyledBuffer {
     }
 
     @Override
-    public int putStringAt(int index, @NonNull StyledCharSequence str) {
-        if (outside(index, str.length())) {
-            return str.length();
-        }
-        int minIndex = 0;
-        int maxIndex = cpBuffer.length;
-        int startIndex = Math.max(index, minIndex);
-        int endIndex = Math.min(index + str.length(), maxIndex);
-        int strStart = Math.max(startIndex - index, 0);
-        int len = endIndex - startIndex;
-        for (int i = 0; i < len; i++) {
-            setCharAt_(
-                    startIndex + i, str.styleStateAt(strStart + i), str.codepointAt(strStart + i));
-        }
-        return str.length();
-    }
-
-    @Override
     public int putStringAt(int index, @NonNull StyledIterator iter) {
         int minIndex = 0;
         int maxIndex = cpBuffer.length;
@@ -198,7 +243,7 @@ public class StyledCodepointBuffer implements StyledBuffer {
     }
 
     @Override
-    public @NonNull StyledCharSequence subSequence(int start, int end) {
+    public @NonNull CodepointBuffer subSequence(int start, int end) {
         if (start < 0 || end > length() || start > end) {
             throw new IndexOutOfBoundsException(
                     "Invalid subsequence range: " + start + " to " + end);
@@ -210,11 +255,11 @@ public class StyledCodepointBuffer implements StyledBuffer {
         System.arraycopy(cpBuffer, start, subCpBuffer, 0, subLength);
         System.arraycopy(graphemeBuffer, start, subGraphemeBuffer, 0, subLength);
         System.arraycopy(styleBuffer, start, subStyleBuffer, 0, subLength);
-        return new StyledCodepointBuffer(subCpBuffer, subGraphemeBuffer, subStyleBuffer);
+        return new CodepointBuffer(subCpBuffer, subGraphemeBuffer, subStyleBuffer);
     }
 
     @Override
-    public @NonNull StyledCodepointBuffer resize(int newSize) {
+    public @NonNull CodepointBuffer resize(int newSize) {
         if (newSize == cpBuffer.length) {
             return this;
         }

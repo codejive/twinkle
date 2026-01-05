@@ -8,8 +8,8 @@ import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Color;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.core.text.Line;
+import org.codejive.twinkle.core.widget.Buffer;
 import org.codejive.twinkle.core.widget.Canvas;
-import org.codejive.twinkle.core.widget.Panel;
 import org.codejive.twinkle.core.widget.Size;
 import org.codejive.twinkle.core.widget.Widget;
 import org.codejive.twinkle.widgets.Framed;
@@ -18,22 +18,22 @@ import org.jspecify.annotations.NonNull;
 
 public class MathPlotFourDemo {
     public static void main(String[] args) throws InterruptedException, IOException {
-        Panel pnl = Panel.of(60, 40);
+        Buffer buf = Buffer.of(60, 40);
         AnimatingMathPlot p1 = new AnimatingMathPlot(Size.of(30, 20), " Interfering Waves 1 ");
         AnimatingMathPlot p2 = new AnimatingMathPlot(Size.of(30, 20), " Interfering Waves 2 ");
         AnimatingMathPlot p3 = new AnimatingMathPlot(Size.of(30, 20), " Interfering Waves 3 ");
         AnimatingMathPlot p4 = new AnimatingMathPlot(Size.of(30, 20), " Interfering Waves 4 ");
-        Canvas v1 = pnl.view(0, 0, 30, 20);
-        Canvas v2 = pnl.view(30, 0, 30, 20);
-        Canvas v3 = pnl.view(0, 20, 30, 20);
-        Canvas v4 = pnl.view(30, 20, 30, 20);
+        Canvas v1 = buf.view(0, 0, 30, 20);
+        Canvas v2 = buf.view(30, 0, 30, 20);
+        Canvas v3 = buf.view(0, 20, 30, 20);
+        Canvas v4 = buf.view(30, 20, 30, 20);
 
         PrintWriter pout = new PrintWriter(System.out);
         pout.print(Ansi.hideCursor());
         try {
             for (int i = 0; i < 400; i++) {
                 if (i > 0) {
-                    pout.print(Ansi.cursorMove(Ansi.CURSOR_PREV_LINE, pnl.size().height()));
+                    pout.print(Ansi.cursorMove(Ansi.CURSOR_PREV_LINE, buf.size().height()));
                 }
 
                 p1.update();
@@ -46,7 +46,7 @@ public class MathPlotFourDemo {
                 p3.render(v3);
                 p4.render(v4);
 
-                pnl.toAnsi(pout);
+                buf.toAnsi(pout);
                 pout.println();
 
                 Thread.sleep(20);

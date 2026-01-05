@@ -1,28 +1,61 @@
 package org.codejive.twinkle.core.widget;
 
-import static org.codejive.twinkle.core.text.StyledBuffer.REPLACEMENT_CHAR;
+import static org.codejive.twinkle.core.text.LineBuffer.REPLACEMENT_CHAR;
 
 import java.io.IOException;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.core.text.StyledBuffer;
-import org.codejive.twinkle.core.text.StyledCharSequence;
+import org.codejive.twinkle.core.text.LineBuffer;
+import org.codejive.twinkle.util.Printable;
 import org.codejive.twinkle.util.StyledIterator;
 import org.jspecify.annotations.NonNull;
 
-public class StyledBufferPanel implements Panel {
-    protected @NonNull Rect rect;
-    protected @NonNull StyledBuffer[] lines;
+public interface Buffer extends Canvas, Printable {
 
-    public StyledBufferPanel(@NonNull Size size) {
+    @NonNull Buffer resize(@NonNull Size newSize);
+
+    @Override
+    default @NonNull View view(int left, int top, int width, int height) {
+        return view(new Rect(left, top, width, height));
+    }
+
+    @Override
+    @NonNull View view(@NonNull Rect rect);
+
+    static @NonNull Buffer of(int width, int height) {
+        return of(Size.of(width, height));
+    }
+
+    static @NonNull Buffer of(@NonNull Size size) {
+        return new BufferImpl(size);
+    }
+
+    static @NonNull Buffer of(@NonNull LineBuffer buffer) {
+        Rect rect = Rect.of(buffer.length(), 1);
+        LineBuffer[] lines = new LineBuffer[] {buffer};
+        return new BufferImpl(rect, lines);
+    }
+
+    interface View extends Buffer {
+        View moveTo(int x, int y);
+
+        View moveBy(int dx, int dy);
+    }
+}
+
+class BufferImpl implements Buffer {
+    protected @NonNull Rect rect;
+    protected @NonNull LineBuffer[] lines;
+
+    public BufferImpl(@NonNull Size size) {
         this.rect = Rect.of(size);
-        this.lines = new StyledBuffer[size.height()];
+        this.lines = new LineBuffer[size.height()];
         for (int i = 0; i < size.height(); i++) {
             lines[i] = createBuffer(size.width());
         }
     }
 
-    protected StyledBufferPanel(@NonNull Rect rect, @NonNull StyledBuffer[] lines) {
+    protected BufferImpl(@NonNull Rect rect, @NonNull LineBuffer[] lines) {
         this.rect = rect;
         this.lines = lines;
     }
@@ -109,14 +142,6 @@ public class StyledBufferPanel implements Panel {
     }
 
     @Override
-    public int putStringAt(int x, int y, @NonNull StyledCharSequence str) {
-        if (outside(x, y, str.length())) {
-            return str.length();
-        }
-        return line(y).putStringAt(applyXOffset(x), str);
-    }
-
-    @Override
     public int putStringAt(int x, int y, @NonNull StyledIterator iter) {
         return line(y).putStringAt(applyXOffset(x), iter);
     }
@@ -145,11 +170,11 @@ public class StyledBufferPanel implements Panel {
     }
 
     @Override
-    public @NonNull Panel resize(@NonNull Size newSize) {
+    public @NonNull Buffer resize(@NonNull Size newSize) {
         if (newSize.equals(size())) {
             return this;
         }
-        StyledBuffer[] newLines = new StyledBuffer[newSize.height()];
+        LineBuffer[] newLines = new LineBuffer[newSize.height()];
         for (int i = 0; i < newSize.height(); i++) {
             if (i < lines.length) {
                 newLines[i] = lines[i].resize(newSize.width());
@@ -163,16 +188,16 @@ public class StyledBufferPanel implements Panel {
         return this;
     }
 
-    private @NonNull StyledBuffer createBuffer(int width) {
-        return StyledBuffer.of(width);
+    private @NonNull LineBuffer createBuffer(int width) {
+        return LineBuffer.of(width);
     }
 
     @Override
-    public @NonNull PanelView view(@NonNull Rect viewRect) {
-        return new StyledBufferPanelView(this, viewRect, lines);
+    public Buffer.@NonNull View view(@NonNull Rect viewRect) {
+        return new BufferViewImpl(this, viewRect, lines);
     }
 
-    private StyledBuffer line(int y) {
+    private LineBuffer line(int y) {
         y = applyYOffset(y);
         return lines[y];
     }
@@ -257,54 +282,52 @@ public class StyledBufferPanel implements Panel {
         }
         return appendable;
     }
+}
 
-    public static class StyledBufferPanelView extends StyledBufferPanel implements PanelView {
-        protected final @NonNull StyledBufferPanel parentPanel;
+class BufferViewImpl extends BufferImpl implements Buffer.View {
+    protected final @NonNull BufferImpl parentPanel;
 
-        protected StyledBufferPanelView(
-                @NonNull StyledBufferPanel parentPanel,
-                @NonNull Rect rect,
-                @NonNull StyledBuffer[] lines) {
-            super(rect, lines);
-            this.parentPanel = parentPanel;
-        }
+    protected BufferViewImpl(
+            @NonNull BufferImpl parentPanel, @NonNull Rect rect, @NonNull LineBuffer[] lines) {
+        super(rect, lines);
+        this.parentPanel = parentPanel;
+    }
 
-        @Override
-        protected @NonNull Rect rect() {
-            Rect pr = parentPanel.rect();
-            return Rect.of(
-                    this.rect.left() + pr.left(),
-                    this.rect.top() + pr.top(),
-                    Math.min(
-                            this.rect.size().width(),
-                            Math.max(0, pr.size().width() - this.rect.left())),
-                    Math.min(
-                            this.rect.size().height(),
-                            Math.max(0, pr.size().height() - this.rect.top())));
-        }
+    @Override
+    protected @NonNull Rect rect() {
+        Rect pr = parentPanel.rect();
+        return Rect.of(
+                this.rect.left() + pr.left(),
+                this.rect.top() + pr.top(),
+                Math.min(
+                        this.rect.size().width(),
+                        Math.max(0, pr.size().width() - this.rect.left())),
+                Math.min(
+                        this.rect.size().height(),
+                        Math.max(0, pr.size().height() - this.rect.top())));
+    }
 
-        @Override
-        public @NonNull Panel resize(@NonNull Size newSize) {
-            if (newSize.equals(size())) {
-                return this;
-            }
-            Rect r = rect();
-            rect = Rect.of(r.left(), r.top(), newSize);
+    @Override
+    public @NonNull Buffer resize(@NonNull Size newSize) {
+        if (newSize.equals(size())) {
             return this;
         }
+        Rect r = rect();
+        rect = Rect.of(r.left(), r.top(), newSize);
+        return this;
+    }
 
-        @Override
-        public PanelView moveTo(int x, int y) {
-            Rect r = rect();
-            rect = Rect.of(x, y, r.size());
-            return this;
-        }
+    @Override
+    public View moveTo(int x, int y) {
+        Rect r = rect();
+        rect = Rect.of(x, y, r.size());
+        return this;
+    }
 
-        @Override
-        public PanelView moveBy(int dx, int dy) {
-            Rect r = rect();
-            rect = Rect.of(r.left() + dx, r.top() + dy, r.size());
-            return this;
-        }
+    @Override
+    public View moveBy(int dx, int dy) {
+        Rect r = rect();
+        rect = Rect.of(r.left() + dx, r.top() + dy, r.size());
+        return this;
     }
 }

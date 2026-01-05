@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.core.widget.Panel;
+import org.codejive.twinkle.core.widget.Buffer;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +32,7 @@ public class TestSpan {
 
     @Test
     public void testSpansRender() {
-        Panel p = Panel.of(1, 1);
+        Buffer p = Buffer.of(1, 1);
         Span.of("A", Style.BOLD).render(p);
         assertThat(p.toString()).isEqualTo("A");
         assertThat(p.toAnsiString()).isEqualTo(Ansi.STYLE_RESET + Ansi.style(Ansi.BOLD) + "A");

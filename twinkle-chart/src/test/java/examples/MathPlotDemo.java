@@ -4,7 +4,7 @@ package examples;
 import java.util.Random;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.core.text.Line;
-import org.codejive.twinkle.core.widget.Panel;
+import org.codejive.twinkle.core.widget.Buffer;
 import org.codejive.twinkle.core.widget.Size;
 import org.codejive.twinkle.widgets.Framed;
 import org.codejive.twinkle.widgets.graphs.plot.MathPlot;
@@ -13,7 +13,7 @@ public class MathPlotDemo {
     public static void main(String[] args) throws InterruptedException {
         MathPlot p = MathPlot.of(Size.of(40, 20)).ranges(-2 * Math.PI, 2 * Math.PI, -2.0, 2.0);
         Framed f = Framed.of(p).title(Line.of(" Interfering Waves "));
-        Panel pnl = Panel.of(42, 22);
+        Buffer buf = Buffer.of(42, 22);
 
         System.out.print(Ansi.hideCursor());
         try {
@@ -63,8 +63,8 @@ public class MathPlotDemo {
                 // plot combined wave
                 p.plot(x -> a1 * Math.sin(k1 * x + phase1) + a2 * Math.sin(k2 * x + phase2));
 
-                f.render(pnl);
-                System.out.println(pnl);
+                f.render(buf);
+                System.out.println(buf);
 
                 Thread.sleep(20);
             }
