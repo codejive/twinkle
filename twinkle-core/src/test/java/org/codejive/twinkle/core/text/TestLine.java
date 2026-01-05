@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.core.widget.Panel;
+import org.codejive.twinkle.util.SequenceIterator;
+import org.codejive.twinkle.util.StyledIterator;
 import org.junit.jupiter.api.Test;
 
 public class TestLine {
@@ -34,5 +36,13 @@ public class TestLine {
                                 + "B"
                                 + Ansi.style(Ansi.NORMAL)
                                 + "C");
+    }
+
+    @Test
+    public void testOfStyledIterator() {
+        StyledIterator iter = new StyledIterator(SequenceIterator.of("Line 1"));
+        Panel p = Panel.of(6, 1);
+        Line.of(iter).render(p);
+        assertThat(p.toString()).isEqualTo("Line 1");
     }
 }

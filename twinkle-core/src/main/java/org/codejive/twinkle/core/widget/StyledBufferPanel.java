@@ -7,6 +7,7 @@ import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.core.text.StyledBuffer;
 import org.codejive.twinkle.core.text.StyledCharSequence;
+import org.codejive.twinkle.util.StyledIterator;
 import org.jspecify.annotations.NonNull;
 
 public class StyledBufferPanel implements Panel {
@@ -113,6 +114,11 @@ public class StyledBufferPanel implements Panel {
             return str.length();
         }
         return line(y).putStringAt(applyXOffset(x), str);
+    }
+
+    @Override
+    public int putStringAt(int x, int y, @NonNull StyledIterator iter) {
+        return line(y).putStringAt(applyXOffset(x), iter);
     }
 
     @Override

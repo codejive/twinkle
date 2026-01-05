@@ -2,6 +2,7 @@ package org.codejive.twinkle.core.widget;
 
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.core.text.StyledCharSequence;
+import org.codejive.twinkle.util.StyledIterator;
 import org.jspecify.annotations.NonNull;
 
 public interface Canvas extends Sized {
@@ -40,6 +41,8 @@ public interface Canvas extends Sized {
     int putStringAt(int x, int y, long styleState, @NonNull CharSequence str);
 
     int putStringAt(int x, int y, @NonNull StyledCharSequence str);
+
+    int putStringAt(int x, int y, @NonNull StyledIterator iter);
 
     default void drawHLineAt(int x, int y, int x2, Style style, char c) {
         drawHLineAt(x, y, x2, style.state(), c);
