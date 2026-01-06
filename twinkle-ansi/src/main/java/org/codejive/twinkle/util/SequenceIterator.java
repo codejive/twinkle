@@ -58,55 +58,22 @@ abstract class BaseSequenceIterator implements SequenceIterator {
     protected int currentWidth = 0;
 
     protected boolean shouldBreak(int prev, int curr, int riCount) {
-        if (isL(prev) && (isL(curr) || isV(curr) || isLV(curr) || isLVT(curr))) return false;
-        if ((isLV(prev) || isV(prev)) && (isV(curr) || isT(curr))) return false;
-        if ((isLVT(prev) || isT(prev)) && isT(curr)) return false;
+        if (Unicode.isL(prev)
+                && (Unicode.isL(curr)
+                        || Unicode.isV(curr)
+                        || Unicode.isLV(curr)
+                        || Unicode.isLVT(curr))) return false;
+        if ((Unicode.isLV(prev) || Unicode.isV(prev)) && (Unicode.isV(curr) || Unicode.isT(curr)))
+            return false;
+        if ((Unicode.isLVT(prev) || Unicode.isT(prev)) && Unicode.isT(curr)) return false;
         int type = Character.getType(curr);
         if (type == Character.NON_SPACING_MARK
                 || type == Character.COMBINING_SPACING_MARK
                 || curr == 0x200D
                 || prev == 0x200D) return false;
-        if (isRegionalIndicator(prev) && isRegionalIndicator(curr)) return (riCount % 2 == 0);
-        return !(isPrepend(prev) || isVirama(prev));
-    }
-
-    protected static boolean isRegionalIndicator(int cp) {
-        return cp >= 0x1F1E6 && cp <= 0x1F1FF;
-    }
-
-    protected static boolean isL(int cp) {
-        return (cp >= 0x1100 && cp <= 0x115F);
-    }
-
-    protected static boolean isV(int cp) {
-        return (cp >= 0x1160 && cp <= 0x11A7);
-    }
-
-    protected static boolean isT(int cp) {
-        return (cp >= 0x11A8 && cp <= 0x11FF);
-    }
-
-    protected static boolean isLV(int cp) {
-        return (cp >= 0xAC00 && cp <= 0xD7A3 && (cp - 0xAC00) % 28 == 0);
-    }
-
-    protected static boolean isLVT(int cp) {
-        return (cp >= 0xAC00 && cp <= 0xD7A3 && (cp - 0xAC00) % 28 != 0);
-    }
-
-    protected static boolean isVirama(int cp) {
-        return (cp >= 0x094D && cp <= 0x0D4D && (cp & 0xFF) == 0x4D) || cp == 0x0D4D;
-    }
-
-    protected static boolean isPrepend(int cp) {
-        return cp == 0x0600
-                || cp == 0x0601
-                || cp == 0x0602
-                || cp == 0x0603
-                || cp == 0x0604
-                || cp == 0x0605
-                || cp == 0x06DD
-                || cp == 0x070F;
+        if (Unicode.isRegionalIndicator(prev) && Unicode.isRegionalIndicator(curr))
+            return (riCount % 2 == 0);
+        return !(Unicode.isPrepend(prev) || Unicode.isVirama(prev));
     }
 
     @Override
@@ -122,48 +89,11 @@ abstract class BaseSequenceIterator implements SequenceIterator {
             return 0;
         }
 
-        if (isWide(cp)) {
+        if (Unicode.isWide(cp)) {
             return 2;
         }
 
         return 1;
-    }
-
-    private boolean isWide(int cp) {
-        // East Asian Wide (W) and Fullwidth (F)
-        if ((cp >= 0x1100 && cp <= 0x115F)
-                || // Hangul Jamo
-                (cp >= 0x2E80 && cp <= 0xA4CF && cp != 0x303F)
-                || // CJK Radicals, Symbols, Han
-                (cp >= 0xAC00 && cp <= 0xD7A3)
-                || // Hangul Syllables
-                (cp >= 0xF900 && cp <= 0xFAFF)
-                || // CJK Compatibility Ideographs
-                (cp >= 0xFE10 && cp <= 0xFE19)
-                || // Vertical forms
-                (cp >= 0xFE30 && cp <= 0xFE6F)
-                || // CJK Compatibility Forms
-                (cp >= 0xFF00 && cp <= 0xFF60)
-                || // Fullwidth Forms
-                (cp >= 0xFFE0 && cp <= 0xFFE6)) {
-            return true;
-        }
-
-        // Plane 2 and 3 (SIP/TIP) are almost entirely CJK Ideographs (Wide)
-        if (cp >= 0x20000 && cp <= 0x3FFFD) {
-            return true;
-        }
-
-        // Common Emoji Presentation ranges (Simplified)
-        // Includes Miscellaneous Symbols and Pictographs, Emoticons, Transport, etc.
-        if ((cp >= 0x1F300 && cp <= 0x1F64F)
-                || (cp >= 0x1F680 && cp <= 0x1F6FF)
-                || (cp >= 0x1F900 && cp <= 0x1F9FF)
-                || (cp >= 0x1F200 && cp <= 0x1F2FF)) {
-            return true;
-        }
-
-        return false;
     }
 }
 
@@ -243,7 +173,7 @@ class CharSequenceSequenceIterator extends BaseSequenceIterator {
             }
             nextLeadCodePoint = '\n';
         } else {
-            int riCount = isRegionalIndicator(cp) ? 1 : 0;
+            int riCount = Unicode.isRegionalIndicator(cp) ? 1 : 0;
             int prevCp = cp;
 
             while (cursor < length) {
@@ -257,7 +187,7 @@ class CharSequenceSequenceIterator extends BaseSequenceIterator {
                 }
 
                 cursor += Character.charCount(curr);
-                riCount = isRegionalIndicator(curr) ? riCount + 1 : 0;
+                riCount = Unicode.isRegionalIndicator(curr) ? riCount + 1 : 0;
                 prevCp = curr;
             }
         }
@@ -382,7 +312,7 @@ class ReaderSequenceIterator extends BaseSequenceIterator {
                 }
                 nextLeadCodePoint = NEWLINE;
             } else {
-                int riCount = isRegionalIndicator(cp) ? 1 : 0;
+                int riCount = Unicode.isRegionalIndicator(cp) ? 1 : 0;
                 int prevCp = cp;
                 while (true) {
                     int curr = readCodePoint();
@@ -395,7 +325,7 @@ class ReaderSequenceIterator extends BaseSequenceIterator {
                         break;
                     }
                     currentSequence.append(Character.toChars(curr));
-                    riCount = isRegionalIndicator(curr) ? riCount + 1 : 0;
+                    riCount = Unicode.isRegionalIndicator(curr) ? riCount + 1 : 0;
                     prevCp = curr;
                 }
             }
