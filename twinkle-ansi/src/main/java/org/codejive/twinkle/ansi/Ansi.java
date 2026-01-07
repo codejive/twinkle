@@ -27,14 +27,14 @@ public class Ansi {
     public static final int POSITIVE = 27; // Positive image
     public static final int VISIBLE = 28; // Visible text
     public static final int NOTCROSSEDOUT = 29; // Not strike-through
-    public static final int DEFAULT_FOREGROUND = 39;
-    public static final int DEFAULT_BACKGROUND = 49;
+    public static final int DEFAULT_FOREGROUND = 39; // Default foreground color
+    public static final int DEFAULT_BACKGROUND = 49; // Default background color
 
     public static final String STYLE_RESET = style(RESET); // Reset all attributes
     public static final String STYLE_DEFAULT_FOREGROUND =
-            style(DEFAULT_FOREGROUND); // Reset all attributes
+            style(DEFAULT_FOREGROUND); // Reset foreground color to default
     public static final String STYLE_DEFAULT_BACKGROUND =
-            style(DEFAULT_BACKGROUND); // Reset all attributes
+            style(DEFAULT_BACKGROUND); // Reset background color
 
     public static final int BLACK = 0;
     public static final int RED = 1;

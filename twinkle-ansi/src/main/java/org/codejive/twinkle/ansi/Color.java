@@ -80,6 +80,11 @@ public interface Color {
         public String toAnsiBgArgs() {
             return String.valueOf(DEFAULT_BACKGROUND);
         }
+
+        @Override
+        public String toString() {
+            return "default";
+        }
     }
 
     class BasicColor implements Color {
