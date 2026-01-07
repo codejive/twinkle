@@ -30,7 +30,8 @@ public class Style implements Printable {
     public static final long F_HIDDEN = 1 << IDX_INVISIBLE;
     public static final long F_STRIKETHROUGH = 1 << IDX_CROSSEDOUT;
 
-    public static final Style UNSTYLED = new Style(0);
+    public static final Style UNKNOWN = new Style(F_UNKNOWN);
+    public static final Style UNSTYLED = new Style(F_UNSTYLED);
     public static final Style BOLD = UNSTYLED.bold();
     public static final Style FAINT = UNSTYLED.faint();
     public static final Style ITALIC = UNSTYLED.italic();
@@ -514,11 +515,11 @@ public class Style implements Printable {
     @Override
     public @NonNull Appendable toAnsi(Appendable appendable, Style currentStyle)
             throws IOException {
-        if (state == F_UNKNOWN) {
+        if (this.equals(UNKNOWN)) {
             // Do nothing, we keep the current state
             return appendable;
         }
-        if (currentStyle.state() == F_UNKNOWN) {
+        if (currentStyle.equals(UNKNOWN)) {
             appendable.append(Ansi.STYLE_RESET);
             currentStyle = UNSTYLED;
         }

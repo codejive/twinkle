@@ -36,7 +36,7 @@ public class Line implements Printable {
     public static Line of(StyledIterator iter) {
         List<Span> spans = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
-        Style currentStyle = Style.of(Style.F_UNKNOWN);
+        Style currentStyle = Style.UNKNOWN;
         while (iter.hasNext()) {
             long cp = iter.next();
             if (cp == '\n') {

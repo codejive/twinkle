@@ -12,7 +12,7 @@ public interface Printable {
      * @return The ANSI string representation of the object.
      */
     default @NonNull String toAnsiString() {
-        return toAnsiString(Style.of(Style.F_UNKNOWN));
+        return toAnsiString(Style.UNKNOWN);
     }
 
     /**
@@ -23,7 +23,7 @@ public interface Printable {
      * @return The <code>Appendable</code> passed as parameter.
      */
     default @NonNull Appendable toAnsi(Appendable appendable) throws IOException {
-        return toAnsi(appendable, Style.of(Style.F_UNKNOWN));
+        return toAnsi(appendable, Style.UNKNOWN);
     }
 
     /**

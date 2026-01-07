@@ -21,7 +21,7 @@ public class StyledIterator implements SequenceIterator {
      * initial style state.
      */
     protected StyledIterator(SequenceIterator delegate) {
-        this(delegate, Style.of(Style.F_UNKNOWN));
+        this(delegate, Style.UNKNOWN);
     }
 
     /**
@@ -108,15 +108,15 @@ public class StyledIterator implements SequenceIterator {
     }
 
     public static StyledIterator of(CharSequence text) {
-        return of(text, Style.of(Style.F_UNKNOWN));
+        return of(text, Style.UNKNOWN);
     }
 
     public static StyledIterator of(Reader input) {
-        return of(input, Style.of(Style.F_UNKNOWN));
+        return of(input, Style.UNKNOWN);
     }
 
     public static StyledIterator of(SequenceIterator iter) {
-        return of(iter, Style.of(Style.F_UNKNOWN));
+        return of(iter, Style.UNKNOWN);
     }
 
     public static StyledIterator of(CharSequence text, Style currentStyle) {

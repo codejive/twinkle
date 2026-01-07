@@ -11,7 +11,7 @@ public class Span implements Printable {
     private final int length;
 
     public static Span of(@NonNull String text) {
-        return new Span(text, Style.of(Style.F_UNSTYLED));
+        return new Span(text, Style.UNSTYLED);
     }
 
     public static Span of(@NonNull String text, Style style) {
