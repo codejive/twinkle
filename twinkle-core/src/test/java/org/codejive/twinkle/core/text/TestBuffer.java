@@ -24,7 +24,7 @@ public class TestBuffer {
         for (int y = 0; y < size.height(); y++) {
             for (int x = 0; x < size.width(); x++) {
                 assertThat(buffer.charAt(x, y)).isEqualTo('\0');
-                assertThat(buffer.styleAt(x, y)).isEqualTo(Style.UNSTYLED);
+                assertThat(buffer.styleAt(x, y)).isEqualTo(Style.DEFAULT);
             }
         }
     }
@@ -51,7 +51,7 @@ public class TestBuffer {
         for (int y = 0; y < size.height(); y++) {
             for (int x = 0; x < size.width(); x++) {
                 assertThat(buffer.charAt(x, y)).isEqualTo((char) ('A' + x + y * size.width()));
-                assertThat(buffer.styleAt(x, y)).isEqualTo(Style.ofFgColor(Color.indexed(x)));
+                assertThat(buffer.styleAt(x, y)).isEqualTo(Style.DEFAULT.fgColor(Color.indexed(x)));
             }
         }
     }
@@ -65,7 +65,8 @@ public class TestBuffer {
             for (int x = 0; x < size.width(); x++) {
                 assertThat(view.charAt(x, y))
                         .isEqualTo((char) ('G' + x + y * buffer.size().width()));
-                assertThat(view.styleAt(x, y)).isEqualTo(Style.ofFgColor(Color.indexed(x + 1)));
+                assertThat(view.styleAt(x, y))
+                        .isEqualTo(Style.DEFAULT.fgColor(Color.indexed(x + 1)));
             }
         }
     }
@@ -96,7 +97,8 @@ public class TestBuffer {
             for (int x = 0; x < size.width(); x++) {
                 assertThat(view2.charAt(x, y))
                         .isEqualTo((char) ('M' + x + y * buffer.size().width()));
-                assertThat(view2.styleAt(x, y)).isEqualTo(Style.ofFgColor(Color.indexed(x + 2)));
+                assertThat(view2.styleAt(x, y))
+                        .isEqualTo(Style.DEFAULT.fgColor(Color.indexed(x + 2)));
             }
         }
     }
@@ -131,7 +133,8 @@ public class TestBuffer {
             for (int x = 0; x < size.width(); x++) {
                 assertThat(view2.charAt(x, y))
                         .isEqualTo((char) ('S' + x + y * buffer.size().width()));
-                assertThat(view2.styleAt(x, y)).isEqualTo(Style.ofFgColor(Color.indexed(x + 3)));
+                assertThat(view2.styleAt(x, y))
+                        .isEqualTo(Style.DEFAULT.fgColor(Color.indexed(x + 3)));
             }
         }
     }
@@ -167,7 +170,7 @@ public class TestBuffer {
                 if (y == 0 && x == 0) {
                     assertThat(view2.charAt(x, y)).isEqualTo('Y');
                     assertThat(view2.styleAt(x, y))
-                            .isEqualTo(Style.ofFgColor(Color.indexed(x + 4)));
+                            .isEqualTo(Style.DEFAULT.fgColor(Color.indexed(x + 4)));
                 } else {
                     assertThat(view2.charAt(x, y)).isEqualTo(LineBuffer.REPLACEMENT_CHAR);
                     assertThat(view2.styleAt(x, y)).isEqualTo(Style.UNSTYLED);

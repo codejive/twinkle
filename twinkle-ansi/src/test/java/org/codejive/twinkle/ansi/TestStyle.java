@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 public class TestStyle {
     @Test
     public void testStyleCreation() {
-        Style style1 = Style.of(Style.F_BOLD);
+        Style style1 = Style.UNSTYLED.bold();
         Style style2 = Style.BOLD;
 
         assertThat(style1).isEqualTo(style2);
@@ -30,6 +30,14 @@ public class TestStyle {
                         .inverse()
                         .hidden()
                         .strikethrough();
+        assertThat(style.affectsBold()).isTrue();
+        assertThat(style.affectsFaint()).isTrue();
+        assertThat(style.affectsItalic()).isTrue();
+        assertThat(style.affectsUnderlined()).isTrue();
+        assertThat(style.affectsBlink()).isTrue();
+        assertThat(style.affectsInverse()).isTrue();
+        assertThat(style.affectsHidden()).isTrue();
+        assertThat(style.affectsStrikethrough()).isTrue();
         assertThat(style.isBold()).isTrue();
         assertThat(style.isFaint()).isTrue();
         assertThat(style.isItalic()).isTrue();
@@ -47,7 +55,56 @@ public class TestStyle {
                         .inverseOff()
                         .hiddenOff()
                         .strikethroughOff();
-        assertThat(style).isEqualTo(Style.UNSTYLED);
+        assertThat(style.affectsBold()).isTrue();
+        assertThat(style.affectsFaint()).isTrue();
+        assertThat(style.affectsItalic()).isTrue();
+        assertThat(style.affectsUnderlined()).isTrue();
+        assertThat(style.affectsBlink()).isTrue();
+        assertThat(style.affectsInverse()).isTrue();
+        assertThat(style.affectsHidden()).isTrue();
+        assertThat(style.affectsStrikethrough()).isTrue();
+        assertThat(style.isBold()).isFalse();
+        assertThat(style.isFaint()).isFalse();
+        assertThat(style.isItalic()).isFalse();
+        assertThat(style.isUnderlined()).isFalse();
+        assertThat(style.isBlink()).isFalse();
+        assertThat(style.isInverse()).isFalse();
+        assertThat(style.isHidden()).isFalse();
+        assertThat(style.isStrikethrough()).isFalse();
+    }
+
+    @Test
+    public void testUnsetStyle() {
+        Style style = Style.UNSTYLED.underlinedOff();
+        assertThat(style.affectsUnderlined()).isTrue();
+        assertThat(style.isUnderlined()).isFalse();
+        assertThat(style.toAnsiString()).isEqualTo(Ansi.style(Ansi.NOTUNDERLINED));
+    }
+
+    @Test
+    public void testUnsetStyleAnd() {
+        Style style1 = Style.UNSTYLED.blink().underlined();
+        Style style2 = Style.UNSTYLED.underlinedOff();
+
+        Style style3 = style1.and(style2);
+
+        assertThat(style3.affectsBlink()).isTrue();
+        assertThat(style3.isBlink()).isTrue();
+        assertThat(style3.affectsUnderlined()).isTrue();
+        assertThat(style3.isUnderlined()).isFalse();
+    }
+
+    @Test
+    public void testUnsetStyleApply() {
+        Style style1 = Style.UNSTYLED.blink().underlined();
+        Style style2 = Style.UNSTYLED.underlinedOff();
+
+        Style style3 = style1.apply(style2);
+
+        assertThat(style3.affectsBlink()).isTrue();
+        assertThat(style3.isBlink()).isTrue();
+        assertThat(style3.affectsUnderlined()).isFalse();
+        assertThat(style3.isUnderlined()).isFalse();
     }
 
     @Test
@@ -91,9 +148,9 @@ public class TestStyle {
                         .blink()
                         .inverse()
                         .hidden()
-                        .strikethrough();
-        style = style.fgColor(Color.BasicColor.BLUE);
-        style = style.bgColor(Color.indexed(128));
+                        .strikethrough()
+                        .fgColor(Color.BasicColor.BLUE)
+                        .bgColor(Color.indexed(128));
         style =
                 style.normal()
                         .italicOff()
@@ -101,9 +158,38 @@ public class TestStyle {
                         .blinkOff()
                         .inverseOff()
                         .hiddenOff()
-                        .strikethroughOff();
-        style = style.fgColor(Color.DEFAULT);
-        style = style.bgColor(Color.DEFAULT);
+                        .strikethroughOff()
+                        .fgColor(Color.DEFAULT)
+                        .bgColor(Color.DEFAULT);
+        assertThat(style).isEqualTo(Style.DEFAULT);
+    }
+
+    @Test
+    public void testMixedStylesApply() {
+        Style style =
+                Style.UNSTYLED
+                        .bold()
+                        .faint()
+                        .italic()
+                        .underlined()
+                        .blink()
+                        .inverse()
+                        .hidden()
+                        .strikethrough()
+                        .fgColor(Color.BasicColor.BLUE)
+                        .bgColor(Color.indexed(128));
+        style =
+                style.apply(
+                        Style.UNSTYLED
+                                .normal()
+                                .italicOff()
+                                .underlinedOff()
+                                .blinkOff()
+                                .inverseOff()
+                                .hiddenOff()
+                                .strikethroughOff()
+                                .fgColor(Color.DEFAULT)
+                                .bgColor(Color.DEFAULT));
         assertThat(style).isEqualTo(Style.UNSTYLED);
     }
 
@@ -141,6 +227,32 @@ public class TestStyle {
     }
 
     @Test
+    public void testToAnsiStringAllStylesWithDefault() {
+        Style style =
+                Style.UNSTYLED
+                        .bold()
+                        .faint()
+                        .italic()
+                        .underlined()
+                        .blink()
+                        .inverse()
+                        .hidden()
+                        .strikethrough();
+        String ansiCode = style.toAnsiString(Style.DEFAULT);
+        assertThat(ansiCode)
+                .isEqualTo(
+                        Ansi.style(
+                                Ansi.BOLD,
+                                Ansi.FAINT,
+                                Ansi.ITALICIZED,
+                                Ansi.UNDERLINED,
+                                Ansi.BLINK,
+                                Ansi.INVERSE,
+                                Ansi.INVISIBLE,
+                                Ansi.CROSSEDOUT));
+    }
+
+    @Test
     public void testToAnsiStringAllStylesWithCurrent() {
         Style style =
                 Style.UNSTYLED
@@ -157,8 +269,6 @@ public class TestStyle {
         assertThat(ansiCode)
                 .isEqualTo(
                         Ansi.style(
-                                Ansi.NORMAL,
-                                Ansi.BOLD,
                                 Ansi.FAINT,
                                 Ansi.ITALICIZED,
                                 Ansi.BLINK,
@@ -189,5 +299,21 @@ public class TestStyle {
                                 Ansi.INVERSE,
                                 Ansi.INVISIBLE,
                                 Ansi.CROSSEDOUT));
+    }
+
+    @Test
+    public void testToAnsiStringNormal() {
+        Style style = Style.UNSTYLED.faint();
+        Style currentStyle = Style.UNSTYLED.bold();
+        String ansiCode = style.toAnsiString(currentStyle);
+        assertThat(ansiCode).isEqualTo(Ansi.style(Ansi.NORMAL, Ansi.FAINT));
+    }
+
+    @Test
+    public void testToAnsiStringNoNormal() {
+        Style style = Style.UNSTYLED.bold().faint();
+        Style currentStyle = Style.UNSTYLED.bold();
+        String ansiCode = style.toAnsiString(currentStyle);
+        assertThat(ansiCode).isEqualTo(Ansi.style(Ansi.FAINT));
     }
 }

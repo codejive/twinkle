@@ -8,6 +8,7 @@ import org.jspecify.annotations.NonNull;
 
 public class Style implements Printable {
     private final long state;
+    private final long mask;
 
     private static final long IDX_BOLD = 0;
     private static final long IDX_FAINT = 1;
@@ -21,6 +22,7 @@ public class Style implements Printable {
 
     public static final long F_UNKNOWN = -1L;
     public static final long F_UNSTYLED = 0L;
+
     public static final long F_BOLD = 1 << IDX_BOLD;
     public static final long F_FAINT = 1 << IDX_FAINT;
     public static final long F_ITALIC = 1 << IDX_ITALICIZED;
@@ -29,17 +31,6 @@ public class Style implements Printable {
     public static final long F_INVERSE = 1 << IDX_INVERSE;
     public static final long F_HIDDEN = 1 << IDX_INVISIBLE;
     public static final long F_STRIKETHROUGH = 1 << IDX_CROSSEDOUT;
-
-    public static final Style UNKNOWN = new Style(F_UNKNOWN);
-    public static final Style UNSTYLED = new Style(F_UNSTYLED);
-    public static final Style BOLD = UNSTYLED.bold();
-    public static final Style FAINT = UNSTYLED.faint();
-    public static final Style ITALIC = UNSTYLED.italic();
-    public static final Style UNDERLINED = UNSTYLED.underlined();
-    public static final Style BLINK = UNSTYLED.blink();
-    public static final Style INVERSE = UNSTYLED.inverse();
-    public static final Style HIDDEN = UNSTYLED.hidden();
-    public static final Style STRIKETHROUGH = UNSTYLED.strikethrough();
 
     public static @NonNull Style ofFgColor(@NonNull Color color) {
         return UNSTYLED.fgColor(color);
@@ -100,6 +91,28 @@ public class Style implements Printable {
     private static final long MASK_COLOR_BASIC_INTENSITY = 0x03L;
     private static final long MASK_COLOR_BASIC_INDEX = 0x07L;
     private static final long MASK_COLOR_PART = 0xffL;
+    private static final long MASK_STYLES =
+            F_BOLD
+                    | F_FAINT
+                    | F_ITALIC
+                    | F_UNDERLINED
+                    | F_BLINK
+                    | F_INVERSE
+                    | F_HIDDEN
+                    | F_STRIKETHROUGH;
+    private static final long MASK_ALL = MASK_FG_COLOR | MASK_BG_COLOR | MASK_STYLES;
+
+    public static final Style UNKNOWN = new Style(F_UNKNOWN, 0);
+    public static final Style UNSTYLED = new Style(F_UNSTYLED, 0);
+    public static final Style DEFAULT = new Style(F_UNSTYLED, MASK_ALL);
+    public static final Style BOLD = UNSTYLED.bold();
+    public static final Style FAINT = UNSTYLED.faint();
+    public static final Style ITALIC = UNSTYLED.italic();
+    public static final Style UNDERLINED = UNSTYLED.underlined();
+    public static final Style BLINK = UNSTYLED.blink();
+    public static final Style INVERSE = UNSTYLED.inverse();
+    public static final Style HIDDEN = UNSTYLED.hidden();
+    public static final Style STRIKETHROUGH = UNSTYLED.strikethrough();
 
     private static final long CM_INDEXED = 0;
     private static final long CM_RGB = 1;
@@ -109,121 +122,159 @@ public class Style implements Printable {
 
     // Not really an intensity, but a flag to indicate default color,
     // but we're (ab)using the intensity bits to store it
-    private static final long INTENSITY_DEFAULT = 0;
+    private static final int INTENSITY_DEFAULT = 0;
 
-    private static final long INTENSITY_NORMAL = 1;
-    private static final long INTENSITY_DARK = 2;
-    private static final long INTENSITY_BRIGHT = 3;
+    private static final int INTENSITY_NORMAL = 1;
+    private static final int INTENSITY_DARK = 2;
+    private static final int INTENSITY_BRIGHT = 3;
 
     public static @NonNull Style of(long state) {
-        if (state == 0) {
-            return UNSTYLED;
+        if (state == F_UNKNOWN) {
+            return UNKNOWN;
         }
-        return new Style(state);
+        if (state == F_UNSTYLED) {
+            return DEFAULT;
+        }
+        return new Style(state, MASK_ALL);
     }
 
-    private Style(long state) {
+    public static @NonNull Style of(long state, long mask) {
+        if (state == F_UNKNOWN) {
+            return UNKNOWN;
+        }
+        if (state == F_UNSTYLED) {
+            if ((mask & MASK_ALL) == 0) {
+                return UNSTYLED;
+            } else if ((mask & MASK_ALL) == MASK_ALL) {
+                return DEFAULT;
+            }
+        }
+        return new Style(state, mask);
+    }
+
+    private Style(long state, long mask) {
         this.state = state;
+        this.mask = mask;
     }
 
     public long state() {
         return state;
     }
 
-    public @NonNull Style unstyled() {
-        return UNSTYLED;
+    public long mask() {
+        return mask;
     }
 
-    public @NonNull Style normal() {
-        return of(state & ~(F_BOLD | F_FAINT));
+    /**
+     * Combines this style with another style, giving precedence to the other style's values
+     * wherever it has an effect.
+     *
+     * @param other The other style to combine with.
+     * @return A new Style instance representing the combined style.
+     */
+    public Style and(@NonNull Style other) {
+        if (this.equals(UNKNOWN)) {
+            return other;
+        }
+        if (other.equals(UNKNOWN)) {
+            return this;
+        }
+
+        long newState = (this.state & ~other.mask) | (other.state & other.mask);
+        long newMask = this.mask | other.mask;
+        return of(newState, newMask);
+    }
+
+    /**
+     * Computes the difference between this style and another style, producing a new style that
+     * represents the changes needed to transform this style into the other style.
+     *
+     * @param other The other style to compare with.
+     * @return A new Style instance representing the difference.
+     */
+    public Style diff(@NonNull Style other) {
+        if (this.equals(UNKNOWN)) {
+            return other;
+        }
+        if (other.equals(UNKNOWN)) {
+            return this;
+        }
+
+        long newMask = this.mask | other.mask;
+        long newState = other.state & newMask;
+        return of(newState, newMask);
+    }
+
+    /**
+     * Returns a new style that represents the style that would result from applying the other style
+     * on top of this one. Styles that are changed to their unset or default values in the resulting
+     * style will be marked as unaffected.
+     *
+     * @param other The other style to apply.
+     * @return A new Style instance representing the resulting style.
+     */
+    public Style apply(@NonNull Style other) {
+        if (this.equals(UNKNOWN)) {
+            return other;
+        }
+        if (other.equals(UNKNOWN)) {
+            return this;
+        }
+
+        long newState = (this.state & ~other.mask) | (other.state & other.mask);
+        long newMask = this.mask | other.mask;
+
+        // now mark unset styles as unaffected
+        long unaffectedMask = ~(other.mask & ~other.state & MASK_STYLES);
+        newMask &= unaffectedMask;
+
+        if (other.affectsFgColor() && other.fgColor().equals(Color.DEFAULT)) {
+            newState &= ~MASK_FG_COLOR;
+            newMask &= ~MASK_FG_COLOR;
+        }
+
+        if (other.affectsBgColor() && other.bgColor().equals(Color.DEFAULT)) {
+            newState &= ~MASK_BG_COLOR;
+            newMask &= ~MASK_BG_COLOR;
+        }
+
+        return of(newState, newMask);
+    }
+
+    public boolean is(long flag) {
+        return (state & flag) != 0;
     }
 
     public boolean isBold() {
-        return (state & F_BOLD) != 0;
-    }
-
-    public @NonNull Style bold() {
-        return of(state | F_BOLD);
+        return is(F_BOLD);
     }
 
     public boolean isFaint() {
-        return (state & F_FAINT) != 0;
-    }
-
-    public @NonNull Style faint() {
-        return of(state | F_FAINT);
+        return is(F_FAINT);
     }
 
     public boolean isItalic() {
-        return (state & F_ITALIC) != 0;
-    }
-
-    public @NonNull Style italic() {
-        return of(state | F_ITALIC);
-    }
-
-    public @NonNull Style italicOff() {
-        return of(state & ~F_ITALIC);
+        return is(F_ITALIC);
     }
 
     public boolean isUnderlined() {
-        return (state & F_UNDERLINED) != 0;
-    }
-
-    public @NonNull Style underlined() {
-        return of(state | F_UNDERLINED);
-    }
-
-    public @NonNull Style underlinedOff() {
-        return of(state & ~F_UNDERLINED);
+        return is(F_UNDERLINED);
     }
 
     public boolean isBlink() {
-        return (state & F_BLINK) != 0;
-    }
-
-    public @NonNull Style blink() {
-        return of(state | F_BLINK);
-    }
-
-    public @NonNull Style blinkOff() {
-        return of(state & ~F_BLINK);
+        return is(F_BLINK);
     }
 
     public boolean isInverse() {
-        return (state & F_INVERSE) != 0;
-    }
-
-    public @NonNull Style inverse() {
-        return of(state | F_INVERSE);
-    }
-
-    public @NonNull Style inverseOff() {
-        return of(state & ~F_INVERSE);
+        return is(F_INVERSE);
     }
 
     public boolean isHidden() {
-        return (state & F_HIDDEN) != 0;
-    }
-
-    public @NonNull Style hidden() {
-        return of(state | F_HIDDEN);
-    }
-
-    public @NonNull Style hiddenOff() {
-        return of(state & ~F_HIDDEN);
+        return is(F_HIDDEN);
     }
 
     public boolean isStrikethrough() {
-        return (state & F_STRIKETHROUGH) != 0;
-    }
-
-    public @NonNull Style strikethrough() {
-        return of(state | F_STRIKETHROUGH);
-    }
-
-    public @NonNull Style strikethroughOff() {
-        return of(state & ~F_STRIKETHROUGH);
+        return is(F_STRIKETHROUGH);
     }
 
     public @NonNull Color fgColor() {
@@ -231,19 +282,127 @@ public class Style implements Printable {
         return decodeColor(fgc);
     }
 
-    public @NonNull Style fgColor(@NonNull Color color) {
-        long newState = applyFgColor(state, color);
-        return of(newState);
-    }
-
     public @NonNull Color bgColor() {
         long bgc = ((state & MASK_BG_COLOR) >> SHIFT_BG_COLOR);
         return decodeColor(bgc);
     }
 
+    public boolean affects(long flag) {
+        return (mask & flag) != 0;
+    }
+
+    public boolean affectsBold() {
+        return affects(F_BOLD);
+    }
+
+    public boolean affectsFaint() {
+        return affects(F_FAINT);
+    }
+
+    public boolean affectsItalic() {
+        return affects(F_ITALIC);
+    }
+
+    public boolean affectsUnderlined() {
+        return affects(F_UNDERLINED);
+    }
+
+    public boolean affectsBlink() {
+        return affects(F_BLINK);
+    }
+
+    public boolean affectsInverse() {
+        return affects(F_INVERSE);
+    }
+
+    public boolean affectsHidden() {
+        return affects(F_HIDDEN);
+    }
+
+    public boolean affectsStrikethrough() {
+        return affects(F_STRIKETHROUGH);
+    }
+
+    public boolean affectsFgColor() {
+        return affects(MASK_FG_COLOR);
+    }
+
+    public boolean affectsBgColor() {
+        return affects(MASK_BG_COLOR);
+    }
+
+    public @NonNull Style reset() {
+        return DEFAULT;
+    }
+
+    public @NonNull Style bold() {
+        return of(state | F_BOLD, mask | F_BOLD);
+    }
+
+    public @NonNull Style faint() {
+        return of(state | F_FAINT, mask | F_FAINT);
+    }
+
+    public @NonNull Style normal() {
+        return of(state & ~(F_BOLD | F_FAINT), mask | F_BOLD | F_FAINT);
+    }
+
+    public @NonNull Style italic() {
+        return of(state | F_ITALIC, mask | F_ITALIC);
+    }
+
+    public @NonNull Style italicOff() {
+        return of(state & ~F_ITALIC, mask | F_ITALIC);
+    }
+
+    public @NonNull Style underlined() {
+        return of(state | F_UNDERLINED, mask | F_UNDERLINED);
+    }
+
+    public @NonNull Style underlinedOff() {
+        return of(state & ~F_UNDERLINED, mask | F_UNDERLINED);
+    }
+
+    public @NonNull Style blink() {
+        return of(state | F_BLINK, mask | F_BLINK);
+    }
+
+    public @NonNull Style blinkOff() {
+        return of(state & ~F_BLINK, mask | F_BLINK);
+    }
+
+    public @NonNull Style inverse() {
+        return of(state | F_INVERSE, mask | F_INVERSE);
+    }
+
+    public @NonNull Style inverseOff() {
+        return of(state & ~F_INVERSE, mask | F_INVERSE);
+    }
+
+    public @NonNull Style hidden() {
+        return of(state | F_HIDDEN, mask | F_HIDDEN);
+    }
+
+    public @NonNull Style hiddenOff() {
+        return of(state & ~F_HIDDEN, mask | F_HIDDEN);
+    }
+
+    public @NonNull Style strikethrough() {
+        return of(state | F_STRIKETHROUGH, mask | F_STRIKETHROUGH);
+    }
+
+    public @NonNull Style strikethroughOff() {
+        return of(state & ~F_STRIKETHROUGH, mask | F_STRIKETHROUGH);
+    }
+
+    public @NonNull Style fgColor(@NonNull Color color) {
+        long newState = applyFgColor(state, color);
+        return of(newState, mask | MASK_FG_COLOR);
+    }
+
     public @NonNull Style bgColor(@NonNull Color color) {
         long newState = applyBgColor(state, color);
-        return of(newState);
+        return of(newState, mask | MASK_BG_COLOR);
     }
 
     private static long encodeColor(@NonNull Color color) {
@@ -285,7 +444,7 @@ public class Style implements Printable {
     }
 
     private static @NonNull Color decodeColor(long color) {
-        Color result = Color.DEFAULT;
+        Color result;
         long mode = color & MASK_COLOR_MODE;
         if (mode == CM_INDEXED) {
             long paletteType = (color >> SHIFT_PALETTE_TYPE) & MASK_PALETTE_TYPE;
@@ -295,14 +454,18 @@ public class Style implements Printable {
                 int colorIndex =
                         (int) ((color >> SHIFT_COLOR_BASIC_INDEX) & MASK_COLOR_BASIC_INDEX);
                 switch (intensity) {
-                    case 1:
+                    case INTENSITY_NORMAL:
                         result = Color.basic(colorIndex, Color.BasicColor.Intensity.normal);
                         break;
-                    case 2:
+                    case INTENSITY_DARK:
                         result = Color.basic(colorIndex, Color.BasicColor.Intensity.dark);
                         break;
-                    case 3:
+                    case INTENSITY_BRIGHT:
                         result = Color.basic(colorIndex, Color.BasicColor.Intensity.bright);
+                        break;
+                    case INTENSITY_DEFAULT:
+                    default:
+                        result = Color.DEFAULT;
                         break;
                 }
             } else { // paletteType == F_PALETTE_INDEXED
@@ -318,13 +481,9 @@ public class Style implements Printable {
         return result;
     }
 
-    public static long parse(@NonNull String ansiSequence) {
-        return parse(F_UNSTYLED, ansiSequence);
-    }
-
-    public static long parse(long currentStyleState, @NonNull String ansiSequence) {
+    public static Style parse(@NonNull String ansiSequence) {
         if (!ansiSequence.startsWith(Ansi.CSI) || !ansiSequence.endsWith("m")) {
-            return currentStyleState;
+            return UNSTYLED;
         }
 
         String content = ansiSequence.substring(2, ansiSequence.length() - 1);
@@ -339,7 +498,7 @@ public class Style implements Printable {
             }
         }
 
-        long state = currentStyleState;
+        Style style = UNSTYLED;
         for (int i = 0; i < codes.length; i++) {
             int code = codes[i];
             switch (code) {
@@ -347,72 +506,72 @@ public class Style implements Printable {
                     // Invalid code, ignore
                     break;
                 case 0:
-                    state = 0;
+                    style = style.reset();
                     break;
                 case 1:
-                    state |= F_BOLD;
+                    style = style.bold();
                     break;
                 case 2:
-                    state |= F_FAINT;
+                    style = style.faint();
                     break;
                 case 3:
-                    state |= F_ITALIC;
+                    style = style.italic();
                     break;
                 case 4:
-                    state |= F_UNDERLINED;
+                    style = style.underlined();
                     break;
                 case 5:
-                    state |= F_BLINK;
+                    style = style.blink();
                     break;
                 case 7:
-                    state |= F_INVERSE;
+                    style = style.inverse();
                     break;
                 case 8:
-                    state |= F_HIDDEN;
+                    style = style.hidden();
                     break;
                 case 9:
-                    state |= F_STRIKETHROUGH;
+                    style = style.strikethrough();
                     break;
                 case 22:
-                    state &= ~(F_BOLD | F_FAINT);
+                    style = style.normal();
                     break;
                 case 23:
-                    state &= ~F_ITALIC;
+                    style = style.italicOff();
                     break;
                 case 24:
-                    state &= ~F_UNDERLINED;
+                    style = style.underlinedOff();
                     break;
                 case 25:
-                    state &= ~F_BLINK;
+                    style = style.blinkOff();
                     break;
                 case 27:
-                    state &= ~F_INVERSE;
+                    style = style.inverseOff();
                     break;
                 case 28:
-                    state &= ~F_HIDDEN;
+                    style = style.hiddenOff();
                     break;
                 case 29:
-                    state &= ~F_STRIKETHROUGH;
+                    style = style.strikethroughOff();
                     break;
                 case 39:
-                    state &= ~MASK_FG_COLOR;
+                    style = style.fgColor(Color.DEFAULT);
                     break;
                 case 49:
-                    state &= ~MASK_BG_COLOR;
+                    style = style.bgColor(Color.DEFAULT);
                     break;
                 default:
                     if (code >= 30 && code <= 37) {
                         Color c = Color.basic(code - 30, Color.BasicColor.Intensity.normal);
-                        state = applyFgColor(state, c);
+                        style = style.fgColor(c);
                     } else if (code >= 90 && code <= 97) {
                         Color c = Color.basic(code - 90, Color.BasicColor.Intensity.bright);
-                        state = applyFgColor(state, c);
+                        style = style.fgColor(c);
                     } else if (code >= 40 && code <= 47) {
                         Color c = Color.basic(code - 40, Color.BasicColor.Intensity.normal);
-                        state = applyBgColor(state, c);
+                        style = style.bgColor(c);
                     } else if (code >= 100 && code <= 107) {
                         Color c = Color.basic(code - 100, Color.BasicColor.Intensity.bright);
-                        state = applyBgColor(state, c);
+                        style = style.bgColor(c);
                     } else if (code == 38 || code == 48) {
                         boolean isFg = (code == 38);
                         if (i + 1 < codes.length) {
@@ -420,17 +579,17 @@ public class Style implements Printable {
                             if (type == 5 && i + 2 < codes.length) {
                                 Color c = Color.indexed(codes[i + 2]);
                                 if (isFg) {
-                                    state = applyFgColor(state, c);
+                                    style = style.fgColor(c);
                                 } else {
-                                    state = applyBgColor(state, c);
+                                    style = style.bgColor(c);
                                 }
                                 i += 2;
                             } else if (type == 2 && i + 4 < codes.length) {
                                 Color c = Color.rgb(codes[i + 2], codes[i + 3], codes[i + 4]);
                                 if (isFg) {
-                                    state = applyFgColor(state, c);
+                                    style = style.fgColor(c);
                                 } else {
-                                    state = applyBgColor(state, c);
+                                    style = style.bgColor(c);
                                 }
                                 i += 4;
                             }
@@ -439,7 +598,7 @@ public class Style implements Printable {
                     break;
             }
         }
-        return state;
+        return style;
     }
 
     private static long applyFgColor(long state, Color color) {
@@ -457,12 +616,12 @@ public class Style implements Printable {
         if (this == o) return true;
         if (!(o instanceof Style)) return false;
         Style other = (Style) o;
-        return this.state == other.state;
+        return this.state == other.state && this.mask == other.mask;
     }
 
     @Override
     public int hashCode() {
-        return Long.hashCode(state);
+        return Long.hashCode(state) * 31 + Long.hashCode(mask);
     }
 
     @Override
@@ -473,114 +632,107 @@ public class Style implements Printable {
             sb.append("UNKNOWN}");
             return sb.toString();
         }
-        if (isBold()) sb.append("bold, ");
-        if (isFaint()) sb.append("faint, ");
-        if (isItalic()) sb.append("italic, ");
-        if (isUnderlined()) sb.append("underlined, ");
-        if (isBlink()) sb.append("blink, ");
-        if (isInverse()) sb.append("inverse, ");
-        if (isHidden()) sb.append("hidden, ");
-        if (isStrikethrough()) sb.append("strikethrough, ");
-        if (fgColor() != Color.DEFAULT) sb.append("fgColor=").append(fgColor()).append(", ");
-        if (bgColor() != Color.DEFAULT) sb.append("bgColor=").append(bgColor());
+        if (this.equals(DEFAULT)) {
+            sb.append("DEFAULT}");
+            return sb.toString();
+        }
+        if (affectsBold() && affectsFaint() && !isBold() && !isFaint()) {
+            sb.append("normal, ");
+        } else {
+            if (affectsBold()) sb.append(isBold() ? "bold, " : "-bold, ");
+            if (affectsFaint()) sb.append(isFaint() ? "faint, " : "-faint, ");
+        }
+        if (affectsItalic()) sb.append(isItalic() ? "italic, " : "-italic, ");
+        if (affectsUnderlined()) sb.append(isUnderlined() ? "underlined, " : "-underlined, ");
+        if (affectsBlink()) sb.append(isBlink() ? "blink, " : "-blink, ");
+        if (affectsInverse()) sb.append(isInverse() ? "inverse, " : "-inverse, ");
+        if (affectsHidden()) sb.append(isHidden() ? "hidden, " : "-hidden, ");
+        if (affectsStrikethrough())
+            sb.append(isStrikethrough() ? "strikethrough, " : "-strikethrough, ");
+        if (affectsFgColor()) sb.append("fgColor=").append(fgColor()).append(", ");
+        if (affectsBgColor()) sb.append("bgColor=").append(bgColor());
         if (sb.charAt(sb.length() - 2) == ',')
             sb.setLength(sb.length() - 2); // Remove trailing comma
         sb.append('}');
         return sb.toString();
     }
 
-    @Override
-    public @NonNull String toAnsiString() {
-        return toAnsiString(UNSTYLED);
-    }
-
-    @Override
-    public @NonNull Appendable toAnsi(Appendable appendable) throws IOException {
-        try {
-            return toAnsi(appendable, Style.UNSTYLED);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public @NonNull String toAnsiString(Style currentStyle) {
-        try {
-            return toAnsi(new StringBuilder(), currentStyle).toString();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public @NonNull Appendable toAnsi(Appendable appendable, Style currentStyle)
             throws IOException {
         if (this.equals(UNKNOWN)) {
             // Do nothing, we keep the current state
             return appendable;
         }
-        if (currentStyle.equals(UNKNOWN)) {
-            appendable.append(Ansi.STYLE_RESET);
-            currentStyle = UNSTYLED;
-        }
         List<Object> styles = new ArrayList<>();
-        if ((currentStyle.state() & (F_BOLD | F_FAINT)) != (state & (F_BOLD | F_FAINT))) {
-            // First we switch to NORMAL to clear both BOLD and FAINT
-            if (currentStyle.isBold() || currentStyle.isFaint()) {
+        if (shouldApply(currentStyle, F_BOLD) || shouldApply(currentStyle, F_FAINT)) {
+            boolean normal = false;
+            if (!currentStyle.equals(UNKNOWN)
+                    && ((!isBold() && currentStyle.isBold())
+                            || (!isFaint() && currentStyle.isFaint()))) {
+                // First we switch to NORMAL to clear both BOLD and FAINT
                 styles.add(Ansi.NORMAL);
+                normal = true;
             }
             // Now we set the needed styles
-            if (isBold()) styles.add(Ansi.BOLD);
-            if (isFaint()) styles.add(Ansi.FAINT);
+            if (isBold() && (normal || !currentStyle.affectsBold() || !currentStyle.isBold()))
+                styles.add(Ansi.BOLD);
+            if (isFaint() && (normal || !currentStyle.affectsFaint() || !currentStyle.isFaint()))
+                styles.add(Ansi.FAINT);
         }
-        if (currentStyle.isItalic() != isItalic()) {
+        if (shouldApply(currentStyle, F_ITALIC)) {
             if (isItalic()) {
                 styles.add(Ansi.ITALICIZED);
             } else {
                 styles.add(Ansi.NOTITALICIZED);
             }
         }
-        if (currentStyle.isUnderlined() != isUnderlined()) {
+        if (shouldApply(currentStyle, F_UNDERLINED)) {
             if (isUnderlined()) {
                 styles.add(Ansi.UNDERLINED);
             } else {
                 styles.add(Ansi.NOTUNDERLINED);
             }
         }
-        if (currentStyle.isBlink() != isBlink()) {
+        if (shouldApply(currentStyle, F_BLINK)) {
             if (isBlink()) {
                 styles.add(Ansi.BLINK);
             } else {
                 styles.add(Ansi.STEADY);
             }
         }
-        if (currentStyle.isInverse() != isInverse()) {
+        if (shouldApply(currentStyle, F_INVERSE)) {
             if (isInverse()) {
                 styles.add(Ansi.INVERSE);
             } else {
                 styles.add(Ansi.POSITIVE);
             }
         }
-        if (currentStyle.isHidden() != isHidden()) {
+        if (shouldApply(currentStyle, F_HIDDEN)) {
             if (isHidden()) {
                 styles.add(Ansi.INVISIBLE);
             } else {
                 styles.add(Ansi.VISIBLE);
             }
         }
-        if (currentStyle.isStrikethrough() != isStrikethrough()) {
+        if (shouldApply(currentStyle, F_STRIKETHROUGH)) {
             if (isStrikethrough()) {
                 styles.add(Ansi.CROSSEDOUT);
             } else {
                 styles.add(Ansi.NOTCROSSEDOUT);
             }
         }
-        if ((currentStyle.state() & MASK_FG_COLOR) != (state & MASK_FG_COLOR)) {
+        if (affectsFgColor()
+                && (!currentStyle.affectsFgColor() || !fgColor().equals(currentStyle.fgColor()))) {
             styles.add(fgColor().toAnsiFgArgs());
         }
-        if ((currentStyle.state() & MASK_BG_COLOR) != (state & MASK_BG_COLOR)) {
+        if (affectsBgColor()
+                && (!currentStyle.affectsBgColor() || !bgColor().equals(currentStyle.bgColor()))) {
             styles.add(bgColor().toAnsiBgArgs());
         }
         return Ansi.style(appendable, styles.toArray());
+    }
+
+    private boolean shouldApply(Style otherStyle, long flag) {
+        return affects(flag) && (!otherStyle.affects(flag) || is(flag) != otherStyle.is(flag));
     }
 }

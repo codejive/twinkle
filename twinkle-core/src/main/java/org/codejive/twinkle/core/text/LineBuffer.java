@@ -1,6 +1,7 @@
 package org.codejive.twinkle.core.text;
 
 import java.io.IOException;
+import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.util.Printable;
 import org.codejive.twinkle.util.StyledIterator;
@@ -325,6 +326,10 @@ class LineBufferImpl implements LineBuffer {
     @Override
     public @NonNull Appendable toAnsi(Appendable appendable, Style currentStyle)
             throws IOException {
+        if (currentStyle == Style.UNKNOWN) {
+            currentStyle = Style.DEFAULT;
+            appendable.append(Ansi.STYLE_RESET);
+        }
         for (int i = 0; i < length(); i++) {
             if (styleBuffer[i] != currentStyle.state()) {
                 Style style = Style.of(styleBuffer[i]);

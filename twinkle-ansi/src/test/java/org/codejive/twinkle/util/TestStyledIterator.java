@@ -2,6 +2,7 @@ package org.codejive.twinkle.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +31,7 @@ public class TestStyledIterator {
 
     @Test
     public void testStyledSequence() {
-        String red = "\u001B[31m";
+        String red = Ansi.CSI + "31m";
         SequenceIterator seqIter = SequenceIterator.of(red + "a");
         StyledIterator it = new StyledIterator(seqIter);
 
@@ -47,7 +48,7 @@ public class TestStyledIterator {
 
     @Test
     public void testSkipNonStyleAnsi() {
-        String up = "\u001B[1A"; // Cursor Up
+        String up = Ansi.cursorMove(Ansi.CURSOR_UP);
         SequenceIterator seqIter = SequenceIterator.of(up + "a");
         StyledIterator it = new StyledIterator(seqIter);
 
@@ -61,8 +62,8 @@ public class TestStyledIterator {
 
     @Test
     public void testMixedSequences() {
-        String red = "\u001B[31m";
-        String reset = "\u001B[0m";
+        String red = Ansi.CSI + "31m";
+        String reset = Ansi.STYLE_RESET;
         SequenceIterator seqIter = SequenceIterator.of("a" + red + "b" + reset + "c");
         StyledIterator it = new StyledIterator(seqIter);
 
