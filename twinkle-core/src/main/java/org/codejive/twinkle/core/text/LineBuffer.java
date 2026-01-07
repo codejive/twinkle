@@ -133,9 +133,7 @@ class LineBufferImpl implements LineBuffer {
             // TODO log warning about surrogate characters not being supported
             ch = REPLACEMENT_CHAR;
         }
-        cpBuffer[index] = ch;
-        graphemeBuffer[index] = null;
-        styleBuffer[index] = style.state();
+        setCharAt_(index, style.state(), ch, null);
     }
 
     @Override
@@ -147,9 +145,7 @@ class LineBufferImpl implements LineBuffer {
     }
 
     private void setCharAt_(int index, @NonNull Style style, int cp) {
-        cpBuffer[index] = cp;
-        graphemeBuffer[index] = null;
-        styleBuffer[index] = style.state();
+        setCharAt_(index, style.state(), cp, null);
     }
 
     @Override
@@ -164,9 +160,21 @@ class LineBufferImpl implements LineBuffer {
         if (grapheme.length() == 0) {
             return;
         }
-        cpBuffer[index] = -1;
-        graphemeBuffer[index] = grapheme.toString();
-        styleBuffer[index] = style.state();
+        setCharAt_(index, style.state(), -1, grapheme.toString());
+    }
+
+    private boolean shouldSkipAt(int index) {
+        return cpBuffer[index] == -1 && graphemeBuffer[index] == null && styleBuffer[index] == -1;
+    }
+
+    private void setSkipAt(int index) {
+        setCharAt_(index, -1, -1, null);
+    }
+
+    private void setCharAt_(int index, long styleState, int cp, String grapheme) {
+        cpBuffer[index] = cp;
+        graphemeBuffer[index] = grapheme;
+        styleBuffer[index] = styleState;
     }
 
     @Override
@@ -212,12 +220,6 @@ class LineBufferImpl implements LineBuffer {
             }
         }
         return cnt;
-    }
-
-    private void setSkipAt(int index) {
-        cpBuffer[index] = -1;
-        graphemeBuffer[index] = null;
-        styleBuffer[index] = -1;
     }
 
     @Override
@@ -297,6 +299,9 @@ class LineBufferImpl implements LineBuffer {
         int initialCapacity = length();
         StringBuilder sb = new StringBuilder(initialCapacity);
         for (int i = 0; i < length(); i++) {
+            if (shouldSkipAt(i)) {
+                continue;
+            }
             if (graphemeBuffer[i] != null) {
                 sb.append(graphemeBuffer[i]);
             } else {
@@ -331,6 +336,9 @@ class LineBufferImpl implements LineBuffer {
             appendable.append(Ansi.STYLE_RESET);
         }
         for (int i = 0; i < length(); i++) {
+            if (shouldSkipAt(i)) {
+                continue;
+            }
             if (styleBuffer[i] != currentStyle.state()) {
                 Style style = Style.of(styleBuffer[i]);
                 style.toAnsi(appendable, currentStyle);
