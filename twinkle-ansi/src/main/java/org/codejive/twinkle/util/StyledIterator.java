@@ -95,7 +95,7 @@ public class StyledIterator implements SequenceIterator {
             if (cp == Ansi.ESC) {
                 String ansiSequence = delegate.sequence();
                 if (ansiSequence.startsWith(Ansi.CSI) && ansiSequence.endsWith("m")) {
-                    currentStyle = Style.of(Style.parse(currentStyle.state(), ansiSequence));
+                    currentStyle = currentStyle.apply(Style.parse(ansiSequence));
                 }
             } else {
                 nextCodePoint = cp;

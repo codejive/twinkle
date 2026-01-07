@@ -32,6 +32,6 @@ public class TestSpan {
     @Test
     public void testSpansRender() {
         Span s = Span.of("A", Style.BOLD);
-        assertThat(s.toAnsiString()).isEqualTo(Ansi.STYLE_RESET + Ansi.style(Ansi.BOLD) + "A");
+        assertThat(s.toAnsiString()).isEqualTo(Ansi.style(Ansi.BOLD) + "A");
     }
 }

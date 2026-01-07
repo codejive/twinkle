@@ -12,7 +12,7 @@ public class TestLine {
     @Test
     public void testRenderSingleStyledSpan() {
         Line l = Line.of("A", Style.BOLD);
-        assertThat(l.toAnsiString()).isEqualTo(Ansi.STYLE_RESET + Ansi.style(Ansi.BOLD) + "A");
+        assertThat(l.toAnsiString()).isEqualTo(Ansi.style(Ansi.BOLD) + "A");
     }
 
     @Test
@@ -21,13 +21,7 @@ public class TestLine {
 
         String ansi = l.toAnsiString();
         assertThat(ansi)
-                .isEqualTo(
-                        Ansi.STYLE_RESET
-                                + "A"
-                                + Ansi.style(Ansi.BOLD)
-                                + "B"
-                                + Ansi.style(Ansi.NORMAL)
-                                + "C");
+                .isEqualTo("A" + Ansi.style(Ansi.BOLD) + "B" + Ansi.style(Ansi.NORMAL) + "C");
     }
 
     @Test

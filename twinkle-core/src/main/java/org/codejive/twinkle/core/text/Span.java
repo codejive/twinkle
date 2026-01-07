@@ -44,7 +44,7 @@ public class Span implements Printable {
     @Override
     public @NonNull Appendable toAnsi(Appendable appendable, Style currentStyle)
             throws IOException {
-        style.toAnsi(appendable, currentStyle);
+        currentStyle.diff(style).toAnsi(appendable, currentStyle);
         appendable.append(text);
         return appendable;
     }

@@ -21,7 +21,7 @@ public class TestLineBuffer {
         }
         for (int i = 0; i < buffer.length(); i++) {
             assertThat(buffer.charAt(i)).isEqualTo((char) ('a' + i));
-            assertThat(buffer.styleAt(i)).isEqualTo(Style.ITALIC);
+            assertThat(buffer.styleAt(i)).isEqualTo(Style.DEFAULT.italic());
         }
     }
 
@@ -57,7 +57,7 @@ public class TestLineBuffer {
             Style style = i < 5 ? Style.ITALIC : Style.UNDERLINED;
             buffer.setCharAt(i, style, (char) ('a' + i));
         }
-        assertThat(buffer.toAnsiString(Style.ITALIC))
+        assertThat(buffer.toAnsiString(Style.DEFAULT.italic()))
                 .isEqualTo("abcde" + Ansi.style(Ansi.NOTITALICIZED, Ansi.UNDERLINED) + "fghij");
     }
 
@@ -80,10 +80,10 @@ public class TestLineBuffer {
     @Test
     public void testStyledBufferPutStringGetChar() {
         LineBuffer buffer = LineBuffer.of(10);
-        buffer.putStringAt(0, Style.ITALIC, "abcdefghij");
+        buffer.putStringAt(0, Style.DEFAULT.italic(), "abcdefghij");
         for (int i = 0; i < buffer.length(); i++) {
             assertThat(buffer.charAt(i)).isEqualTo((char) ('a' + i));
-            assertThat(buffer.styleAt(i)).isEqualTo(Style.ITALIC);
+            assertThat(buffer.styleAt(i)).isEqualTo(Style.DEFAULT.italic());
         }
     }
 }

@@ -3,6 +3,7 @@ package org.codejive.twinkle.core.text;
 import static org.codejive.twinkle.core.text.LineBuffer.REPLACEMENT_CHAR;
 
 import java.io.IOException;
+import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.core.util.Rect;
 import org.codejive.twinkle.core.util.Size;
@@ -245,6 +246,10 @@ class BufferImpl implements Buffer {
     @Override
     public @NonNull Appendable toAnsi(Appendable appendable, Style currentStyle)
             throws IOException {
+        if (currentStyle == Style.UNKNOWN) {
+            currentStyle = Style.DEFAULT;
+            appendable.append(Ansi.STYLE_RESET);
+        }
         for (int y = 0; y < size().height(); y++) {
             line(y).toAnsi(appendable, currentStyle);
             currentStyle = line(y).styleAt(size().width() - 1);
