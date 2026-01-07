@@ -102,43 +102,35 @@ class BufferImpl implements Buffer {
     }
 
     @Override
-    public long styleStateAt(int x, int y) {
-        if (outside(x, y, 0)) {
-            return Style.F_UNSTYLED;
-        }
-        return line(y).styleStateAt(applyXOffset(x));
-    }
-
-    @Override
-    public void setCharAt(int x, int y, long styleState, char c) {
+    public void setCharAt(int x, int y, @NonNull Style style, char c) {
         if (outside(x, y, 0)) {
             return;
         }
-        line(y).setCharAt(applyXOffset(x), styleState, c);
+        line(y).setCharAt(applyXOffset(x), style, c);
     }
 
     @Override
-    public void setCharAt(int x, int y, long styleState, int cp) {
+    public void setCharAt(int x, int y, @NonNull Style style, int cp) {
         if (outside(x, y, 0)) {
             return;
         }
-        line(y).setCharAt(applyXOffset(x), styleState, cp);
+        line(y).setCharAt(applyXOffset(x), style, cp);
     }
 
     @Override
-    public void setCharAt(int x, int y, long styleState, @NonNull CharSequence grapheme) {
+    public void setCharAt(int x, int y, @NonNull Style style, @NonNull CharSequence grapheme) {
         if (outside(x, y, 0)) {
             return;
         }
-        line(y).setCharAt(applyXOffset(x), styleState, grapheme);
+        line(y).setCharAt(applyXOffset(x), style, grapheme);
     }
 
     @Override
-    public int putStringAt(int x, int y, long styleState, @NonNull CharSequence str) {
+    public int putStringAt(int x, int y, @NonNull Style style, @NonNull CharSequence str) {
         if (outside(x, y, str.length())) {
             return str.length();
         }
-        return line(y).putStringAt(applyXOffset(x), styleState, str);
+        return line(y).putStringAt(applyXOffset(x), style, str);
     }
 
     @Override
@@ -147,16 +139,16 @@ class BufferImpl implements Buffer {
     }
 
     @Override
-    public void drawHLineAt(int x, int y, int x2, long styleState, char c) {
+    public void drawHLineAt(int x, int y, int x2, @NonNull Style style, char c) {
         for (int i = x; i < x2; i++) {
-            setCharAt(i, y, styleState, c);
+            setCharAt(i, y, style, c);
         }
     }
 
     @Override
-    public void drawVLineAt(int x, int y, int y2, long styleState, char c) {
+    public void drawVLineAt(int x, int y, int y2, @NonNull Style style, char c) {
         for (int i = y; i < y2; i++) {
-            setCharAt(x, i, styleState, c);
+            setCharAt(x, i, style, c);
         }
     }
 
@@ -164,7 +156,7 @@ class BufferImpl implements Buffer {
     public void copyTo(Canvas canvas, int x, int y) {
         for (int i = 0; i < lines.length; i++) {
             for (int j = 0; j < lines[i].length(); j++) {
-                canvas.setCharAt(x + j, y + i, styleStateAt(j, i), charAt(j, i));
+                canvas.setCharAt(x + j, y + i, styleAt(j, i), charAt(j, i));
             }
         }
     }
@@ -238,24 +230,24 @@ class BufferImpl implements Buffer {
     }
 
     @Override
-    public @NonNull String toAnsiString(long currentStyleState) {
+    public @NonNull String toAnsiString(Style currentStyle) {
         // Assuming only single-width characters for capacity estimation
         // plus 20 extra for escape codes and newline
         int initialCapacity = (size().width() + 1) * size().height();
         StringBuilder sb = new StringBuilder(initialCapacity);
         try {
-            return toAnsi(sb, currentStyleState).toString();
+            return toAnsi(sb, currentStyle).toString();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public @NonNull Appendable toAnsi(Appendable appendable, long currentStyleState)
+    public @NonNull Appendable toAnsi(Appendable appendable, Style currentStyle)
             throws IOException {
         for (int y = 0; y < size().height(); y++) {
-            line(y).toAnsi(appendable, currentStyleState);
-            currentStyleState = line(y).styleStateAt(size().width() - 1);
+            line(y).toAnsi(appendable, currentStyle);
+            currentStyle = line(y).styleAt(size().width() - 1);
             if (y < size().height() - 1) {
                 appendable.append('\n');
             }

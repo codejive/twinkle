@@ -503,81 +503,81 @@ public class Style implements Printable {
     }
 
     @Override
-    public @NonNull String toAnsiString(long currentStyleState) {
+    public @NonNull String toAnsiString(Style currentStyle) {
         try {
-            return toAnsi(new StringBuilder(), currentStyleState).toString();
+            return toAnsi(new StringBuilder(), currentStyle).toString();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public @NonNull Appendable toAnsi(Appendable appendable, long currentStyleState)
+    public @NonNull Appendable toAnsi(Appendable appendable, Style currentStyle)
             throws IOException {
         if (state == F_UNKNOWN) {
             // Do nothing, we keep the current state
             return appendable;
         }
-        if (currentStyleState == F_UNKNOWN) {
+        if (currentStyle.state() == F_UNKNOWN) {
             appendable.append(Ansi.STYLE_RESET);
-            currentStyleState = F_UNSTYLED;
+            currentStyle = UNSTYLED;
         }
         List<Object> styles = new ArrayList<>();
-        if ((currentStyleState & (F_BOLD | F_FAINT)) != (state & (F_BOLD | F_FAINT))) {
+        if ((currentStyle.state() & (F_BOLD | F_FAINT)) != (state & (F_BOLD | F_FAINT))) {
             // First we switch to NORMAL to clear both BOLD and FAINT
-            if ((currentStyleState & (F_BOLD | F_FAINT)) != 0) {
+            if (currentStyle.isBold() || currentStyle.isFaint()) {
                 styles.add(Ansi.NORMAL);
             }
             // Now we set the needed styles
             if (isBold()) styles.add(Ansi.BOLD);
             if (isFaint()) styles.add(Ansi.FAINT);
         }
-        if ((currentStyleState & F_ITALIC) != (state & F_ITALIC)) {
+        if (currentStyle.isItalic() != isItalic()) {
             if (isItalic()) {
                 styles.add(Ansi.ITALICIZED);
             } else {
                 styles.add(Ansi.NOTITALICIZED);
             }
         }
-        if ((currentStyleState & F_UNDERLINED) != (state & F_UNDERLINED)) {
+        if (currentStyle.isUnderlined() != isUnderlined()) {
             if (isUnderlined()) {
                 styles.add(Ansi.UNDERLINED);
             } else {
                 styles.add(Ansi.NOTUNDERLINED);
             }
         }
-        if ((currentStyleState & F_BLINK) != (state & F_BLINK)) {
+        if (currentStyle.isBlink() != isBlink()) {
             if (isBlink()) {
                 styles.add(Ansi.BLINK);
             } else {
                 styles.add(Ansi.STEADY);
             }
         }
-        if ((currentStyleState & F_INVERSE) != (state & F_INVERSE)) {
+        if (currentStyle.isInverse() != isInverse()) {
             if (isInverse()) {
                 styles.add(Ansi.INVERSE);
             } else {
                 styles.add(Ansi.POSITIVE);
             }
         }
-        if ((currentStyleState & F_HIDDEN) != (state & F_HIDDEN)) {
+        if (currentStyle.isHidden() != isHidden()) {
             if (isHidden()) {
                 styles.add(Ansi.INVISIBLE);
             } else {
                 styles.add(Ansi.VISIBLE);
             }
         }
-        if ((currentStyleState & F_STRIKETHROUGH) != (state & F_STRIKETHROUGH)) {
+        if (currentStyle.isStrikethrough() != isStrikethrough()) {
             if (isStrikethrough()) {
                 styles.add(Ansi.CROSSEDOUT);
             } else {
                 styles.add(Ansi.NOTCROSSEDOUT);
             }
         }
-        if ((currentStyleState & MASK_FG_COLOR) != (state & MASK_FG_COLOR)) {
+        if ((currentStyle.state() & MASK_FG_COLOR) != (state & MASK_FG_COLOR)) {
             styles.add(fgColor().toAnsiFgArgs());
         }
-        if ((currentStyleState & MASK_BG_COLOR) != (state & MASK_BG_COLOR)) {
+        if ((currentStyle.state() & MASK_BG_COLOR) != (state & MASK_BG_COLOR)) {
             styles.add(bgColor().toAnsiBgArgs());
         }
         return Ansi.style(appendable, styles.toArray());

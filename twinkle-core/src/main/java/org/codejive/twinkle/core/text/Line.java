@@ -21,11 +21,7 @@ public class Line implements Printable {
     }
 
     public static Line of(String text, Style style) {
-        return of(text, style.state());
-    }
-
-    public static Line of(String text, long styleState) {
-        return new Line((Span.of(text, styleState)));
+        return new Line((Span.of(text, style)));
     }
 
     public static Line of(Span... spans) {
@@ -40,23 +36,23 @@ public class Line implements Printable {
     public static Line of(StyledIterator iter) {
         List<Span> spans = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
-        long currentStyleState = Style.F_UNKNOWN;
+        Style currentStyle = Style.of(Style.F_UNKNOWN);
         while (iter.hasNext()) {
             long cp = iter.next();
             if (cp == '\n') {
                 break;
             }
-            if (iter.styleState() != currentStyleState) {
+            if (iter.style() != currentStyle) {
                 if (sb.length() > 0) {
-                    spans.add(Span.of(sb.toString(), currentStyleState));
+                    spans.add(Span.of(sb.toString(), currentStyle));
                     sb.setLength(0);
                 }
-                currentStyleState = iter.styleState();
+                currentStyle = iter.style();
             }
             sb.appendCodePoint((int) cp);
         }
         if (sb.length() > 0) {
-            spans.add(Span.of(sb.toString(), currentStyleState));
+            spans.add(Span.of(sb.toString(), currentStyle));
         }
         return new Line(spans.toArray(new Span[0]));
     }
@@ -73,11 +69,11 @@ public class Line implements Printable {
     }
 
     @Override
-    public @NonNull Appendable toAnsi(Appendable appendable, long currentStyleState)
+    public @NonNull Appendable toAnsi(Appendable appendable, Style currentStyle)
             throws IOException {
         for (Span span : spans) {
-            span.toAnsi(appendable, currentStyleState);
-            currentStyleState = span.style().state();
+            span.toAnsi(appendable, currentStyle);
+            currentStyle = span.style();
         }
         return appendable;
     }
