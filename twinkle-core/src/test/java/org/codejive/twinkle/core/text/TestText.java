@@ -19,16 +19,14 @@ public class TestText {
     public void testOfStyledString() {
         Style style = Style.BOLD;
         Text t = Text.of("Hello World", style);
-        assertThat(t.toAnsiString(Style.F_UNSTYLED))
-                .isEqualTo(style.toAnsiString() + "Hello World");
+        assertThat(t.toAnsiString(Style.UNSTYLED)).isEqualTo(style.toAnsiString() + "Hello World");
     }
 
     @Test
     public void testOfStyleState() {
         Style style = Style.BOLD;
-        Text t = Text.of("Hello World", style.state());
-        assertThat(t.toAnsiString(Style.F_UNSTYLED))
-                .isEqualTo(style.toAnsiString() + "Hello World");
+        Text t = Text.of("Hello World", style);
+        assertThat(t.toAnsiString(Style.UNSTYLED)).isEqualTo(style.toAnsiString() + "Hello World");
     }
 
     @Test

@@ -18,33 +18,15 @@ public interface LineBuffer extends Printable {
 
     @NonNull String graphemeAt(int i);
 
-    long styleStateAt(int i);
-
     @NonNull Style styleAt(int i);
 
-    default void setCharAt(int index, @NonNull Style style, char c) {
-        setCharAt(index, style.state(), c);
-    }
+    void setCharAt(int index, @NonNull Style style, char c);
 
-    void setCharAt(int index, long styleState, char c);
+    void setCharAt(int index, @NonNull Style style, int cp);
 
-    default void setCharAt(int index, @NonNull Style style, int cp) {
-        setCharAt(index, style.state(), cp);
-    }
+    void setCharAt(int index, @NonNull Style style, @NonNull CharSequence grapheme);
 
-    void setCharAt(int index, long styleState, int cp);
-
-    default void setCharAt(int index, @NonNull Style style, @NonNull CharSequence grapheme) {
-        setCharAt(index, style.state(), grapheme);
-    }
-
-    void setCharAt(int index, long styleState, @NonNull CharSequence grapheme);
-
-    default int putStringAt(int index, @NonNull Style style, @NonNull CharSequence str) {
-        return putStringAt(index, style.state(), str);
-    }
-
-    int putStringAt(int index, long styleState, @NonNull CharSequence str);
+    int putStringAt(int index, @NonNull Style style, @NonNull CharSequence str);
 
     int putStringAt(int index, @NonNull StyledIterator iter);
 
@@ -126,14 +108,6 @@ class LineBufferImpl implements LineBuffer {
     }
 
     @Override
-    public long styleStateAt(int index) {
-        if (invalidIndex(index)) {
-            return Style.F_UNSTYLED;
-        }
-        return styleBuffer[index];
-    }
-
-    @Override
     public @NonNull Style styleAt(int index) {
         if (invalidIndex(index)) {
             return Style.UNSTYLED;
@@ -142,7 +116,7 @@ class LineBufferImpl implements LineBuffer {
     }
 
     @Override
-    public void setCharAt(int index, long styleState, char ch) {
+    public void setCharAt(int index, @NonNull Style style, char ch) {
         if (invalidIndex(index)) {
             return;
         }
@@ -150,53 +124,53 @@ class LineBufferImpl implements LineBuffer {
             // TODO log warning about surrogate characters not being supported
             ch = REPLACEMENT_CHAR;
         }
-        setCharAt_(index, styleState, ch);
+        setCharAt_(index, style, ch);
     }
 
-    private void setCharAt_(int index, long styleState, char ch) {
+    private void setCharAt_(int index, @NonNull Style style, char ch) {
         if (Character.isSurrogate(ch)) {
             // TODO log warning about surrogate characters not being supported
             ch = REPLACEMENT_CHAR;
         }
         cpBuffer[index] = ch;
         graphemeBuffer[index] = null;
-        styleBuffer[index] = styleState;
+        styleBuffer[index] = style.state();
     }
 
     @Override
-    public void setCharAt(int index, long styleState, int cp) {
+    public void setCharAt(int index, @NonNull Style style, int cp) {
         if (invalidIndex(index)) {
             return;
         }
-        setCharAt_(index, styleState, cp);
+        setCharAt_(index, style, cp);
     }
 
-    private void setCharAt_(int index, long styleState, int cp) {
+    private void setCharAt_(int index, @NonNull Style style, int cp) {
         cpBuffer[index] = cp;
         graphemeBuffer[index] = null;
-        styleBuffer[index] = styleState;
+        styleBuffer[index] = style.state();
     }
 
     @Override
-    public void setCharAt(int index, long styleState, @NonNull CharSequence grapheme) {
+    public void setCharAt(int index, @NonNull Style style, @NonNull CharSequence grapheme) {
         if (invalidIndex(index)) {
             return;
         }
-        setCharAt_(index, styleState, grapheme);
+        setCharAt_(index, style, grapheme);
     }
 
-    private void setCharAt_(int index, long styleState, @NonNull CharSequence grapheme) {
+    private void setCharAt_(int index, @NonNull Style style, @NonNull CharSequence grapheme) {
         if (grapheme.length() == 0) {
             return;
         }
         cpBuffer[index] = -1;
         graphemeBuffer[index] = grapheme.toString();
-        styleBuffer[index] = styleState;
+        styleBuffer[index] = style.state();
     }
 
     @Override
-    public int putStringAt(int index, long styleState, @NonNull CharSequence str) {
-        return putStringAt(index, StyledIterator.of(str, styleState));
+    public int putStringAt(int index, @NonNull Style style, @NonNull CharSequence str) {
+        return putStringAt(index, StyledIterator.of(str, style));
     }
 
     @Override
@@ -216,7 +190,7 @@ class LineBufferImpl implements LineBuffer {
                 // Skip any zero-width characters
                 continue;
             }
-            long style = iter.styleState();
+            Style style = iter.style();
             if (iter.width() == 2 && (cnt + 1) >= len) {
                 // Not enough space for a wide character
                 setCharAt_(startIndex + cnt, style, REPLACEMENT_CHAR);
@@ -335,40 +309,27 @@ class LineBufferImpl implements LineBuffer {
         return sb.toString();
     }
 
-    /**
-     * Converts the buffer to an ANSI string, including ANSI escape codes for styles and colors.
-     * This method takes into account the provided current style to generate a result that is as
-     * efficient as possible in terms of ANSI codes.
-     *
-     * <p>A system property "twinkle.styledbuffer.toAnsi" can be set to "fast" or "short" to choose
-     * between two strategies for generating the ANSI string. The "fast" strategy generates the ANSI
-     * string in a single pass, while the "short" strategy generates two ANSI strings and returns
-     * the shorter one. The default is "short".
-     *
-     * @param styleState The current style to start with.
-     * @return The ANSI string representation of the styled buffer.
-     */
     @Override
-    public @NonNull String toAnsiString(long styleState) {
+    public @NonNull String toAnsiString(Style currentStyle) {
         // Assuming only single-width characters for capacity estimation
         // plus 20 extra for escape codes
         int initialCapacity = length() + 20;
         StringBuilder sb = new StringBuilder(initialCapacity);
         try {
-            return toAnsi(sb, styleState).toString();
+            return toAnsi(sb, currentStyle).toString();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public @NonNull Appendable toAnsi(Appendable appendable, long lastStyleState)
+    public @NonNull Appendable toAnsi(Appendable appendable, Style currentStyle)
             throws IOException {
         for (int i = 0; i < length(); i++) {
-            if (styleBuffer[i] != lastStyleState) {
+            if (styleBuffer[i] != currentStyle.state()) {
                 Style style = Style.of(styleBuffer[i]);
-                style.toAnsi(appendable, lastStyleState);
-                lastStyleState = styleBuffer[i];
+                style.toAnsi(appendable, currentStyle);
+                currentStyle = Style.of(styleBuffer[i]);
             }
             if (graphemeBuffer[i] != null) {
                 appendable.append(graphemeBuffer[i]);

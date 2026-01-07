@@ -11,7 +11,7 @@ import org.codejive.twinkle.ansi.Style;
  */
 public class StyledIterator implements SequenceIterator {
     private final SequenceIterator delegate;
-    private long currentStyleState;
+    private Style currentStyle;
     private int nextCodePoint = -1;
     private boolean primed = false;
     private boolean exhausted = false;
@@ -21,16 +21,16 @@ public class StyledIterator implements SequenceIterator {
      * initial style state.
      */
     protected StyledIterator(SequenceIterator delegate) {
-        this(delegate, Style.F_UNKNOWN);
+        this(delegate, Style.of(Style.F_UNKNOWN));
     }
 
     /**
      * Creates a StyledIterator that wraps the given SequenceIterator and starts with the given
      * initial style state.
      */
-    public StyledIterator(SequenceIterator delegate, long currentStyleState) {
+    public StyledIterator(SequenceIterator delegate, Style currentStyle) {
         this.delegate = delegate;
-        this.currentStyleState = currentStyleState;
+        this.currentStyle = currentStyle;
     }
 
     /** Returns true if there is still input to read. */
@@ -86,12 +86,7 @@ public class StyledIterator implements SequenceIterator {
 
     /** Returns the current style based on the ANSI escape sequences encountered so far. */
     public Style style() {
-        return Style.of(currentStyleState);
-    }
-
-    /** Returns the current style state based on the ANSI escape sequences encountered so far. */
-    public long styleState() {
-        return currentStyleState;
+        return currentStyle;
     }
 
     private void primeNext() {
@@ -100,7 +95,7 @@ public class StyledIterator implements SequenceIterator {
             if (cp == Ansi.ESC) {
                 String ansiSequence = delegate.sequence();
                 if (ansiSequence.startsWith(Ansi.CSI) && ansiSequence.endsWith("m")) {
-                    currentStyleState = Style.parse(currentStyleState, ansiSequence);
+                    currentStyle = Style.of(Style.parse(currentStyle.state(), ansiSequence));
                 }
             } else {
                 nextCodePoint = cp;
@@ -113,26 +108,26 @@ public class StyledIterator implements SequenceIterator {
     }
 
     public static StyledIterator of(CharSequence text) {
-        return of(text, Style.F_UNKNOWN);
+        return of(text, Style.of(Style.F_UNKNOWN));
     }
 
     public static StyledIterator of(Reader input) {
-        return of(input, Style.F_UNKNOWN);
+        return of(input, Style.of(Style.F_UNKNOWN));
     }
 
     public static StyledIterator of(SequenceIterator iter) {
-        return of(iter, Style.F_UNKNOWN);
+        return of(iter, Style.of(Style.F_UNKNOWN));
     }
 
-    public static StyledIterator of(CharSequence text, long currentStyleState) {
-        return of(SequenceIterator.of(text), currentStyleState);
+    public static StyledIterator of(CharSequence text, Style currentStyle) {
+        return of(SequenceIterator.of(text), currentStyle);
     }
 
-    public static StyledIterator of(Reader input, long currentStyleState) {
-        return of(SequenceIterator.of(input), currentStyleState);
+    public static StyledIterator of(Reader input, Style currentStyle) {
+        return of(SequenceIterator.of(input), currentStyle);
     }
 
-    public static StyledIterator of(SequenceIterator iter, long currentStyleState) {
-        return new StyledIterator(iter, currentStyleState);
+    public static StyledIterator of(SequenceIterator iter, Style currentStyle) {
+        return new StyledIterator(iter, currentStyle);
     }
 }

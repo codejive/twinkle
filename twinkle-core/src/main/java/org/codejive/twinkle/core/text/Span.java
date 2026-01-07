@@ -18,10 +18,6 @@ public class Span implements Printable {
         return new Span(text, style);
     }
 
-    public static Span of(@NonNull String text, long styleState) {
-        return new Span(text, Style.of(styleState));
-    }
-
     protected Span(@NonNull String text, Style style) {
         this.text = text;
         this.style = style;
@@ -46,9 +42,9 @@ public class Span implements Printable {
     }
 
     @Override
-    public @NonNull Appendable toAnsi(Appendable appendable, long currentStyleState)
+    public @NonNull Appendable toAnsi(Appendable appendable, Style currentStyle)
             throws IOException {
-        style.toAnsi(appendable, currentStyleState);
+        style.toAnsi(appendable, currentStyle);
         appendable.append(text);
         return appendable;
     }

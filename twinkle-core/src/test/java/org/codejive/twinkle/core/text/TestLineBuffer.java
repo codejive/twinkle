@@ -17,11 +17,11 @@ public class TestLineBuffer {
     public void testStyledBufferPutGetChar() {
         LineBuffer buffer = LineBuffer.of(10);
         for (int i = 0; i < buffer.length(); i++) {
-            buffer.setCharAt(i, Style.ITALIC.state(), (char) ('a' + i));
+            buffer.setCharAt(i, Style.ITALIC, (char) ('a' + i));
         }
         for (int i = 0; i < buffer.length(); i++) {
             assertThat(buffer.charAt(i)).isEqualTo((char) ('a' + i));
-            assertThat(buffer.styleStateAt(i)).isEqualTo(Style.ITALIC.state());
+            assertThat(buffer.styleAt(i)).isEqualTo(Style.ITALIC);
         }
     }
 
@@ -29,7 +29,7 @@ public class TestLineBuffer {
     public void testStyledBufferPutCharToString() {
         LineBuffer buffer = LineBuffer.of(10);
         for (int i = 0; i < buffer.length(); i++) {
-            buffer.setCharAt(i, Style.ITALIC.state(), (char) ('a' + i));
+            buffer.setCharAt(i, Style.ITALIC, (char) ('a' + i));
         }
         assertThat(buffer.toString()).isEqualTo("abcdefghij");
     }
@@ -57,7 +57,7 @@ public class TestLineBuffer {
             Style style = i < 5 ? Style.ITALIC : Style.UNDERLINED;
             buffer.setCharAt(i, style, (char) ('a' + i));
         }
-        assertThat(buffer.toAnsiString(Style.F_ITALIC))
+        assertThat(buffer.toAnsiString(Style.ITALIC))
                 .isEqualTo("abcde" + Ansi.style(Ansi.NOTITALICIZED, Ansi.UNDERLINED) + "fghij");
     }
 
@@ -83,7 +83,7 @@ public class TestLineBuffer {
         buffer.putStringAt(0, Style.ITALIC, "abcdefghij");
         for (int i = 0; i < buffer.length(); i++) {
             assertThat(buffer.charAt(i)).isEqualTo((char) ('a' + i));
-            assertThat(buffer.styleStateAt(i)).isEqualTo(Style.ITALIC.state());
+            assertThat(buffer.styleAt(i)).isEqualTo(Style.ITALIC);
         }
     }
 }

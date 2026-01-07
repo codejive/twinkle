@@ -12,7 +12,7 @@ public class Plot implements Widget {
     private final int cOrgX;
     private final int cOrgY;
     private final Size plotSize;
-    private long currentStyleState = Style.F_UNSTYLED;
+    private Style currentStyle = Style.UNSTYLED;
 
     private static final char BLOCK_FULL = '█';
     private static final char EMPTY = ' ';
@@ -73,20 +73,11 @@ public class Plot implements Widget {
     }
 
     public @NonNull Style currentStyle() {
-        return Style.of(currentStyleState);
-    }
-
-    public long currentStyleState() {
-        return currentStyleState;
+        return currentStyle;
     }
 
     public Plot currentStyle(Style currentStyle) {
-        this.currentStyleState = currentStyle.state();
-        return this;
-    }
-
-    public Plot currentStyleState(long currentStyleState) {
-        this.currentStyleState = currentStyleState;
+        this.currentStyle = currentStyle;
         return this;
     }
 
@@ -96,14 +87,10 @@ public class Plot implements Widget {
     }
 
     public Plot plot(int x, int y) {
-        return plot(x, y, currentStyleState);
+        return plot(x, y, currentStyle);
     }
 
     public Plot plot(int x, int y, Style style) {
-        return plot(x, y, style.state());
-    }
-
-    public Plot plot(int x, int y, long styleState) {
         int cx = cOrgX + x / 2;
         int cy = cOrgY - y / 2;
         int rx = x % 2;
@@ -111,7 +98,7 @@ public class Plot implements Widget {
         char newDot = selectDot(rx, ry);
         char existingDot = canvas.charAt(cx, cy);
         char combinedDot = combineDots(existingDot, newDot);
-        canvas.setCharAt(cx, cy, styleState, combinedDot);
+        canvas.setCharAt(cx, cy, style, combinedDot);
         return this;
     }
 
@@ -123,14 +110,14 @@ public class Plot implements Widget {
         char removeDot = selectDot(rx, ry);
         char existingDot = canvas.charAt(cx, cy);
         char combinedDot = uncombineDots(existingDot, removeDot);
-        canvas.setCharAt(cx, cy, currentStyleState, combinedDot);
+        canvas.setCharAt(cx, cy, currentStyle, combinedDot);
         return this;
     }
 
     public Plot clear() {
         for (int y = 0; y < size().height(); y++) {
             for (int x = 0; x < size().width(); x++) {
-                canvas.setCharAt(x, y, currentStyleState, ' ');
+                canvas.setCharAt(x, y, currentStyle, ' ');
             }
         }
         return this;

@@ -10,7 +10,7 @@ public class SimpleBorderRenderer implements Renderable {
     private LineStyle topLineStyle;
     private LineStyle bottomLineStyle;
     private CornerStyle cornerStyle;
-    private long styleState;
+    private Style style;
 
     public enum LineStyle {
         SINGLE('─', '│'),
@@ -51,7 +51,7 @@ public class SimpleBorderRenderer implements Renderable {
         this.topLineStyle = LineStyle.SINGLE;
         this.bottomLineStyle = LineStyle.SINGLE;
         this.cornerStyle = CornerStyle.ROUNDED;
-        this.styleState = Style.F_UNSTYLED;
+        this.style = Style.UNSTYLED;
     }
 
     public SimpleBorderRenderer lineStyle(LineStyle lineStyle) {
@@ -88,48 +88,41 @@ public class SimpleBorderRenderer implements Renderable {
     }
 
     public SimpleBorderRenderer style(Style style) {
-        return style(style.state());
-    }
-
-    public SimpleBorderRenderer style(long styleState) {
-        this.styleState = styleState;
+        this.style = style;
         return this;
     }
 
     @Override
     public void render(Canvas canvas) {
-        canvas.setCharAt(
-                0, 0, styleState, corner(cornerStyle.topLeftChar, leftLineStyle, topLineStyle));
-        canvas.drawHLineAt(
-                1, 0, canvas.size().width() - 1, styleState, topLineStyle.horizontalChar);
+        canvas.setCharAt(0, 0, style, corner(cornerStyle.topLeftChar, leftLineStyle, topLineStyle));
+        canvas.drawHLineAt(1, 0, canvas.size().width() - 1, style, topLineStyle.horizontalChar);
         canvas.setCharAt(
                 canvas.size().width() - 1,
                 0,
-                styleState,
+                style,
                 corner(cornerStyle.topRightChar, rightLineStyle, topLineStyle));
-        canvas.drawVLineAt(
-                0, 1, canvas.size().height() - 1, styleState, leftLineStyle.verticalChar);
+        canvas.drawVLineAt(0, 1, canvas.size().height() - 1, style, leftLineStyle.verticalChar);
         canvas.setCharAt(
                 0,
                 canvas.size().height() - 1,
-                styleState,
+                style,
                 corner(cornerStyle.bottomLeftChar, leftLineStyle, bottomLineStyle));
         canvas.drawHLineAt(
                 1,
                 canvas.size().height() - 1,
                 canvas.size().width() - 1,
-                styleState,
+                style,
                 bottomLineStyle.horizontalChar);
         canvas.setCharAt(
                 canvas.size().width() - 1,
                 canvas.size().height() - 1,
-                styleState,
+                style,
                 corner(cornerStyle.bottomRightChar, rightLineStyle, bottomLineStyle));
         canvas.drawVLineAt(
                 canvas.size().width() - 1,
                 1,
                 canvas.size().height() - 1,
-                styleState,
+                style,
                 rightLineStyle.verticalChar);
     }
 

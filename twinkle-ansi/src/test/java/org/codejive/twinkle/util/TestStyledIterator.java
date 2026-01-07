@@ -15,7 +15,7 @@ public class TestStyledIterator {
         assertThat(it.hasNext()).isTrue();
         assertThat(it.next()).isEqualTo('a');
         assertThat(it.sequence()).isEqualTo("a");
-        assertThat(it.styleState()).isEqualTo(Style.F_UNKNOWN);
+        assertThat(it.style()).isEqualTo(Style.of(Style.F_UNKNOWN));
 
         assertThat(it.hasNext()).isTrue();
         assertThat(it.next()).isEqualTo('b');
@@ -40,7 +40,7 @@ public class TestStyledIterator {
         assertThat(it.sequence()).isEqualTo("a");
 
         // Verify style state changed
-        assertThat(it.styleState()).isNotEqualTo(Style.F_UNSTYLED);
+        assertThat(it.style()).isNotEqualTo(Style.UNSTYLED);
 
         assertThat(it.hasNext()).isFalse();
     }
@@ -54,7 +54,7 @@ public class TestStyledIterator {
         assertThat(it.hasNext()).isTrue();
         assertThat(it.next()).isEqualTo('a');
         // Style should NOT change for non-SGR sequences
-        assertThat(it.styleState()).isEqualTo(Style.F_UNKNOWN);
+        assertThat(it.style()).isEqualTo(Style.of(Style.F_UNKNOWN));
 
         assertThat(it.hasNext()).isFalse();
     }
@@ -68,14 +68,14 @@ public class TestStyledIterator {
 
         // 'a'
         assertThat(it.next()).isEqualTo('a');
-        assertThat(it.styleState()).isEqualTo(Style.F_UNKNOWN);
+        assertThat(it.style()).isEqualTo(Style.of(Style.F_UNKNOWN));
 
         // 'b' (RED consumed)
         assertThat(it.next()).isEqualTo('b');
-        assertThat(it.styleState()).isNotEqualTo(Style.F_UNSTYLED);
+        assertThat(it.style()).isNotEqualTo(Style.UNSTYLED);
 
         // 'c' (RESET consumed)
         assertThat(it.next()).isEqualTo('c');
-        assertThat(it.styleState()).isEqualTo(Style.F_UNSTYLED);
+        assertThat(it.style()).isEqualTo(Style.UNSTYLED);
     }
 }

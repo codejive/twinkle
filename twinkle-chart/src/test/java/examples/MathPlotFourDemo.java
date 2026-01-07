@@ -52,7 +52,8 @@ public class MathPlotFourDemo {
                 Thread.sleep(20);
             }
         } finally {
-            pout.print(Ansi.showCursor());
+            pout.print(Ansi.STYLE_RESET + Ansi.showCursor());
+            pout.flush();
         }
     }
 }

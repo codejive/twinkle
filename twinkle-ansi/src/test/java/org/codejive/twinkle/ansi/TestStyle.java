@@ -152,7 +152,8 @@ public class TestStyle {
                         .inverse()
                         .hidden()
                         .strikethrough();
-        String ansiCode = style.toAnsiString(Style.F_BOLD | Style.F_UNDERLINED);
+        Style currentStyle = Style.UNSTYLED.bold().underlined();
+        String ansiCode = style.toAnsiString(currentStyle);
         assertThat(ansiCode)
                 .isEqualTo(
                         Ansi.style(
@@ -178,7 +179,8 @@ public class TestStyle {
                         .inverse()
                         .hidden()
                         .strikethrough();
-        String ansiCode = style.toAnsiString(Style.F_BOLD | Style.F_FAINT | Style.F_UNDERLINED);
+        Style currentStyle = Style.UNSTYLED.bold().faint().underlined();
+        String ansiCode = style.toAnsiString(currentStyle);
         assertThat(ansiCode)
                 .isEqualTo(
                         Ansi.style(

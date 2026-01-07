@@ -1,5 +1,7 @@
 package org.codejive.twinkle.core.text;
 
+import org.codejive.twinkle.ansi.Style;
+
 public class LineBufferTimings {
     private static int iterations = 1_000_000;
 
@@ -50,10 +52,10 @@ public class LineBufferTimings {
                 buffer.getClass().getSimpleName(),
                 () -> {
                     for (int i = 0; i < 500; i += 10) {
-                        buffer.putStringAt(i, 0, "0123456789");
+                        buffer.putStringAt(i, Style.UNSTYLED, "0123456789");
                     }
                     for (int i = 500; i < 1000; i += 10) {
-                        buffer.putStringAt(i, 0, "0123456789");
+                        buffer.putStringAt(i, Style.UNSTYLED, "0123456789");
                     }
                 });
     }
@@ -63,10 +65,10 @@ public class LineBufferTimings {
                 buffer.getClass().getSimpleName(),
                 () -> {
                     for (int i = 0; i < 500; i += 10) {
-                        buffer.putStringAt(i, 0, "0123456789");
+                        buffer.putStringAt(i, Style.UNSTYLED, "0123456789");
                     }
                     for (int i = 500; i < 1000; i += 10) {
-                        buffer.putStringAt(i, 0, "01234\uD83D\uDE8056789");
+                        buffer.putStringAt(i, Style.UNSTYLED, "01234\uD83D\uDE8056789");
                     }
                 });
     }

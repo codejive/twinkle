@@ -17,11 +17,7 @@ public class Text implements Printable {
     }
 
     public static Text of(String text, Style style) {
-        return of(text, style.state());
-    }
-
-    public static Text of(String text, long styleState) {
-        return new Text(new Line((Span.of(text, styleState))));
+        return new Text(new Line((Span.of(text, style))));
     }
 
     public static Text of(Line... lines) {
@@ -53,16 +49,16 @@ public class Text implements Printable {
     }
 
     @Override
-    public @NonNull Appendable toAnsi(Appendable appendable, long currentStyleState)
+    public @NonNull Appendable toAnsi(Appendable appendable, Style currentStyle)
             throws IOException {
         boolean first = true;
         for (Line line : lines) {
             if (!first) {
                 appendable.append('\n');
             }
-            line.toAnsi(appendable, currentStyleState);
+            line.toAnsi(appendable, currentStyle);
             if (!line.spans().isEmpty()) {
-                currentStyleState = line.spans().get(line.spans().size() - 1).style().state();
+                currentStyle = line.spans().get(line.spans().size() - 1).style();
             }
             first = false;
         }
