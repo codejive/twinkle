@@ -82,6 +82,10 @@ public class Rect extends Size implements Sized {
         return new Rect(l, t, r - l + 1, b - t + 1);
     }
 
+    public Rect appliedTo(@NonNull Rect rect) {
+        return new Rect(rect.left() + left, rect.top() + top, width(), height());
+    }
+
     @Override
     public String toString() {
         return "Rect{"

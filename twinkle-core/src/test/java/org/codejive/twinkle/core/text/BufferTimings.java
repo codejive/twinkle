@@ -2,7 +2,7 @@ package org.codejive.twinkle.core.text;
 
 import org.codejive.twinkle.ansi.Style;
 
-public class LineBufferTimings {
+public class BufferTimings {
     private static int iterations = 1_000_000;
 
     public static void main(String[] args) {
@@ -41,34 +41,34 @@ public class LineBufferTimings {
                 });
 
         System.out.println("Timing simple strings:");
-        timeSimpleString(LineBuffer.of(1000));
+        timeSimpleString(Buffer.of(1000, 1));
 
         System.out.println("Timing strings with surrogates:");
-        timeStringWithSurrogates(LineBuffer.of(1000));
+        timeStringWithSurrogates(Buffer.of(1000, 1));
     }
 
-    private static void timeSimpleString(LineBuffer buffer) {
+    private static void timeSimpleString(Buffer buffer) {
         titer(
                 buffer.getClass().getSimpleName(),
                 () -> {
                     for (int i = 0; i < 500; i += 10) {
-                        buffer.putStringAt(i, Style.UNSTYLED, "0123456789");
+                        buffer.putStringAt(i, 0, Style.UNSTYLED, "0123456789");
                     }
                     for (int i = 500; i < 1000; i += 10) {
-                        buffer.putStringAt(i, Style.UNSTYLED, "0123456789");
+                        buffer.putStringAt(i, 0, Style.UNSTYLED, "0123456789");
                     }
                 });
     }
 
-    private static void timeStringWithSurrogates(LineBuffer buffer) {
+    private static void timeStringWithSurrogates(Buffer buffer) {
         titer(
                 buffer.getClass().getSimpleName(),
                 () -> {
                     for (int i = 0; i < 500; i += 10) {
-                        buffer.putStringAt(i, Style.UNSTYLED, "0123456789");
+                        buffer.putStringAt(i, 0, Style.UNSTYLED, "0123456789");
                     }
                     for (int i = 500; i < 1000; i += 10) {
-                        buffer.putStringAt(i, Style.UNSTYLED, "01234\uD83D\uDE8056789");
+                        buffer.putStringAt(i, 0, Style.UNSTYLED, "01234\uD83D\uDE8056789");
                     }
                 });
     }
