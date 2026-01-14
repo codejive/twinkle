@@ -7,18 +7,18 @@ import org.jspecify.annotations.NonNull;
 
 public class Span implements Printable {
     private final @NonNull String text;
-    private final Style style;
+    private final @NonNull Style style;
     private final int length;
 
     public static Span of(@NonNull String text) {
         return new Span(text, Style.UNSTYLED);
     }
 
-    public static Span of(@NonNull String text, Style style) {
+    public static Span of(@NonNull String text, @NonNull Style style) {
         return new Span(text, style);
     }
 
-    protected Span(@NonNull String text, Style style) {
+    protected Span(@NonNull String text, @NonNull Style style) {
         this.text = text;
         this.style = style;
         this.length = text.codePointCount(0, text.length());

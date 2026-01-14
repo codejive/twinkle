@@ -13,11 +13,11 @@ public class Text implements Printable {
     private final List<Line> lines;
 
     public static Text of(String text) {
-        return new Text(new Line((Span.of(text))));
+        return new Text(Line.of((Span.of(text))));
     }
 
     public static Text of(String text, Style style) {
-        return new Text(new Line((Span.of(text, style))));
+        return new Text(Line.of((Span.of(text, style))));
     }
 
     public static Text of(Line... lines) {

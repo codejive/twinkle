@@ -2,6 +2,7 @@ package org.codejive.twinkle.core.text;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.codejive.twinkle.ansi.Style;
@@ -17,20 +18,24 @@ public class Line implements Printable {
     }
 
     public static Line of(String text) {
-        return new Line((Span.of(text)));
+        return new Line(Collections.singletonList(Span.of(text)));
     }
 
     public static Line of(String text, Style style) {
-        return new Line((Span.of(text, style)));
+        return new Line(Collections.singletonList(Span.of(text, style)));
     }
 
     public static Line of(Span... spans) {
-        return new Line(spans);
+        return new Line(Arrays.asList(spans));
     }
 
-    protected Line(Span... spans) {
-        this.spans = new ArrayList<>(spans.length);
-        Collections.addAll(this.spans, spans);
+    public static Line of(Line line) {
+        return new Line(line.spans);
+    }
+
+    protected Line(List<Span> spans) {
+        this.spans = new ArrayList<>(spans.size());
+        this.spans.addAll(spans);
     }
 
     public static Line of(StyledIterator iter) {
@@ -54,7 +59,31 @@ public class Line implements Printable {
         if (sb.length() > 0) {
             spans.add(Span.of(sb.toString(), currentStyle));
         }
-        return new Line(spans.toArray(new Span[0]));
+        return new Line(spans);
+    }
+
+    public Line concat(Line other) {
+        return concat(other.spans);
+    }
+
+    public Line concat(List<Span> spans) {
+        this.spans.addAll(spans);
+        return this;
+    }
+
+    public Line concat(Span... spans) {
+        this.spans.addAll(Arrays.asList(spans));
+        return this;
+    }
+
+    public Line concat(String text) {
+        this.spans.add(Span.of(text));
+        return this;
+    }
+
+    public Line concat(String text, Style style) {
+        this.spans.add(Span.of(text, style));
+        return this;
     }
 
     @Override
