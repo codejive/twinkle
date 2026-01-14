@@ -168,5 +168,9 @@ public class Ansi {
         return CSI + "2J";
     }
 
+    public static String autoWrap(boolean enabled) {
+        return CSI + (enabled ? "?7h" : "?7l");
+    }
+
     private Ansi() {}
 }
