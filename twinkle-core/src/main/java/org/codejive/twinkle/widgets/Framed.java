@@ -34,12 +34,16 @@ public class Framed implements Widget {
         return this;
     }
 
+    public Line title() {
+        return title;
+    }
+
     public Framed title(@Nullable Line title) {
         this.title = title;
         return this;
     }
 
-    private Framed() {
+    protected Framed() {
         this.borderRenderer = new SimpleBorderRenderer();
     }
 
@@ -56,9 +60,10 @@ public class Framed implements Widget {
         if (borderRenderer != null) {
             borderRenderer.render(canvas);
         }
-        if (title != null) {
+        Line t = title();
+        if (t != null) {
             Canvas view = canvas.view(2, 0, canvas.size().width() - 4, 1);
-            view.putStringAt(0, 0, Style.DEFAULT, title.toAnsiString());
+            view.putStringAt(0, 0, Style.DEFAULT, t.toAnsiString());
         }
         if (widget != null) {
             widget.render(canvas.view(Rect.of(canvas.size()).grow(-1, -1, -1, -1)));
