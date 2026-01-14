@@ -21,7 +21,7 @@ public class TestBuffer {
     public void testStyledBufferPutGetChar() {
         Buffer buffer = Buffer.of(10, 1);
         for (int i = 0; i < buffer.size().width(); i++) {
-            buffer.setCharAt(i, 0, Style.ITALIC, (char) ('a' + i));
+            buffer.putCharAt(i, 0, Style.ITALIC, (char) ('a' + i));
         }
         for (int i = 0; i < buffer.size().width(); i++) {
             assertThat(buffer.charAt(i, 0)).isEqualTo((char) ('a' + i));
@@ -33,7 +33,7 @@ public class TestBuffer {
     public void testStyledBufferPutCharToString() {
         Buffer buffer = Buffer.of(10, 1);
         for (int i = 0; i < buffer.size().width(); i++) {
-            buffer.setCharAt(i, 0, Style.ITALIC, (char) ('a' + i));
+            buffer.putCharAt(i, 0, Style.ITALIC, (char) ('a' + i));
         }
         assertThat(buffer.toString()).isEqualTo("abcdefghij");
     }
@@ -43,7 +43,7 @@ public class TestBuffer {
         Buffer buffer = Buffer.of(10, 1);
         for (int i = 0; i < buffer.size().width(); i++) {
             Style style = i < 5 ? Style.ITALIC : Style.UNDERLINED;
-            buffer.setCharAt(i, 0, style, (char) ('a' + i));
+            buffer.putCharAt(i, 0, style, (char) ('a' + i));
         }
         assertThat(buffer.toAnsiString())
                 .isEqualTo(
@@ -59,7 +59,7 @@ public class TestBuffer {
         Buffer buffer = Buffer.of(10, 1);
         for (int i = 0; i < buffer.size().width(); i++) {
             Style style = i < 5 ? Style.ITALIC : Style.UNDERLINED;
-            buffer.setCharAt(i, 0, style, (char) ('a' + i));
+            buffer.putCharAt(i, 0, style, (char) ('a' + i));
         }
         assertThat(buffer.toAnsiString(Style.DEFAULT.italic()))
                 .isEqualTo("abcde" + Ansi.style(Ansi.NOTITALICIZED, Ansi.UNDERLINED) + "fghij");
@@ -70,7 +70,7 @@ public class TestBuffer {
         Buffer buffer = Buffer.of(10, 1);
         for (int i = 0; i < buffer.size().width() + 10; i++) {
             Style style = i < 10 ? Style.ITALIC : Style.UNDERLINED;
-            buffer.setCharAt(i - 5, 0, style, (char) ('a' + i));
+            buffer.putCharAt(i - 5, 0, style, (char) ('a' + i));
         }
         assertThat(buffer.toAnsiString())
                 .isEqualTo(
@@ -305,7 +305,7 @@ public class TestBuffer {
         Size size = buffer.size();
         for (int y = 0; y < size.height(); y++) {
             for (int x = 0; x < size.width(); x++) {
-                buffer.setCharAt(
+                buffer.putCharAt(
                         x,
                         y,
                         Style.ofFgColor(Color.indexed(x)),

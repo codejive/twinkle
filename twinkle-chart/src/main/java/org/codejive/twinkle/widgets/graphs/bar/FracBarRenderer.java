@@ -121,24 +121,24 @@ public class FracBarRenderer {
         int y = reversed || horizontal ? 0 : size.height() - 1;
         // Place full blocks first
         for (int i = 0; i < fullChunks; i++) {
-            canvas.setCharAt(x, y, Style.UNSTYLED, blocks[0]);
+            canvas.putCharAt(x, y, Style.UNSTYLED, blocks[0]);
             x += direction.dx;
             y += direction.dy;
         }
         // Append remainder partial block if any
         if (remainder > 0) {
-            canvas.setCharAt(x, y, Style.UNSTYLED, blocks[remainder]);
+            canvas.putCharAt(x, y, Style.UNSTYLED, blocks[remainder]);
             x += direction.dx;
             y += direction.dy;
         } else if (overflow) { // Or an overflow block
-            canvas.setCharAt(x, y, Style.UNSTYLED, BLOCK_OVERFLOW);
+            canvas.putCharAt(x, y, Style.UNSTYLED, BLOCK_OVERFLOW);
             x += direction.dx;
             y += direction.dy;
         }
         // Fill the rest with spaces
         int sizeLeft = maxSize - fullChunks - (overflow || remainder > 0 ? 1 : 0);
         for (int i = 0; i < sizeLeft; i++) {
-            canvas.setCharAt(x, y, Style.UNSTYLED, ' ');
+            canvas.putCharAt(x, y, Style.UNSTYLED, ' ');
             x += direction.dx;
             y += direction.dy;
         }

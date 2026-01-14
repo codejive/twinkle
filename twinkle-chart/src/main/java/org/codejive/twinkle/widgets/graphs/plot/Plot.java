@@ -98,7 +98,7 @@ public class Plot implements Widget {
         char newDot = selectDot(rx, ry);
         char existingDot = canvas.charAt(cx, cy);
         char combinedDot = combineDots(existingDot, newDot);
-        canvas.setCharAt(cx, cy, style, combinedDot);
+        canvas.putCharAt(cx, cy, style, combinedDot);
         return this;
     }
 
@@ -110,14 +110,14 @@ public class Plot implements Widget {
         char removeDot = selectDot(rx, ry);
         char existingDot = canvas.charAt(cx, cy);
         char combinedDot = uncombineDots(existingDot, removeDot);
-        canvas.setCharAt(cx, cy, currentStyle, combinedDot);
+        canvas.putCharAt(cx, cy, currentStyle, combinedDot);
         return this;
     }
 
     public Plot clear() {
         for (int y = 0; y < size().height(); y++) {
             for (int x = 0; x < size().width(); x++) {
-                canvas.setCharAt(x, y, currentStyle, ' ');
+                canvas.putCharAt(x, y, currentStyle, ' ');
             }
         }
         return this;
