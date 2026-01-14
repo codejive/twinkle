@@ -152,6 +152,10 @@ public class Ansi {
         return CSI + row + ";" + col + "H";
     }
 
+    public static String cursorHome() {
+        return CSI + "H";
+    }
+
     public static String hideCursor() {
         return CSI + "?25l";
     }
