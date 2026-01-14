@@ -94,15 +94,15 @@ public class SimpleBorderRenderer implements Renderable {
 
     @Override
     public void render(Canvas canvas) {
-        canvas.setCharAt(0, 0, style, corner(cornerStyle.topLeftChar, leftLineStyle, topLineStyle));
+        canvas.putCharAt(0, 0, style, corner(cornerStyle.topLeftChar, leftLineStyle, topLineStyle));
         canvas.drawHLineAt(1, 0, canvas.size().width() - 1, style, topLineStyle.horizontalChar);
-        canvas.setCharAt(
+        canvas.putCharAt(
                 canvas.size().width() - 1,
                 0,
                 style,
                 corner(cornerStyle.topRightChar, rightLineStyle, topLineStyle));
         canvas.drawVLineAt(0, 1, canvas.size().height() - 1, style, leftLineStyle.verticalChar);
-        canvas.setCharAt(
+        canvas.putCharAt(
                 0,
                 canvas.size().height() - 1,
                 style,
@@ -113,7 +113,7 @@ public class SimpleBorderRenderer implements Renderable {
                 canvas.size().width() - 1,
                 style,
                 bottomLineStyle.horizontalChar);
-        canvas.setCharAt(
+        canvas.putCharAt(
                 canvas.size().width() - 1,
                 canvas.size().height() - 1,
                 style,

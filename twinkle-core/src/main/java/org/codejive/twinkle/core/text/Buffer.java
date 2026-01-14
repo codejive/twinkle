@@ -170,7 +170,7 @@ class BufferImpl extends BufferBase {
     }
 
     @Override
-    public void setCharAt(int x, int y, @NonNull Style style, char c) {
+    public void putCharAt(int x, int y, @NonNull Style style, char c) {
         if (outside(x, y, 1)) {
             return;
         }
@@ -181,7 +181,7 @@ class BufferImpl extends BufferBase {
     }
 
     @Override
-    public void setCharAt(int x, int y, @NonNull Style style, int cp) {
+    public void putCharAt(int x, int y, @NonNull Style style, int cp) {
         if (outside(x, y, 1)) {
             return;
         }
@@ -189,7 +189,7 @@ class BufferImpl extends BufferBase {
     }
 
     @Override
-    public void setCharAt(int x, int y, @NonNull Style style, @NonNull CharSequence grapheme) {
+    public void putCharAt(int x, int y, @NonNull Style style, @NonNull CharSequence grapheme) {
         if (outside(x, y, 1)) {
             return;
         }
@@ -251,14 +251,14 @@ class BufferImpl extends BufferBase {
     @Override
     public void drawHLineAt(int x, int y, int x2, @NonNull Style style, char c) {
         for (int i = x; i < x2; i++) {
-            setCharAt(i, y, style, c);
+            putCharAt(i, y, style, c);
         }
     }
 
     @Override
     public void drawVLineAt(int x, int y, int y2, @NonNull Style style, char c) {
         for (int i = y; i < y2; i++) {
-            setCharAt(x, i, style, c);
+            putCharAt(x, i, style, c);
         }
     }
 
@@ -274,9 +274,9 @@ class BufferImpl extends BufferBase {
             for (int i = limitedRect.left(); i <= limitedRect.right(); i++) {
                 int index = index(i, j);
                 if (graphemeBuffer[index] == null) {
-                    canvas.setCharAt(x + i, y + j, Style.of(styleBuffer[index]), cpBuffer[index]);
+                    canvas.putCharAt(x + i, y + j, Style.of(styleBuffer[index]), cpBuffer[index]);
                 } else {
-                    canvas.setCharAt(
+                    canvas.putCharAt(
                             x + i, y + j, Style.of(styleBuffer[index]), graphemeBuffer[index]);
                 }
             }
@@ -478,27 +478,27 @@ class BufferViewImpl extends BufferBase implements Buffer.View {
     }
 
     @Override
-    public void setCharAt(int x, int y, @NonNull Style style, char c) {
+    public void putCharAt(int x, int y, @NonNull Style style, char c) {
         if (outside(x, y, 1)) {
             return;
         }
-        parent.setCharAt(adjustX(x), adjustY(y), style, c);
+        parent.putCharAt(adjustX(x), adjustY(y), style, c);
     }
 
     @Override
-    public void setCharAt(int x, int y, @NonNull Style style, int cp) {
+    public void putCharAt(int x, int y, @NonNull Style style, int cp) {
         if (outside(x, y, 1)) {
             return;
         }
-        parent.setCharAt(adjustX(x), adjustY(y), style, cp);
+        parent.putCharAt(adjustX(x), adjustY(y), style, cp);
     }
 
     @Override
-    public void setCharAt(int x, int y, @NonNull Style style, @NonNull CharSequence grapheme) {
+    public void putCharAt(int x, int y, @NonNull Style style, @NonNull CharSequence grapheme) {
         if (outside(x, y, 1)) {
             return;
         }
-        parent.setCharAt(adjustX(x), adjustY(y), style, grapheme);
+        parent.putCharAt(adjustX(x), adjustY(y), style, grapheme);
     }
 
     @Override

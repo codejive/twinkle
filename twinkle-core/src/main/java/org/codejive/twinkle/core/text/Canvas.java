@@ -15,11 +15,11 @@ public interface Canvas extends Sized {
 
     @NonNull Style styleAt(int x, int y);
 
-    void setCharAt(int x, int y, @NonNull Style style, char c);
+    void putCharAt(int x, int y, @NonNull Style style, char c);
 
-    void setCharAt(int x, int y, @NonNull Style style, int cp);
+    void putCharAt(int x, int y, @NonNull Style style, int cp);
 
-    void setCharAt(int x, int y, @NonNull Style style, @NonNull CharSequence grapheme);
+    void putCharAt(int x, int y, @NonNull Style style, @NonNull CharSequence grapheme);
 
     int putStringAt(int x, int y, @NonNull Style style, @NonNull CharSequence str);
 
