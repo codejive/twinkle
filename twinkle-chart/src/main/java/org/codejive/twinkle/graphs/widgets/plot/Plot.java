@@ -1,4 +1,4 @@
-package org.codejive.twinkle.widgets.graphs.plot;
+package org.codejive.twinkle.graphs.widgets.plot;
 
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.core.text.Buffer;

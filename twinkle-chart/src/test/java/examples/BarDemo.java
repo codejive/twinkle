@@ -2,9 +2,9 @@ package examples;
 
 import org.codejive.twinkle.core.text.Buffer;
 import org.codejive.twinkle.core.text.Canvas;
-import org.codejive.twinkle.widgets.graphs.bar.Bar;
-import org.codejive.twinkle.widgets.graphs.bar.BarConfig;
-import org.codejive.twinkle.widgets.graphs.bar.FracBarConfig;
+import org.codejive.twinkle.graphs.widgets.bar.Bar;
+import org.codejive.twinkle.graphs.widgets.bar.BarConfig;
+import org.codejive.twinkle.graphs.widgets.bar.FracBarConfig;
 
 public class BarDemo {
     public static void main(String[] args) {

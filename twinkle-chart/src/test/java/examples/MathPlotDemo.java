@@ -6,8 +6,8 @@ import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.core.text.Buffer;
 import org.codejive.twinkle.core.text.Line;
 import org.codejive.twinkle.core.util.Size;
-import org.codejive.twinkle.widgets.Framed;
-import org.codejive.twinkle.widgets.graphs.plot.MathPlot;
+import org.codejive.twinkle.graphs.widgets.plot.MathPlot;
+import org.codejive.twinkle.tui.widgets.Framed;
 
 public class MathPlotDemo {
     public static void main(String[] args) throws InterruptedException {

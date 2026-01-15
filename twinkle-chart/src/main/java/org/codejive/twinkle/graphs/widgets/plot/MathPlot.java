@@ -1,4 +1,4 @@
-package org.codejive.twinkle.widgets.graphs.plot;
+package org.codejive.twinkle.graphs.widgets.plot;
 
 import java.util.function.Function;
 import org.codejive.twinkle.ansi.Style;

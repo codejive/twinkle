@@ -1,4 +1,3 @@
-// java
 package examples;
 
 import java.io.IOException;
@@ -12,8 +11,8 @@ import org.codejive.twinkle.core.text.Canvas;
 import org.codejive.twinkle.core.text.Line;
 import org.codejive.twinkle.core.util.Size;
 import org.codejive.twinkle.core.widget.Widget;
-import org.codejive.twinkle.widgets.Framed;
-import org.codejive.twinkle.widgets.graphs.plot.MathPlot;
+import org.codejive.twinkle.graphs.widgets.plot.MathPlot;
+import org.codejive.twinkle.tui.widgets.Framed;
 import org.jspecify.annotations.NonNull;
 
 public class MathPlotFourDemo {

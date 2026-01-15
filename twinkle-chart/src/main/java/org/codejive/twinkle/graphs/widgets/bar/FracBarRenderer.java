@@ -1,10 +1,10 @@
-package org.codejive.twinkle.widgets.graphs.bar;
+package org.codejive.twinkle.graphs.widgets.bar;
 
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.core.text.Canvas;
 import org.codejive.twinkle.core.util.Size;
-import org.codejive.twinkle.widgets.graphs.bar.BarConfig.*;
-import org.codejive.twinkle.widgets.graphs.bar.FracBarConfig.*;
+import org.codejive.twinkle.graphs.widgets.bar.BarConfig.*;
+import org.codejive.twinkle.graphs.widgets.bar.FracBarConfig.*;
 
 public class FracBarRenderer {
     private final FracBarConfig config;

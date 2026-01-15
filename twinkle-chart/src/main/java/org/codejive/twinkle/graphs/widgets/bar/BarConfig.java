@@ -1,4 +1,4 @@
-package org.codejive.twinkle.widgets.graphs.bar;
+package org.codejive.twinkle.graphs.widgets.bar;
 
 public class BarConfig {
     private Number minValue;
