@@ -22,6 +22,7 @@
         <module>twinkle-core</module>
         <module>twinkle-ansi</module>
         <module>twinkle-chart</module>
+        <module>twinkle-terminal-jline</module>
         <!-- module>twinkle-tui</module -->
     </modules>
 
