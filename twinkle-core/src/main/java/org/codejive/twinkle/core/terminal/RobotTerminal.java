@@ -12,17 +12,25 @@ import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.core.util.Size;
 
 public class RobotTerminal implements Terminal {
-    private final Deque<Action> actions = new ConcurrentLinkedDeque<>();
+    private final Deque<Action> actions;
+    private final Terminal terminal;
     private final RobotTerminalReader reader;
-    private final PrintWriter writer;
-    private Size size;
+    private Size sizeOverride;
     private Consumer<Size> resizeCallback;
     private Thread actionThread;
 
+    public RobotTerminal() {
+        this(Terminal.getDefault());
+    }
+
     public RobotTerminal(Size size) {
+        this(new DummyTerminal(size));
+    }
+
+    public RobotTerminal(Terminal terminal) {
+        this.actions = new ConcurrentLinkedDeque<>();
+        this.terminal = terminal;
         this.reader = new RobotTerminalReader();
-        this.writer = new PrintWriter(System.out, true);
-        this.size = size;
         this.resizeCallback = (Size) -> {};
         start();
     }
@@ -70,7 +78,7 @@ public class RobotTerminal implements Terminal {
 
         @Override
         public void perform() {
-            size = newSize;
+            sizeOverride = newSize;
             resizeCallback.accept(newSize);
         }
     }
@@ -92,7 +100,7 @@ public class RobotTerminal implements Terminal {
 
     @Override
     public Size size() {
-        return size;
+        return sizeOverride != null ? sizeOverride : terminal.size();
     }
 
     @Override
@@ -108,7 +116,7 @@ public class RobotTerminal implements Terminal {
 
     @Override
     public PrintWriter writer() {
-        return writer;
+        return terminal.writer();
     }
 
     public void start() {
@@ -150,8 +158,8 @@ public class RobotTerminal implements Terminal {
     @Override
     public void close() {
         stop();
-        writer.print(Ansi.STYLE_RESET + Ansi.showCursor());
-        writer.flush();
+        writer().print(Ansi.STYLE_RESET + Ansi.showCursor());
+        writer().flush();
     }
 
     static class RobotTerminalReader extends Reader {
