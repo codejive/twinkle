@@ -1,4 +1,4 @@
-package org.codejive.twinkle.widgets.list;
+package org.codejive.twinkle.tui.widgets.list;
 
 import org.codejive.twinkle.core.util.Size;
 import org.codejive.twinkle.core.widget.StringWidget;

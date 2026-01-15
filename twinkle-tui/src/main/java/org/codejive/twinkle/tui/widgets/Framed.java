@@ -1,4 +1,4 @@
-package org.codejive.twinkle.widgets;
+package org.codejive.twinkle.tui.widgets;
 
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.core.decor.SimpleBorderRenderer;

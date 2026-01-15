@@ -1,4 +1,4 @@
-package org.codejive.twinkle.widgets.list;
+package org.codejive.twinkle.tui.widgets.list;
 
 import java.util.ArrayList;
 import java.util.Arrays;
