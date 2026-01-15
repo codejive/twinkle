@@ -1,48 +1,24 @@
 // The code for this demo was largely copied from the tamboui project:
 package examples;
 
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
-import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Color;
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.core.terminal.RobotTerminal;
-import org.codejive.twinkle.core.text.Buffer;
 import org.codejive.twinkle.core.text.Canvas;
 import org.codejive.twinkle.core.text.Line;
 import org.codejive.twinkle.core.util.Size;
 import org.codejive.twinkle.core.widget.Widget;
-import org.codejive.twinkle.widgets.Framed;
+import org.codejive.twinkle.tui.application.App;
+import org.codejive.twinkle.tui.widgets.Framed;
 import org.jspecify.annotations.NonNull;
 
 public class RgbColorDemo {
     public static void main(String[] args) throws Exception {
-        System.out.print(Ansi.hideCursor() + Ansi.autoWrap(false));
-        try (RobotTerminal term = new RobotTerminal(Size.of(40, 20))) {
-            term.delay(5000).resize(Size.of(80, 40)).delay(5000).key('q');
-            Size size = term.size();
-            RgbColorWidget w = new RgbColorWidget();
-            Widget f = new FpsFrameWidget().widget(w);
-            Buffer buf = Buffer.of(size);
-            term.onResize(buf::resize);
-
-            Reader rdr = term.reader();
-            while (true) {
-                while (rdr.ready()) {
-                    int ch = rdr.read();
-                    if (ch == 'q' || ch == 'Q') {
-                        return;
-                    }
-                }
-                f.render(buf);
-                System.out.print(Ansi.cursorHome());
-                System.out.print(buf.toAnsiString());
-                // Thread.sleep(1);
-            }
-        } finally {
-            System.out.print(Ansi.showCursor() + Ansi.autoWrap(true));
-        }
+        RgbColorWidget w = new RgbColorWidget();
+        Widget f = new FpsFrameWidget().widget(w);
+        App.run(f);
+        //App.using(f).quitOnQ(true).limitFps(30).start();
     }
 
     static class RgbColorWidget implements Widget {
