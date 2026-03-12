@@ -21,7 +21,7 @@ public class TestBuffer {
     }
 
     @Test
-    public void testStyledBufferPutGetChar() {
+    public void testBufferPutGetChar() {
         Buffer buffer = Buffer.of(10, 1);
         for (int i = 0; i < buffer.size().width(); i++) {
             buffer.putCharAt(i, 0, Style.ITALIC, (char) ('a' + i));
@@ -33,7 +33,7 @@ public class TestBuffer {
     }
 
     @Test
-    public void testStyledBufferPutCharToString() {
+    public void testBufferPutCharToString() {
         Buffer buffer = Buffer.of(10, 1);
         for (int i = 0; i < buffer.size().width(); i++) {
             buffer.putCharAt(i, 0, Style.ITALIC, (char) ('a' + i));
@@ -42,7 +42,7 @@ public class TestBuffer {
     }
 
     @Test
-    public void testStyledBufferPutCharToAnsiString() {
+    public void testBufferPutCharToAnsiString() {
         Buffer buffer = Buffer.of(10, 1);
         for (int i = 0; i < buffer.size().width(); i++) {
             Style style = i < 5 ? Style.ITALIC : Style.UNDERLINED;
@@ -58,7 +58,7 @@ public class TestBuffer {
     }
 
     @Test
-    public void testStyledBufferPutCharToAnsiStringWithCurrentStyle() {
+    public void testBufferPutCharToAnsiStringWithCurrentStyle() {
         Buffer buffer = Buffer.of(10, 1);
         for (int i = 0; i < buffer.size().width(); i++) {
             Style style = i < 5 ? Style.ITALIC : Style.UNDERLINED;
@@ -72,7 +72,7 @@ public class TestBuffer {
     }
 
     @Test
-    public void testStyledBufferPutCharToAnsiStringWithUnderAndOverflow() {
+    public void testBufferPutCharToAnsiStringWithUnderAndOverflow() {
         Buffer buffer = Buffer.of(10, 1);
         for (int i = 0; i < buffer.size().width() + 10; i++) {
             Style style = i < 10 ? Style.ITALIC : Style.UNDERLINED;
@@ -405,6 +405,60 @@ public class TestBuffer {
         }
 
         assertThat(buffer.toString()).isEqualTo("       \n Test1 \n Test2 \n Test3 \n       ");
+    }
+
+    @Test
+    public void testBufferOverlayCenter() {
+        Buffer buffer = Buffer.of(5, 5);
+        Buffer buffer2 = Buffer.of(3, 3);
+
+        try (BufferWriter writer = buffer.writer()) {
+            writer.write("abcde\nfgehi\njklmn\nopqrs\ntuvwx");
+        }
+
+        try (BufferWriter writer = buffer2.writer()) {
+            writer.write("123\n4\u00006\n789");
+        }
+
+        buffer2.overlayOn(buffer, 1, 1);
+
+        assertThat(buffer.toString()).isEqualTo("abcde\nf123i\nj4l6n\no789s\ntuvwx");
+    }
+
+    @Test
+    public void testBufferOverlayOffCenter1() {
+        Buffer buffer = Buffer.of(5, 5);
+        Buffer buffer2 = Buffer.of(3, 3);
+
+        try (BufferWriter writer = buffer.writer()) {
+            writer.write("abcde\nfgehi\njklmn\nopqrs\ntuvwx");
+        }
+
+        try (BufferWriter writer = buffer2.writer()) {
+            writer.write("123\n4\u00006\n789");
+        }
+
+        buffer2.overlayOn(buffer, -1, -1);
+
+        assertThat(buffer.toString()).isEqualTo("a6cde\n89ehi\njklmn\nopqrs\ntuvwx");
+    }
+
+    @Test
+    public void testBufferOverlayOffCenter2() {
+        Buffer buffer = Buffer.of(5, 5);
+        Buffer buffer2 = Buffer.of(3, 3);
+
+        try (BufferWriter writer = buffer.writer()) {
+            writer.write("abcde\nfgehi\njklmn\nopqrs\ntuvwx");
+        }
+
+        try (BufferWriter writer = buffer2.writer()) {
+            writer.write("123\n4\u00006\n789");
+        }
+
+        buffer2.overlayOn(buffer, 3, 3);
+
+        assertThat(buffer.toString()).isEqualTo("abcde\nfgehi\njklmn\nopq12\ntuv4x");
     }
 
     private Buffer createBuffer() {

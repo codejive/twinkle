@@ -36,15 +36,126 @@ public class Buffer implements Printable {
             this.size = Size.of(styleBuffer[0].length, styleBuffer.length);
         }
 
-        public void copyTo(@NonNull InternalBuffers otherBuffers) {
-            int copyHeight = Math.min(size.height(), otherBuffers.size.height());
-            int copyWidth = Math.min(size.width(), otherBuffers.size.width());
+        public void copyTo(
+                @NonNull InternalBuffers targetBuffers,
+                @NonNull Rect sourceRect,
+                int targetX,
+                int targetY,
+                String transparantCharacters) {
+            // Calculate the actual region to copy, bounded by both source and target dimensions
+            int sourceLeft = Math.max(0, sourceRect.left());
+            int sourceTop = Math.max(0, sourceRect.top());
+            int sourceRight = Math.min(size.width(), sourceRect.left() + sourceRect.width());
+            int sourceBottom = Math.min(size.height(), sourceRect.top() + sourceRect.height());
 
+            int copyWidth = sourceRight - sourceLeft;
+            int copyHeight = sourceBottom - sourceTop;
+
+            // Handle negative target positions by adjusting source and target coordinates
+            if (targetX < 0) {
+                int offset = -targetX;
+                sourceLeft += offset;
+                copyWidth -= offset;
+                targetX = 0;
+            }
+            if (targetY < 0) {
+                int offset = -targetY;
+                sourceTop += offset;
+                copyHeight -= offset;
+                targetY = 0;
+            }
+
+            // Adjust copy dimensions if target position would go out of bounds
+            copyWidth = Math.min(copyWidth, targetBuffers.size.width() - targetX);
+            copyHeight = Math.min(copyHeight, targetBuffers.size.height() - targetY);
+
+            // Only proceed if there's actually something to copy
+            if (copyWidth <= 0 || copyHeight <= 0) {
+                return;
+            }
+
+            if (transparantCharacters == null) {
+                copyData(
+                        targetBuffers,
+                        targetX,
+                        targetY,
+                        sourceLeft,
+                        sourceTop,
+                        copyWidth,
+                        copyHeight);
+            } else {
+                overlayData(
+                        targetBuffers,
+                        targetX,
+                        targetY,
+                        sourceLeft,
+                        sourceTop,
+                        copyWidth,
+                        copyHeight,
+                        transparantCharacters);
+            }
+        }
+
+        private void copyData(
+                InternalBuffers targetBuffers,
+                int targetX,
+                int targetY,
+                int sourceLeft,
+                int sourceTop,
+                int copyWidth,
+                int copyHeight) {
+            // Copy the data
             for (int y = 0; y < copyHeight; y++) {
-                System.arraycopy(cpBuffer[y], 0, otherBuffers.cpBuffer[y], 0, copyWidth);
+                int sourceY = sourceTop + y;
+                int targetYPos = targetY + y;
                 System.arraycopy(
-                        graphemeBuffer[y], 0, otherBuffers.graphemeBuffer[y], 0, copyWidth);
-                System.arraycopy(styleBuffer[y], 0, otherBuffers.styleBuffer[y], 0, copyWidth);
+                        cpBuffer[sourceY],
+                        sourceLeft,
+                        targetBuffers.cpBuffer[targetYPos],
+                        targetX,
+                        copyWidth);
+                System.arraycopy(
+                        graphemeBuffer[sourceY],
+                        sourceLeft,
+                        targetBuffers.graphemeBuffer[targetYPos],
+                        targetX,
+                        copyWidth);
+                System.arraycopy(
+                        styleBuffer[sourceY],
+                        sourceLeft,
+                        targetBuffers.styleBuffer[targetYPos],
+                        targetX,
+                        copyWidth);
+            }
+        }
+
+        private void overlayData(
+                InternalBuffers targetBuffers,
+                int targetX,
+                int targetY,
+                int sourceLeft,
+                int sourceTop,
+                int copyWidth,
+                int copyHeight,
+                String transparantCharacters) {
+            // Copy the data, skipping transparent characters
+            for (int y = 0; y < copyHeight; y++) {
+                int sourceY = sourceTop + y;
+                int targetYPos = targetY + y;
+                for (int x = 0; x < copyWidth; x++) {
+                    int sourceX = sourceLeft + x;
+                    int targetXPos = targetX + x;
+
+                    // Only copy if not transparent
+                    int codepoint = cpBuffer[sourceY][sourceX];
+                    if (transparantCharacters.indexOf(codepoint) < 0) {
+                        targetBuffers.cpBuffer[targetYPos][targetXPos] = cpBuffer[sourceY][sourceX];
+                        targetBuffers.graphemeBuffer[targetYPos][targetXPos] =
+                                graphemeBuffer[sourceY][sourceX];
+                        targetBuffers.styleBuffer[targetYPos][targetXPos] =
+                                styleBuffer[sourceY][sourceX];
+                    }
+                }
             }
         }
 
@@ -59,7 +170,7 @@ public class Buffer implements Printable {
 
             InternalBuffers newBuffers =
                     new InternalBuffers(newCpBuffer, newGraphemeBuffer, newStyleBuffer);
-            copyTo(newBuffers);
+            copyTo(newBuffers, Rect.of(size), 0, 0, null);
 
             return newBuffers;
         }
@@ -268,6 +379,11 @@ public class Buffer implements Printable {
         buffers.styleBuffer[y][x] = styleState;
     }
 
+    /**
+     * Clear the entire buffer, setting all cells to the default state.
+     *
+     * @return a reference to this Buffer, for chaining
+     */
     public @NonNull Buffer clear() {
         for (int y = 0; y < rect.height(); y++) {
             for (int x = 0; x < rect.width(); x++) {
@@ -280,6 +396,8 @@ public class Buffer implements Printable {
     /**
      * Clear the area of the buffer defined by the starting position (fromX, fromY) and the ending
      * position (toX, toY). And all FULL lines in between.
+     *
+     * @return a reference to this Buffer, for chaining
      */
     public @NonNull Buffer clear(int fromX, int fromY, int toX, int toY) {
         for (int x = fromX; x < rect.width(); x++) {
@@ -299,6 +417,14 @@ public class Buffer implements Printable {
         return this;
     }
 
+    /**
+     * Resize the buffer to the new size. When resizing to a larger size, the new area will be
+     * filled with the default state. When resizing to a smaller size, the content will be truncated
+     * to fit the new size.
+     *
+     * @param newSize the new size of the buffer
+     * @return a reference to this Buffer, for chaining
+     */
     public @NonNull Buffer resize(@NonNull Size newSize) {
         if (savedBuffers == null) {
             buffers = buffers.resize(newSize);
@@ -308,6 +434,27 @@ public class Buffer implements Printable {
         if (altBuffers != null) {
             altBuffers = altBuffers.resize(newSize);
         }
+        return this;
+    }
+
+    public @NonNull Buffer overlayOn(@NonNull Buffer targetBuffer, int targetX, int targetY) {
+        buffers.copyTo(targetBuffer.buffers, rect, targetX, targetY, "\0");
+        return this;
+    }
+
+    public @NonNull Buffer overlayOn(
+            @NonNull Buffer targetBuffer, int targetX, int targetY, String transparantCharacters) {
+        buffers.copyTo(targetBuffer.buffers, rect, targetX, targetY, transparantCharacters);
+        return this;
+    }
+
+    public @NonNull Buffer overlayOn(
+            @NonNull Buffer targetBuffer,
+            Rect sourceRect,
+            int targetX,
+            int targetY,
+            String transparantCharacters) {
+        buffers.copyTo(targetBuffer.buffers, sourceRect, targetX, targetY, transparantCharacters);
         return this;
     }
 

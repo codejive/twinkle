@@ -166,61 +166,72 @@ public class BufferWriter extends PrintWriter {
                 curStyle = Style.parse(curStyle, sequence);
             } else if (sequence.startsWith(Constants.CSI)) {
                 // Handle CSI sequences here
-                int num;
-                if (Ansi.cursorHome().equals(sequence)) {
-                    cursorX = 0;
-                    cursorY = 0;
-                } else if ((num = numMatch(CURSOR_UP, sequence, 1)) != -1) {
-                    cursorY = Math.max(0, cursorY - num);
-                } else if ((num = numMatch(CURSOR_DOWN, sequence, 1)) != -1) {
-                    cursorY = Math.min(rect().height() - 1, cursorY + num);
-                } else if ((num = numMatch(CURSOR_FORWARD, sequence, 1)) != -1) {
-                    cursorX = Math.min(rect().width() - 1, cursorX + num);
-                } else if ((num = numMatch(CURSOR_BACKWARD, sequence, 1)) != -1) {
-                    cursorX = Math.max(0, cursorX - num);
-                } else if ((CSI + SCREEN_ERASE_FULL).equals(sequence)) {
-                    buffer.clear();
-                } else if ((CSI + SCREEN_ERASE_START).equals(sequence)) {
-                    buffer.clear(0, 0, cursorX, cursorY);
-                } else if ((CSI + SCREEN_ERASE).equals(sequence)
-                        || (CSI + SCREEN_ERASE_END).equals(sequence)) {
-                    buffer.clear(cursorX, cursorY, rect().width() - 1, rect().height() - 1);
-                } else if ((CSI + LINE_ERASE_FULL).equals(sequence)) {
-                    buffer.clear(0, cursorY, rect().width() - 1, cursorY);
-                } else if ((CSI + LINE_ERASE_START).equals(sequence)) {
-                    buffer.clear(0, cursorY, cursorX, cursorY);
-                } else if ((CSI + LINE_ERASE).equals(sequence)
-                        || (CSI + LINE_ERASE_END).equals(sequence)) {
-                    buffer.clear(cursorX, cursorY, rect().width() - 1, cursorY);
-                } else if ((CSI + SCREEN_SAVE).equals(sequence)) {
-                    if (buffer.save()) {
-                        buffer.clear();
-                    }
-                } else if ((CSI + SCREEN_SAVE_ALT).equals(sequence)) {
-                    buffer.save();
-                } else if ((CSI + SCREEN_RESTORE).equals(sequence)
-                        || (CSI + SCREEN_RESTORE_ALT).equals(sequence)) {
-                    buffer.restore();
-                } else if (Ansi.autoWrap(true).equals(sequence)) {
-                    lineWrap = true;
-                } else if (Ansi.autoWrap(false).equals(sequence)) {
-                    lineWrap = false;
-                }
+                handleCsiSequence(sequence);
             } else if (sequence.startsWith(Constants.OSC)) {
                 // Handle OSC sequences here
+                handleOscSequence(sequence);
             } else {
                 // Handle any other sequences here
-                if (Ansi.cursorSave().equals(sequence)) {
-                    savedCursorX = cursorX;
-                    savedCursorY = cursorY;
-                } else if (Ansi.cursorRestore().equals(sequence)) {
-                    cursorX = savedCursorX;
-                    cursorY = savedCursorY;
-                }
+                handleOtherSequence(sequence);
             }
         }
 
-        protected int numMatch(char cursorCmd, String sequence, int defaultNum) {
+        protected void handleCsiSequence(String sequence) {
+            int num;
+            if (Ansi.cursorHome().equals(sequence)) {
+                cursorX = 0;
+                cursorY = 0;
+            } else if ((num = numMatch(CURSOR_UP, sequence, 1)) != -1) {
+                cursorY = Math.max(0, cursorY - num);
+            } else if ((num = numMatch(CURSOR_DOWN, sequence, 1)) != -1) {
+                cursorY = Math.min(rect().height() - 1, cursorY + num);
+            } else if ((num = numMatch(CURSOR_FORWARD, sequence, 1)) != -1) {
+                cursorX = Math.min(rect().width() - 1, cursorX + num);
+            } else if ((num = numMatch(CURSOR_BACKWARD, sequence, 1)) != -1) {
+                cursorX = Math.max(0, cursorX - num);
+            } else if ((CSI + SCREEN_ERASE_FULL).equals(sequence)) {
+                buffer.clear();
+            } else if ((CSI + SCREEN_ERASE_START).equals(sequence)) {
+                buffer.clear(0, 0, cursorX, cursorY);
+            } else if ((CSI + SCREEN_ERASE).equals(sequence)
+                    || (CSI + SCREEN_ERASE_END).equals(sequence)) {
+                buffer.clear(cursorX, cursorY, rect().width() - 1, rect().height() - 1);
+            } else if ((CSI + LINE_ERASE_FULL).equals(sequence)) {
+                buffer.clear(0, cursorY, rect().width() - 1, cursorY);
+            } else if ((CSI + LINE_ERASE_START).equals(sequence)) {
+                buffer.clear(0, cursorY, cursorX, cursorY);
+            } else if ((CSI + LINE_ERASE).equals(sequence)
+                    || (CSI + LINE_ERASE_END).equals(sequence)) {
+                buffer.clear(cursorX, cursorY, rect().width() - 1, cursorY);
+            } else if ((CSI + SCREEN_SAVE).equals(sequence)) {
+                if (buffer.save()) {
+                    buffer.clear();
+                }
+            } else if ((CSI + SCREEN_SAVE_ALT).equals(sequence)) {
+                buffer.save();
+            } else if ((CSI + SCREEN_RESTORE).equals(sequence)
+                    || (CSI + SCREEN_RESTORE_ALT).equals(sequence)) {
+                buffer.restore();
+            } else if (Ansi.autoWrap(true).equals(sequence)) {
+                lineWrap = true;
+            } else if (Ansi.autoWrap(false).equals(sequence)) {
+                lineWrap = false;
+            }
+        }
+
+        protected void handleOscSequence(String sequence) {}
+
+        protected void handleOtherSequence(String sequence) {
+            if (Ansi.cursorSave().equals(sequence)) {
+                savedCursorX = cursorX;
+                savedCursorY = cursorY;
+            } else if (Ansi.cursorRestore().equals(sequence)) {
+                cursorX = savedCursorX;
+                cursorY = savedCursorY;
+            }
+        }
+
+        private int numMatch(char cursorCmd, String sequence, int defaultNum) {
             if (sequence.startsWith(Constants.CSI)
                     && sequence.endsWith(String.valueOf(cursorCmd))) {
                 String numStr = sequence.substring(Constants.CSI.length(), sequence.length() - 1);
