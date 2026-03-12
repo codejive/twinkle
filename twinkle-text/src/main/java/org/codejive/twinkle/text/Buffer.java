@@ -16,10 +16,23 @@ public class Buffer implements Printable {
 
     public static final char REPLACEMENT_CHAR = '\uFFFD';
 
+    /**
+     * Create a new Buffer with the specified width and height.
+     *
+     * @param width the width of the buffer
+     * @param height the height of the buffer
+     * @return a new Buffer instance with the specified dimensions
+     */
     public static @NonNull Buffer of(int width, int height) {
         return of(Size.of(width, height));
     }
 
+    /**
+     * Create a new Buffer with the specified size.
+     *
+     * @param size the size of the buffer
+     * @return a new Buffer instance with the specified dimensions
+     */
     public static @NonNull Buffer of(@NonNull Size size) {
         return new Buffer(size);
     }
@@ -189,15 +202,26 @@ public class Buffer implements Printable {
         this.buffers = new InternalBuffers(size);
     }
 
+    /**
+     * Get a Writer for this Buffer that can be used to write content to the buffer. The writer will
+     * interpret ANSI escape sequences and update the buffer content and styles accordingly.
+     *
+     * @return a BufferWriter instance for this buffer
+     */
     public @NonNull BufferWriter writer() {
         return new BufferWriter(new BufferWriter.InternalWriter(this));
     }
 
+    /**
+     * Get the size of this Buffer.
+     *
+     * @return
+     */
     public @NonNull Size size() {
         return rect.size();
     }
 
-    public @NonNull Rect rect() {
+    protected @NonNull Rect rect() {
         return rect;
     }
 
@@ -205,6 +229,15 @@ public class Buffer implements Printable {
         return this.rect().limited(rect.appliedTo(this.rect()));
     }
 
+    /**
+     * Get the character at the specified position in the buffer. If the position is out of bounds
+     * or the value at the position can not be represented as a single char, a replacement character
+     * will be returned.
+     *
+     * @param x the x-coordinate of the character
+     * @param y the y-coordinate of the character
+     * @return the character at the specified position, or a replacement character
+     */
     public char charAt(int x, int y) {
         if (outside(x, y)) {
             return REPLACEMENT_CHAR;
@@ -219,6 +252,15 @@ public class Buffer implements Printable {
         return (char) buffers.cpBuffer[y][x];
     }
 
+    /**
+     * Get the codepoint at the specified position in the buffer. If the position is out of bounds
+     * or the value at the position is not a valid codepoint, a replacement character will be
+     * returned.
+     *
+     * @param x the x-coordinate of the codepoint
+     * @param y the y-coordinate of the codepoint
+     * @return the codepoint at the specified position, or a replacement character
+     */
     public int codepointAt(int x, int y) {
         if (outside(x, y)) {
             return REPLACEMENT_CHAR;
@@ -229,6 +271,14 @@ public class Buffer implements Printable {
         return buffers.cpBuffer[y][x];
     }
 
+    /**
+     * Get the grapheme at the specified position in the buffer. If the position is out of bounds a
+     * replacement character will be returned.
+     *
+     * @param x the x-coordinate of the grapheme
+     * @param y the y-coordinate of the grapheme
+     * @return the grapheme at the specified position, or a replacement character
+     */
     public @NonNull String graphemeAt(int x, int y) {
         if (outside(x, y)) {
             return String.valueOf(REPLACEMENT_CHAR);
@@ -246,6 +296,14 @@ public class Buffer implements Printable {
         return new String(Character.toChars(buffers.cpBuffer[y][x]));
     }
 
+    /**
+     * Get the grapheme at the specified position in the buffer and append it to the provided
+     * Appendable. If the position is out of bounds, a replacement character will be appended.
+     *
+     * @param appendable the Appendable to which the grapheme will be appended
+     * @param x the x-coordinate of the grapheme
+     * @param y the y-coordinate of the grapheme
+     */
     public void graphemeAt(@NonNull Appendable appendable, int x, int y) {
         if (outside(x, y)) {
             appendChr(appendable, REPLACEMENT_CHAR);
@@ -254,7 +312,7 @@ public class Buffer implements Printable {
         graphemeAt_(appendable, x, y);
     }
 
-    protected void graphemeAt_(@NonNull Appendable appendable, int x, int y) {
+    private void graphemeAt_(@NonNull Appendable appendable, int x, int y) {
         if (shouldSkipAt(x, y)) {
             graphemeAt_(appendable, x - 1, y);
         } else if (buffers.graphemeBuffer[y][x] != null) {
@@ -275,6 +333,14 @@ public class Buffer implements Printable {
         }
     }
 
+    /**
+     * Get the style at the specified position in the buffer. If the position is out of bounds, an
+     * unstyled Style will be returned.
+     *
+     * @param x the x-coordinate of the style
+     * @param y the y-coordinate of the style
+     * @return the style at the specified position, or an unstyled Style
+     */
     public @NonNull Style styleAt(int x, int y) {
         if (outside(x, y)) {
             return Style.UNSTYLED;
@@ -282,6 +348,15 @@ public class Buffer implements Printable {
         return Style.of(buffers.styleBuffer[y][x]);
     }
 
+    /**
+     * Print a character at the specified position in the buffer with the given style. If the
+     * position is out of bounds, the character will not be printed.
+     *
+     * @param x the x-coordinate of the character
+     * @param y the y-coordinate of the character
+     * @param style the style to apply to the character
+     * @param c the character to print
+     */
     public void printAt(int x, int y, @NonNull Style style, char c) {
         if (outside(x, y)) {
             return;
@@ -292,6 +367,15 @@ public class Buffer implements Printable {
         setCharAt_(x, y, style.state(), c, null);
     }
 
+    /**
+     * Print a codepoint at the specified position in the buffer with the given style. If the
+     * position is out of bounds, the codepoint will not be printed.
+     *
+     * @param x the x-coordinate of the codepoint
+     * @param y the y-coordinate of the codepoint
+     * @param style the style to apply to the codepoint
+     * @param cp the codepoint to print
+     */
     public void printAt(int x, int y, @NonNull Style style, int cp) {
         if (outside(x, y)) {
             return;
@@ -299,6 +383,15 @@ public class Buffer implements Printable {
         setCharAt_(x, y, style.state(), cp, null);
     }
 
+    /**
+     * Print a grapheme at the specified position in the buffer with the given style. If the
+     * position is out of bounds, the grapheme will not be printed.
+     *
+     * @param x the x-coordinate of the grapheme
+     * @param y the y-coordinate of the grapheme
+     * @param style the style to apply to the grapheme
+     * @param grapheme the grapheme to print
+     */
     public void printAt(int x, int y, @NonNull Style style, @NonNull CharSequence grapheme) {
         if (outside(x, y)) {
             return;
@@ -309,6 +402,14 @@ public class Buffer implements Printable {
         setCharAt_(x, y, style.state(), -1, grapheme.toString());
     }
 
+    /**
+     * Determine if the cell at the specified position should be skipped. A cell should be skipped
+     * if it is part of a wide character that spans multiple cells.
+     *
+     * @param x the x-coordinate of the cell
+     * @param y the y-coordinate of the cell
+     * @return true if the cell should be skipped, false otherwise
+     */
     public boolean shouldSkipAt(int x, int y) {
         return buffers.cpBuffer[y][x] == -1
                 && buffers.graphemeBuffer[y][x] == null
@@ -320,8 +421,7 @@ public class Buffer implements Printable {
             return;
         }
         boolean isWide = (isWideAt(x, y));
-        // Set skip state to indicate this cell is occupied by a wide character from the previous
-        // cell
+        // Set skip state to indicate cell is occupied by wide character from previous cell
         setCellAt(x, y, -1, -1, null);
         if (isWide) {
             // Clear the next cell's skip state if this cell contained a wide character
@@ -329,6 +429,13 @@ public class Buffer implements Printable {
         }
     }
 
+    /**
+     * Clear the cell at the specified position in the buffer, setting it to the default state. If
+     * the position is out of bounds, no action will be taken.
+     *
+     * @param x the x-coordinate of the cell
+     * @param y the y-coordinate of the cell
+     */
     public void clearAt(int x, int y) {
         if (outside(x, y)) {
             return;
@@ -345,6 +452,15 @@ public class Buffer implements Printable {
         setCellAt(x, y, Style.F_UNSTYLED, '\0', null);
     }
 
+    /**
+     * Determine if the character at the specified position in the buffer is a wide character. A
+     * wide character is a character that occupies two cells in the buffer. If the position is out
+     * of bounds, false is returned.
+     *
+     * @param x the x-coordinate of the character
+     * @param y the y-coordinate of the character
+     * @return true if the character is wide, false otherwise
+     */
     public boolean isWideAt(int x, int y) {
         if (outside(x, y)) {
             return false;
@@ -428,17 +544,60 @@ public class Buffer implements Printable {
         return this;
     }
 
+    /**
+     * Overlay the content of this buffer onto another target buffer at the specified position. The
+     * content of this buffer will be copied to the target buffer, starting at the coordinates
+     * (targetX, targetY) in the target buffer. If any part of this buffer extends beyond the bounds
+     * of the target buffer, the overlapping content will be truncated. Null ('\0') characters in
+     * this buffer will be treated as transparent and will not overwrite the corresponding cells in
+     * the target buffer.
+     *
+     * @param targetBuffer the buffer to overlay onto
+     * @param targetX the x-coordinate on the target buffer
+     * @param targetY the y-coordinate on the target buffer
+     * @return a reference to this Buffer, for chaining
+     */
     public @NonNull Buffer overlayOn(@NonNull Buffer targetBuffer, int targetX, int targetY) {
         buffers.copyTo(targetBuffer.buffers, rect, targetX, targetY, "\0");
         return this;
     }
 
+    /**
+     * Overlay the content of this buffer onto another target buffer at the specified position. The
+     * content of this buffer will be copied to the target buffer, starting at the coordinates
+     * (targetX, targetY) in the target buffer. If any part of this buffer extends beyond the bounds
+     * of the target buffer, the overlapping content will be truncated. Characters in this buffer
+     * that are present in the transparantCharacters string will be treated as transparent and will
+     * not overwrite the corresponding cells in the target buffer.
+     *
+     * @param targetBuffer the buffer to overlay onto
+     * @param targetX the x-coordinate on the target buffer
+     * @param targetY the y-coordinate on the target buffer
+     * @param transparantCharacters the characters to be treated as transparent
+     * @return a reference to this Buffer, for chaining
+     */
     public @NonNull Buffer overlayOn(
             @NonNull Buffer targetBuffer, int targetX, int targetY, String transparantCharacters) {
         buffers.copyTo(targetBuffer.buffers, rect, targetX, targetY, transparantCharacters);
         return this;
     }
 
+    /**
+     * Overlay the content of this buffer onto another target buffer at the specified position. The
+     * content of this buffer will be copied to the target buffer, starting at the coordinates
+     * (targetX, targetY) in the target buffer. If any part of this buffer extends beyond the bounds
+     * of the target buffer, the overlapping content will be truncated. The sourceRect parameter
+     * defines the region of this buffer to copy. Characters in this buffer that are present in the
+     * transparantCharacters string will be treated as transparent and will not overwrite the
+     * corresponding cells in the target buffer.
+     *
+     * @param targetBuffer the buffer to overlay onto
+     * @param sourceRect the area of this buffer to copy
+     * @param targetX the x-coordinate on the target buffer
+     * @param targetY the y-coordinate on the target buffer
+     * @param transparantCharacters the characters to be treated as transparent
+     * @return a reference to this Buffer, for chaining
+     */
     public @NonNull Buffer overlayOn(
             @NonNull Buffer targetBuffer,
             Rect sourceRect,
@@ -459,6 +618,13 @@ public class Buffer implements Printable {
         return toString(rect);
     }
 
+    /**
+     * Get a string representation of the content of the buffer within the specified rectangle. The
+     * output will contain only plain text without any style information.
+     *
+     * @param rect the rectangle defining the area of the buffer to convert to a string
+     * @return a string representation of the content within the specified rectangle
+     */
     public String toString(@NonNull Rect rect) {
         int initialCapacity = (size().width() + 1) * size().height();
         StringBuilder sb = new StringBuilder(initialCapacity);

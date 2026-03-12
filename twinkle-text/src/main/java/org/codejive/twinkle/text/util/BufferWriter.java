@@ -23,46 +23,102 @@ public class BufferWriter extends PrintWriter {
         return new InternalWriter(buffer);
     }
 
-    protected Rect rect() {
-        return writer.buffer.rect();
+    protected Size size() {
+        return writer.buffer.size();
     }
 
+    /**
+     * Get the current cursor X position.
+     *
+     * @return the current cursor X position
+     */
     public int cursorX() {
-        return writer.cursorX >= rect().width() ? rect().width() - 1 : writer.cursorX;
+        return writer.cursorX >= size().width() ? size().width() - 1 : writer.cursorX;
     }
 
+    /**
+     * Get the current cursor Y position.
+     *
+     * @return the current cursor Y position
+     */
     public int cursorY() {
-        return writer.cursorY >= rect().height() ? rect().height() - 1 : writer.cursorY;
+        return writer.cursorY >= size().height() ? size().height() - 1 : writer.cursorY;
     }
 
+    /**
+     * Move the cursor to the given position.
+     *
+     * @param x the X position to move the cursor to
+     * @param y the Y position to move the cursor to
+     * @return a reference to this BufferWriter, for chaining
+     */
     public @NonNull BufferWriter at(int x, int y) {
         writer.at(x, y);
         return this;
     }
 
+    /**
+     * Check if line wrapping is enabled.
+     *
+     * @return true if line wrapping is enabled, false otherwise
+     */
     public boolean wrap() {
         return writer.lineWrap;
     }
 
+    /**
+     * Enable or disable line wrapping. When line wrapping is enabled, the cursor will automatically
+     * move to the beginning of the next line when it reaches the end of the current line and
+     * another character is printed.
+     *
+     * @param lineWrap true to enable line wrapping, false to disable it
+     * @return a reference to this BufferWriter, for chaining
+     */
     public @NonNull BufferWriter wrap(boolean lineWrap) {
         writer.lineWrap = lineWrap;
         return this;
     }
 
+    /**
+     * Get the current style.
+     *
+     * @return the current style
+     */
     public @NonNull Style style() {
         return writer.curStyle;
     }
 
+    /**
+     * Set the current style.
+     *
+     * @param style the style to set
+     * @return a reference to this BufferWriter, for chaining
+     */
     public @NonNull BufferWriter style(Style style) {
         writer.curStyle = style;
         return this;
     }
 
+    /**
+     * Get the transparant characters. Transparant characters are characters that are skipped when
+     * overlaying text on top of existing content. The default value is "\0", which means that by
+     * default null characters are transparant.
+     *
+     * @return the transparant characters
+     */
     public @NonNull String transparant() {
         return writer.transparantCharacters;
     }
 
-    public @NonNull BufferWriter transparant(String transparantCharacters) {
+    /**
+     * Set the transparant characters. Transparant characters are characters that are skipped when
+     * overlaying text on top of existing content. Setting this to an empty string will disable
+     * transparant characters.
+     *
+     * @param transparantCharacters the transparant characters to set
+     * @return a reference to this BufferWriter, for chaining
+     */
+    public @NonNull BufferWriter transparant(@NonNull String transparantCharacters) {
         writer.transparantCharacters = transparantCharacters;
         return this;
     }
@@ -89,7 +145,7 @@ public class BufferWriter extends PrintWriter {
         private int savedCursorY;
         private @NonNull Style curStyle;
         private boolean lineWrap;
-        private String transparantCharacters;
+        private @NonNull String transparantCharacters;
 
         public InternalWriter(@NonNull Buffer buffer) {
             this.buffer = buffer;
@@ -103,14 +159,14 @@ public class BufferWriter extends PrintWriter {
             this.transparantCharacters = "\0";
         }
 
-        protected Rect rect() {
-            return buffer.rect();
+        protected Size size() {
+            return buffer.size();
         }
 
         public @NonNull InternalWriter at(int x, int y) {
             flush();
-            cursorX = Math.min(rect().width() - 1, Math.max(x, 0));
-            cursorY = Math.min(rect().height() - 1, Math.max(y, 0));
+            cursorX = Math.min(size().width() - 1, Math.max(x, 0));
+            cursorY = Math.min(size().height() - 1, Math.max(y, 0));
             return this;
         }
 
@@ -148,7 +204,7 @@ public class BufferWriter extends PrintWriter {
                     // position by one, as they should never be wide.
                     cursorX += 1;
                 } else {
-                    if (lineWrap && cursorX >= rect().width()) {
+                    if (lineWrap && cursorX >= size().width()) {
                         cursorX = 0;
                         cursorY++;
                     }
@@ -188,9 +244,9 @@ public class BufferWriter extends PrintWriter {
             } else if ((num = numMatch(CURSOR_UP, sequence, 1)) != -1) {
                 cursorY = Math.max(0, cursorY - num);
             } else if ((num = numMatch(CURSOR_DOWN, sequence, 1)) != -1) {
-                cursorY = Math.min(rect().height() - 1, cursorY + num);
+                cursorY = Math.min(size().height() - 1, cursorY + num);
             } else if ((num = numMatch(CURSOR_FORWARD, sequence, 1)) != -1) {
-                cursorX = Math.min(rect().width() - 1, cursorX + num);
+                cursorX = Math.min(size().width() - 1, cursorX + num);
             } else if ((num = numMatch(CURSOR_BACKWARD, sequence, 1)) != -1) {
                 cursorX = Math.max(0, cursorX - num);
             } else if ((CSI + SCREEN_ERASE_FULL).equals(sequence)) {
@@ -199,14 +255,14 @@ public class BufferWriter extends PrintWriter {
                 buffer.clear(0, 0, cursorX, cursorY);
             } else if ((CSI + SCREEN_ERASE).equals(sequence)
                     || (CSI + SCREEN_ERASE_END).equals(sequence)) {
-                buffer.clear(cursorX, cursorY, rect().width() - 1, rect().height() - 1);
+                buffer.clear(cursorX, cursorY, size().width() - 1, size().height() - 1);
             } else if ((CSI + LINE_ERASE_FULL).equals(sequence)) {
-                buffer.clear(0, cursorY, rect().width() - 1, cursorY);
+                buffer.clear(0, cursorY, size().width() - 1, cursorY);
             } else if ((CSI + LINE_ERASE_START).equals(sequence)) {
                 buffer.clear(0, cursorY, cursorX, cursorY);
             } else if ((CSI + LINE_ERASE).equals(sequence)
                     || (CSI + LINE_ERASE_END).equals(sequence)) {
-                buffer.clear(cursorX, cursorY, rect().width() - 1, cursorY);
+                buffer.clear(cursorX, cursorY, size().width() - 1, cursorY);
             } else if (Ansi.autoWrap(true).equals(sequence)) {
                 lineWrap = true;
             } else if (Ansi.autoWrap(false).equals(sequence)) {

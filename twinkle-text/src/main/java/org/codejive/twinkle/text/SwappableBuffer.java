@@ -44,6 +44,12 @@ public class SwappableBuffer extends Buffer {
         return this;
     }
 
+    /**
+     * Saves the current buffer state and switches to the alternate buffer.
+     *
+     * @return true if the save was successful, false if the aternate buffer is already the active
+     *     one (i.e. save was already called without a restore).
+     */
     public @NonNull boolean save() {
         if (savedBuffers == null) {
             if (altBuffers == null) {
@@ -56,6 +62,12 @@ public class SwappableBuffer extends Buffer {
         return false;
     }
 
+    /**
+     * Restores the previously saved buffer state. If there is no saved state, this method does
+     * nothing.
+     *
+     * @return true if the restore was successful, false if there was no saved state
+     */
     public @NonNull boolean restore() {
         if (savedBuffers != null) {
             buffers = savedBuffers;
