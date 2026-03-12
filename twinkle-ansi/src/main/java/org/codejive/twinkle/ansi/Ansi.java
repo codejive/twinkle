@@ -253,6 +253,14 @@ public class Ansi {
         return CSI + SCREEN_ERASE_FULL;
     }
 
+    public static String saveScreen() {
+        return CSI + SCREEN_SAVE;
+    }
+
+    public static String restoreScreen() {
+        return CSI + SCREEN_RESTORE;
+    }
+
     public static String autoWrap(boolean enabled) {
         return CSI + (enabled ? LINE_WRAP_ON : LINE_WRAP_OFF);
     }

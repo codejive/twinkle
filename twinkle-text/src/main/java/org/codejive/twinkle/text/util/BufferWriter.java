@@ -14,9 +14,13 @@ import org.jspecify.annotations.NonNull;
 public class BufferWriter extends PrintWriter {
     protected InternalWriter writer;
 
-    public BufferWriter(@NonNull Buffer buffer) {
-        super(new InternalWriter(buffer));
-        writer = (InternalWriter) super.out;
+    public BufferWriter(@NonNull InternalWriter writer) {
+        super(writer);
+        this.writer = (InternalWriter) super.out;
+    }
+
+    protected InternalWriter internalWriter(@NonNull Buffer buffer) {
+        return new InternalWriter(buffer);
     }
 
     protected Rect rect() {
@@ -76,7 +80,7 @@ public class BufferWriter extends PrintWriter {
         return writer.buffer;
     }
 
-    private static class InternalWriter extends Writer {
+    public static class InternalWriter extends Writer {
         protected Buffer buffer;
         protected SequenceDecoder decoder;
         private int cursorX;
@@ -87,7 +91,7 @@ public class BufferWriter extends PrintWriter {
         private boolean lineWrap;
         private String transparantCharacters;
 
-        private InternalWriter(@NonNull Buffer buffer) {
+        public InternalWriter(@NonNull Buffer buffer) {
             this.buffer = buffer;
             this.decoder = new SequenceDecoder();
             this.cursorX = 0;
@@ -203,15 +207,6 @@ public class BufferWriter extends PrintWriter {
             } else if ((CSI + LINE_ERASE).equals(sequence)
                     || (CSI + LINE_ERASE_END).equals(sequence)) {
                 buffer.clear(cursorX, cursorY, rect().width() - 1, cursorY);
-            } else if ((CSI + SCREEN_SAVE).equals(sequence)) {
-                if (buffer.save()) {
-                    buffer.clear();
-                }
-            } else if ((CSI + SCREEN_SAVE_ALT).equals(sequence)) {
-                buffer.save();
-            } else if ((CSI + SCREEN_RESTORE).equals(sequence)
-                    || (CSI + SCREEN_RESTORE_ALT).equals(sequence)) {
-                buffer.restore();
             } else if (Ansi.autoWrap(true).equals(sequence)) {
                 lineWrap = true;
             } else if (Ansi.autoWrap(false).equals(sequence)) {

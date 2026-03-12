@@ -11,12 +11,20 @@ import org.codejive.twinkle.text.util.Unicode;
 import org.jspecify.annotations.NonNull;
 
 public class Buffer implements Printable {
-    private @NonNull Rect rect;
-    private InternalBuffers buffers;
-    private InternalBuffers savedBuffers;
-    private InternalBuffers altBuffers;
+    protected @NonNull Rect rect;
+    protected InternalBuffers buffers;
 
-    private static class InternalBuffers {
+    public static final char REPLACEMENT_CHAR = '\uFFFD';
+
+    public static @NonNull Buffer of(int width, int height) {
+        return of(Size.of(width, height));
+    }
+
+    public static @NonNull Buffer of(@NonNull Size size) {
+        return new Buffer(size);
+    }
+
+    protected static class InternalBuffers {
         public final int[][] cpBuffer;
         public final String[][] graphemeBuffer;
         public final long[][] styleBuffer;
@@ -176,23 +184,13 @@ public class Buffer implements Printable {
         }
     }
 
-    public static final char REPLACEMENT_CHAR = '\uFFFD';
-
-    public static @NonNull Buffer of(int width, int height) {
-        return of(Size.of(width, height));
-    }
-
-    public static @NonNull Buffer of(@NonNull Size size) {
-        return new Buffer(size);
-    }
-
     protected Buffer(@NonNull Size size) {
         this.rect = Rect.of(0, 0, size);
         this.buffers = new InternalBuffers(size);
     }
 
     public @NonNull BufferWriter writer() {
-        return new BufferWriter(this);
+        return new BufferWriter(new BufferWriter.InternalWriter(this));
     }
 
     public @NonNull Size size() {
@@ -426,14 +424,7 @@ public class Buffer implements Printable {
      * @return a reference to this Buffer, for chaining
      */
     public @NonNull Buffer resize(@NonNull Size newSize) {
-        if (savedBuffers == null) {
-            buffers = buffers.resize(newSize);
-        } else {
-            savedBuffers = savedBuffers.resize(newSize);
-        }
-        if (altBuffers != null) {
-            altBuffers = altBuffers.resize(newSize);
-        }
+        buffers = buffers.resize(newSize);
         return this;
     }
 
@@ -456,27 +447,6 @@ public class Buffer implements Printable {
             String transparantCharacters) {
         buffers.copyTo(targetBuffer.buffers, sourceRect, targetX, targetY, transparantCharacters);
         return this;
-    }
-
-    public @NonNull boolean save() {
-        if (savedBuffers == null) {
-            if (altBuffers == null) {
-                altBuffers = new InternalBuffers(size());
-            }
-            savedBuffers = buffers;
-            buffers = altBuffers;
-            return true;
-        }
-        return false;
-    }
-
-    public @NonNull boolean restore() {
-        if (savedBuffers != null) {
-            buffers = savedBuffers;
-            savedBuffers = null;
-            return true;
-        }
-        return false;
     }
 
     private boolean outside(int x, int y) {
