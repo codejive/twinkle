@@ -152,7 +152,7 @@ public class BufferWriter extends PrintWriter {
                         cursorX = 0;
                         cursorY++;
                     }
-                    buffer.putCharAt(cursorX, cursorY, curStyle, decoder.toString());
+                    buffer.printAt(cursorX, cursorY, curStyle, decoder.toString());
                     cursorX += decoder.width();
                 }
             }

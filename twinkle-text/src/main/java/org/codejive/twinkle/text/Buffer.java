@@ -282,7 +282,7 @@ public class Buffer implements Printable {
         return Style.of(buffers.styleBuffer[y][x]);
     }
 
-    public void putCharAt(int x, int y, @NonNull Style style, char c) {
+    public void printAt(int x, int y, @NonNull Style style, char c) {
         if (outside(x, y)) {
             return;
         }
@@ -292,14 +292,14 @@ public class Buffer implements Printable {
         setCharAt_(x, y, style.state(), c, null);
     }
 
-    public void putCharAt(int x, int y, @NonNull Style style, int cp) {
+    public void printAt(int x, int y, @NonNull Style style, int cp) {
         if (outside(x, y)) {
             return;
         }
         setCharAt_(x, y, style.state(), cp, null);
     }
 
-    public void putCharAt(int x, int y, @NonNull Style style, @NonNull CharSequence grapheme) {
+    public void printAt(int x, int y, @NonNull Style style, @NonNull CharSequence grapheme) {
         if (outside(x, y)) {
             return;
         }
@@ -329,7 +329,7 @@ public class Buffer implements Printable {
         }
     }
 
-    private void clearAt(int x, int y) {
+    public void clearAt(int x, int y) {
         if (outside(x, y)) {
             return;
         }
