@@ -239,11 +239,11 @@ public interface Color {
         private static String fgAnsi(int index, Intensity intensity) {
             switch (intensity) {
                 case normal:
-                    return Ansi.foreground(index);
+                    return Ansi.foregroundArg(index);
                 case dark:
-                    return Ansi.foregroundDark(index);
+                    return Ansi.foregroundDarkArg(index);
                 case bright:
-                    return Ansi.foregroundBright(index);
+                    return Ansi.foregroundBrightArg(index);
                 default:
                     throw new IllegalArgumentException("Unknown mode: " + intensity);
             }
@@ -252,11 +252,11 @@ public interface Color {
         private static String bgAnsi(int index, Intensity intensity) {
             switch (intensity) {
                 case normal:
-                    return Ansi.background(index);
+                    return Ansi.backgroundArg(index);
                 case dark:
-                    return Ansi.backgroundDark(index);
+                    return Ansi.backgroundDarkArg(index);
                 case bright:
-                    return Ansi.backgroundBright(index);
+                    return Ansi.backgroundBrightArg(index);
                 default:
                     throw new IllegalArgumentException("Unknown mode: " + intensity);
             }
@@ -323,11 +323,11 @@ public interface Color {
         }
 
         private static String fgAnsi(int index) {
-            return Ansi.foregroundIndexed(index);
+            return Ansi.foregroundIndexedArg(index);
         }
 
         private static String bgAnsi(int index) {
-            return Ansi.backgroundIndexed(index);
+            return Ansi.backgroundIndexedArg(index);
         }
 
         @Override
@@ -392,11 +392,11 @@ public interface Color {
         }
 
         private static String fgAnsi(int r, int g, int b) {
-            return Ansi.foregroundRgb(r, g, b);
+            return Ansi.foregroundRgbArg(r, g, b);
         }
 
         private static String bgAnsi(int r, int g, int b) {
-            return Ansi.backgroundRgb(r, g, b);
+            return Ansi.backgroundRgbArg(r, g, b);
         }
 
         @Override

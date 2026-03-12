@@ -1,7 +1,11 @@
 package org.codejive.twinkle.text.util;
 
+import static org.codejive.twinkle.ansi.Constants.*;
+
 import java.io.PrintWriter;
 import java.io.Writer;
+import org.codejive.twinkle.ansi.Ansi;
+import org.codejive.twinkle.ansi.Constants;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.text.Buffer;
 import org.jspecify.annotations.NonNull;
@@ -58,11 +62,36 @@ public class BufferWriter extends PrintWriter {
         return this;
     }
 
+    /**
+     * Prints the given text to the buffer. When the text consists of multiple lines, the cursor
+     * will each time be moved down from the starting point of the previous line, so that the text
+     * will be printed in a block.
+     *
+     * @param text the text to print
+     * @return a reference to this BufferWriter, for chaining
+     */
+    public @NonNull Buffer printBlock(String text) {
+        String[] parts = text.split("(\r)?\n");
+        for (int i = 0; i < parts.length; i++) {
+            if (i > 0) {
+                print(Ansi.cursorRestore());
+                print(Ansi.cursorDown(1));
+            }
+            if (i < parts.length - 1) {
+                print(Ansi.cursorSave());
+            }
+            print(parts[i]);
+        }
+        return writer.buffer;
+    }
+
     private static class InternalWriter extends Writer {
         protected Buffer buffer;
         protected SequenceDecoder decoder;
         private int cursorX;
         private int cursorY;
+        private int savedCursorX;
+        private int savedCursorY;
         private @NonNull Style curStyle;
         private boolean lineWrap;
         private String transparantCharacters;
@@ -72,6 +101,8 @@ public class BufferWriter extends PrintWriter {
             this.decoder = new SequenceDecoder();
             this.cursorX = 0;
             this.cursorY = 0;
+            this.savedCursorX = 0;
+            this.savedCursorY = 0;
             this.curStyle = Style.DEFAULT;
             this.lineWrap = true;
             this.transparantCharacters = "\0";
@@ -142,7 +173,76 @@ public class BufferWriter extends PrintWriter {
         protected void handleEscapeSequence(String sequence) {
             if (Style.isStyleSequence(sequence)) {
                 curStyle = Style.parse(curStyle, sequence);
+            } else if (sequence.startsWith(Constants.CSI)) {
+                // Handle CSI sequences here
+                int num;
+                if (Ansi.cursorHome().equals(sequence)) {
+                    cursorX = 0;
+                    cursorY = 0;
+                } else if ((num = numMatch(CURSOR_UP, sequence, 1)) != -1) {
+                    cursorY = Math.max(0, cursorY - num);
+                } else if ((num = numMatch(CURSOR_DOWN, sequence, 1)) != -1) {
+                    cursorY = Math.min(rect().height() - 1, cursorY + num);
+                } else if ((num = numMatch(CURSOR_FORWARD, sequence, 1)) != -1) {
+                    cursorX = Math.min(rect().width() - 1, cursorX + num);
+                } else if ((num = numMatch(CURSOR_BACKWARD, sequence, 1)) != -1) {
+                    cursorX = Math.max(0, cursorX - num);
+                } else if ((CSI + SCREEN_ERASE_FULL).equals(sequence)) {
+                    buffer.clear();
+                } else if ((CSI + SCREEN_ERASE_START).equals(sequence)) {
+                    buffer.clear(0, 0, cursorX, cursorY);
+                } else if ((CSI + SCREEN_ERASE).equals(sequence)
+                        || (CSI + SCREEN_ERASE_END).equals(sequence)) {
+                    buffer.clear(cursorX, cursorY, rect().width() - 1, rect().height() - 1);
+                } else if ((CSI + LINE_ERASE_FULL).equals(sequence)) {
+                    buffer.clear(0, cursorY, rect().width() - 1, cursorY);
+                } else if ((CSI + LINE_ERASE_START).equals(sequence)) {
+                    buffer.clear(0, cursorY, cursorX, cursorY);
+                } else if ((CSI + LINE_ERASE).equals(sequence)
+                        || (CSI + LINE_ERASE_END).equals(sequence)) {
+                    buffer.clear(cursorX, cursorY, rect().width() - 1, cursorY);
+                } else if ((CSI + SCREEN_SAVE).equals(sequence)) {
+                    if (buffer.save()) {
+                        buffer.clear();
+                    }
+                } else if ((CSI + SCREEN_SAVE_ALT).equals(sequence)) {
+                    buffer.save();
+                } else if ((CSI + SCREEN_RESTORE).equals(sequence)
+                        || (CSI + SCREEN_RESTORE_ALT).equals(sequence)) {
+                    buffer.restore();
+                } else if (Ansi.autoWrap(true).equals(sequence)) {
+                    lineWrap = true;
+                } else if (Ansi.autoWrap(false).equals(sequence)) {
+                    lineWrap = false;
+                }
+            } else if (sequence.startsWith(Constants.OSC)) {
+                // Handle OSC sequences here
+            } else {
+                // Handle any other sequences here
+                if (Ansi.cursorSave().equals(sequence)) {
+                    savedCursorX = cursorX;
+                    savedCursorY = cursorY;
+                } else if (Ansi.cursorRestore().equals(sequence)) {
+                    cursorX = savedCursorX;
+                    cursorY = savedCursorY;
+                }
             }
+        }
+
+        protected int numMatch(char cursorCmd, String sequence, int defaultNum) {
+            if (sequence.startsWith(Constants.CSI)
+                    && sequence.endsWith(String.valueOf(cursorCmd))) {
+                String numStr = sequence.substring(Constants.CSI.length(), sequence.length() - 1);
+                if (numStr.isEmpty()) {
+                    return defaultNum;
+                }
+                try {
+                    return Integer.parseInt(numStr);
+                } catch (NumberFormatException e) {
+                    return -1;
+                }
+            }
+            return -1;
         }
     }
 }

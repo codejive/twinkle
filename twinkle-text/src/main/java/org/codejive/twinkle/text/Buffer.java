@@ -12,9 +12,58 @@ import org.jspecify.annotations.NonNull;
 
 public class Buffer implements Printable {
     private @NonNull Rect rect;
-    private int[][] cpBuffer;
-    private String[][] graphemeBuffer;
-    private long[][] styleBuffer;
+    private InternalBuffers buffers;
+    private InternalBuffers savedBuffers;
+    private InternalBuffers altBuffers;
+
+    private static class InternalBuffers {
+        public final int[][] cpBuffer;
+        public final String[][] graphemeBuffer;
+        public final long[][] styleBuffer;
+        public final @NonNull Size size;
+
+        public InternalBuffers(@NonNull Size size) {
+            this(
+                    new int[size.height()][size.width()],
+                    new String[size.height()][size.width()],
+                    new long[size.height()][size.width()]);
+        }
+
+        public InternalBuffers(int[][] cpBuffer, String[][] graphemeBuffer, long[][] styleBuffer) {
+            this.cpBuffer = cpBuffer;
+            this.graphemeBuffer = graphemeBuffer;
+            this.styleBuffer = styleBuffer;
+            this.size = Size.of(styleBuffer[0].length, styleBuffer.length);
+        }
+
+        public void copyTo(@NonNull InternalBuffers otherBuffers) {
+            int copyHeight = Math.min(size.height(), otherBuffers.size.height());
+            int copyWidth = Math.min(size.width(), otherBuffers.size.width());
+
+            for (int y = 0; y < copyHeight; y++) {
+                System.arraycopy(cpBuffer[y], 0, otherBuffers.cpBuffer[y], 0, copyWidth);
+                System.arraycopy(
+                        graphemeBuffer[y], 0, otherBuffers.graphemeBuffer[y], 0, copyWidth);
+                System.arraycopy(styleBuffer[y], 0, otherBuffers.styleBuffer[y], 0, copyWidth);
+            }
+        }
+
+        public @NonNull InternalBuffers resize(@NonNull Size newSize) {
+            if (newSize.equals(size)) {
+                return this;
+            }
+
+            int[][] newCpBuffer = new int[newSize.height()][newSize.width()];
+            String[][] newGraphemeBuffer = new String[newSize.height()][newSize.width()];
+            long[][] newStyleBuffer = new long[newSize.height()][newSize.width()];
+
+            InternalBuffers newBuffers =
+                    new InternalBuffers(newCpBuffer, newGraphemeBuffer, newStyleBuffer);
+            copyTo(newBuffers);
+
+            return newBuffers;
+        }
+    }
 
     public static final char REPLACEMENT_CHAR = '\uFFFD';
 
@@ -28,9 +77,7 @@ public class Buffer implements Printable {
 
     protected Buffer(@NonNull Size size) {
         this.rect = Rect.of(0, 0, size);
-        this.cpBuffer = new int[size.height()][size.width()];
-        this.graphemeBuffer = new String[size.height()][size.width()];
-        this.styleBuffer = new long[size.height()][size.width()];
+        this.buffers = new InternalBuffers(size);
     }
 
     public @NonNull BufferWriter writer() {
@@ -56,10 +103,11 @@ public class Buffer implements Printable {
         if (shouldSkipAt(x, y)) {
             return charAt(x - 1, y);
         }
-        if (graphemeBuffer[y][x] != null || Character.charCount(cpBuffer[y][x]) == 2) {
+        if (buffers.graphemeBuffer[y][x] != null
+                || Character.charCount(buffers.cpBuffer[y][x]) == 2) {
             return REPLACEMENT_CHAR;
         }
-        return (char) cpBuffer[y][x];
+        return (char) buffers.cpBuffer[y][x];
     }
 
     public int codepointAt(int x, int y) {
@@ -69,7 +117,7 @@ public class Buffer implements Printable {
         if (shouldSkipAt(x, y)) {
             return codepointAt(x - 1, y);
         }
-        return cpBuffer[y][x];
+        return buffers.cpBuffer[y][x];
     }
 
     public @NonNull String graphemeAt(int x, int y) {
@@ -83,10 +131,10 @@ public class Buffer implements Printable {
         if (shouldSkipAt(x, y)) {
             return graphemeAt_(x - 1, y);
         }
-        if (graphemeBuffer[y][x] != null) {
-            return graphemeBuffer[y][x];
+        if (buffers.graphemeBuffer[y][x] != null) {
+            return buffers.graphemeBuffer[y][x];
         }
-        return new String(Character.toChars(cpBuffer[y][x]));
+        return new String(Character.toChars(buffers.cpBuffer[y][x]));
     }
 
     public void graphemeAt(@NonNull Appendable appendable, int x, int y) {
@@ -100,10 +148,10 @@ public class Buffer implements Printable {
     protected void graphemeAt_(@NonNull Appendable appendable, int x, int y) {
         if (shouldSkipAt(x, y)) {
             graphemeAt_(appendable, x - 1, y);
-        } else if (graphemeBuffer[y][x] != null) {
-            appendStr(appendable, graphemeBuffer[y][x]);
+        } else if (buffers.graphemeBuffer[y][x] != null) {
+            appendStr(appendable, buffers.graphemeBuffer[y][x]);
         } else {
-            int cp = cpBuffer[y][x];
+            int cp = buffers.cpBuffer[y][x];
             if (cp == '\0') {
                 cp = ' ';
             }
@@ -122,7 +170,7 @@ public class Buffer implements Printable {
         if (outside(x, y)) {
             return Style.UNSTYLED;
         }
-        return Style.of(styleBuffer[y][x]);
+        return Style.of(buffers.styleBuffer[y][x]);
     }
 
     public void putCharAt(int x, int y, @NonNull Style style, char c) {
@@ -153,7 +201,9 @@ public class Buffer implements Printable {
     }
 
     public boolean shouldSkipAt(int x, int y) {
-        return cpBuffer[y][x] == -1 && graphemeBuffer[y][x] == null && styleBuffer[y][x] == -1;
+        return buffers.cpBuffer[y][x] == -1
+                && buffers.graphemeBuffer[y][x] == null
+                && buffers.styleBuffer[y][x] == -1;
     }
 
     private void setSkipAt(int x, int y) {
@@ -175,19 +225,23 @@ public class Buffer implements Printable {
             return;
         }
         boolean isWide = (isWideAt(x, y));
-        setCellAt(x, y, Style.F_UNSTYLED, '\0', null);
+        clearAt_(x, y);
         if (isWide) {
             // Clear the next cell over if this cell contains a wide character
             clearAt(x + 1, y);
         }
     }
 
+    private void clearAt_(int x, int y) {
+        setCellAt(x, y, Style.F_UNSTYLED, '\0', null);
+    }
+
     public boolean isWideAt(int x, int y) {
         if (outside(x, y)) {
             return false;
         }
-        int cp = cpBuffer[y][x];
-        String grapheme = graphemeBuffer[y][x];
+        int cp = buffers.cpBuffer[y][x];
+        String grapheme = buffers.graphemeBuffer[y][x];
         boolean isWide = (grapheme != null) ? Unicode.isWide(grapheme) : Unicode.isWide(cp);
         return isWide;
     }
@@ -209,46 +263,73 @@ public class Buffer implements Printable {
     }
 
     private void setCellAt(int x, int y, long styleState, int cp, String grapheme) {
-        cpBuffer[y][x] = cp;
-        graphemeBuffer[y][x] = grapheme;
-        styleBuffer[y][x] = styleState;
+        buffers.cpBuffer[y][x] = cp;
+        buffers.graphemeBuffer[y][x] = grapheme;
+        buffers.styleBuffer[y][x] = styleState;
     }
 
     public @NonNull Buffer clear() {
         for (int y = 0; y < rect.height(); y++) {
             for (int x = 0; x < rect.width(); x++) {
-                cpBuffer[y][x] = 0;
-                graphemeBuffer[y][x] = null;
-                styleBuffer[y][x] = Style.F_UNSTYLED;
+                clearAt_(x, y);
             }
         }
         return this;
     }
 
-    public @NonNull Buffer resize(@NonNull Size newSize) {
-        if (newSize.equals(size())) {
-            return this;
+    /**
+     * Clear the area of the buffer defined by the starting position (fromX, fromY) and the ending
+     * position (toX, toY). And all FULL lines in between.
+     */
+    public @NonNull Buffer clear(int fromX, int fromY, int toX, int toY) {
+        for (int x = fromX; x < rect.width(); x++) {
+            // Using clearAt instead of clearAt_ to handle wide character overlap
+            clearAt(x, fromY);
         }
-
-        int[][] newCpBuffer = new int[newSize.height()][newSize.width()];
-        String[][] newGraphemeBuffer = new String[newSize.height()][newSize.width()];
-        long[][] newStyleBuffer = new long[newSize.height()][newSize.width()];
-
-        int copyHeight = Math.min(size().height(), newSize.height());
-        int copyWidth = Math.min(size().width(), newSize.width());
-
-        for (int y = 0; y < copyHeight; y++) {
-            System.arraycopy(cpBuffer[y], 0, newCpBuffer[y], 0, copyWidth);
-            System.arraycopy(graphemeBuffer[y], 0, newGraphemeBuffer[y], 0, copyWidth);
-            System.arraycopy(styleBuffer[y], 0, newStyleBuffer[y], 0, copyWidth);
+        for (int y = fromY + 1; y < toY; y++) {
+            for (int x = 0; x < rect.width(); x++) {
+                // Can use clearAt_() here because we're clearing full lines
+                clearAt_(x, y);
+            }
         }
-
-        this.cpBuffer = newCpBuffer;
-        this.graphemeBuffer = newGraphemeBuffer;
-        this.styleBuffer = newStyleBuffer;
-        this.rect = Rect.of(0, 0, newSize);
-
+        for (int x = 0; x <= toX; x++) {
+            // Using clearAt instead of clearAt_ to handle wide character overlap
+            clearAt(x, toY);
+        }
         return this;
+    }
+
+    public @NonNull Buffer resize(@NonNull Size newSize) {
+        if (savedBuffers == null) {
+            buffers = buffers.resize(newSize);
+        } else {
+            savedBuffers = savedBuffers.resize(newSize);
+        }
+        if (altBuffers != null) {
+            altBuffers = altBuffers.resize(newSize);
+        }
+        return this;
+    }
+
+    public @NonNull boolean save() {
+        if (savedBuffers == null) {
+            if (altBuffers == null) {
+                altBuffers = new InternalBuffers(size());
+            }
+            savedBuffers = buffers;
+            buffers = altBuffers;
+            return true;
+        }
+        return false;
+    }
+
+    public @NonNull boolean restore() {
+        if (savedBuffers != null) {
+            buffers = savedBuffers;
+            savedBuffers = null;
+            return true;
+        }
+        return false;
     }
 
     private boolean outside(int x, int y) {
@@ -313,10 +394,10 @@ public class Buffer implements Printable {
                 if (shouldSkipAt(x, y)) {
                     continue;
                 }
-                if (styleBuffer[y][x] != currentStyle.state()) {
-                    Style style = Style.of(styleBuffer[y][x]);
+                if (buffers.styleBuffer[y][x] != currentStyle.state()) {
+                    Style style = Style.of(buffers.styleBuffer[y][x]);
                     style.toAnsi(appendable, currentStyle);
-                    currentStyle = Style.of(styleBuffer[y][x]);
+                    currentStyle = Style.of(buffers.styleBuffer[y][x]);
                 }
                 if (x == limitedRect.right() && isWideAt(x, y)) {
                     // Don't attempt to render a wide character if it would overflow the right

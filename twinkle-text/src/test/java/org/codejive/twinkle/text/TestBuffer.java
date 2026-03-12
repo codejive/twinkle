@@ -395,6 +395,18 @@ public class TestBuffer {
         assertThat(buffer.toString()).isEqualTo("This Is A Test");
     }
 
+    @Test
+    public void testWriterPrintBlock() {
+        Buffer buffer = Buffer.of(7, 5);
+
+        try (BufferWriter writer = buffer.writer()) {
+            writer.at(1, 1);
+            writer.printBlock("Test1\nTest2\nTest3");
+        }
+
+        assertThat(buffer.toString()).isEqualTo("       \n Test1 \n Test2 \n Test3 \n       ");
+    }
+
     private Buffer createBuffer() {
         Buffer buffer = Buffer.of(5, 5);
         Size size = buffer.size();

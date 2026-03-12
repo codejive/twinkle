@@ -11,6 +11,15 @@ public class Ansi {
     public static final String STYLE_DEFAULT_BACKGROUND =
             styles(DEFAULT_BACKGROUND); // Reset background color
 
+    /**
+     * Returns the ANSI escape sequence for the given styles. The styles can be any combination of
+     * the style constants defined in the Constants class, such as BOLD, UNDERLINED, or the output
+     * of the color functions like foregroundArg(). The output is a string that can be used in the
+     * console to apply the specified styles to the text that follows.
+     *
+     * @param styles the style codes to apply
+     * @return the ANSI escape sequence for the given styles
+     */
     public static String styles(Object... styles) {
         if (styles == null || styles.length == 0) {
             return "";
@@ -18,6 +27,16 @@ public class Ansi {
         return styles(new StringBuilder(), styles).toString();
     }
 
+    /**
+     * Appends the ANSI escape sequence for the given styles to the provided Appendable. The styles
+     * can be any combination of the style constants defined in the Constants class, such as BOLD,
+     * UNDERLINED, or the output of the color functions like foregroundArg(). The output will be
+     * passed to the provided Appendable.
+     *
+     * @param appendable the Appendable to which the ANSI escape sequence will be appended
+     * @param styles the style codes to apply
+     * @return the provided Appendable with the ANSI escape sequence appended
+     */
     public static Appendable styles(Appendable appendable, Object... styles) {
         if (styles == null || styles.length == 0) {
             return appendable;
@@ -37,48 +56,205 @@ public class Ansi {
         return appendable;
     }
 
-    public static String foreground(int index) {
-        return styles(FOREGROUND_BASE + index);
+    /**
+     * Returns the ANSI code for the given basic color. The index should be between 0-7. The output
+     * is a string that can be used in the styles() method to create the final ANSI escape sequence.
+     *
+     * @param index the color index (0-7)
+     * @return the ANSI code for the given basic color
+     */
+    public static String foregroundArg(int index) {
+        return String.valueOf(FOREGROUND_BASE + index);
     }
 
-    public static Appendable foreground(Appendable appendable, int index) {
-        return styles(appendable, FOREGROUND_BASE + index);
-    }
-
-    public static String foregroundDark(int index) {
+    /**
+     * Returns the ANSI code for the given dark color. The index should be between 0-7. The output
+     * is a string that can be used in the styles() method to create the final ANSI escape sequence.
+     *
+     * @param index the color index (0-7)
+     * @return the ANSI code for the given dark color
+     */
+    public static String foregroundDarkArg(int index) {
         return String.valueOf(FOREGROUND_DARK_BASE + index);
     }
 
-    public static String foregroundBright(int index) {
+    /**
+     * Returns the ANSI code for the given bright color. The index should be between 0-7. The output
+     * is a string that can be used in the styles() method to create the final ANSI escape sequence.
+     *
+     * @param index the color index (0-7)
+     * @return the ANSI code for the given bright color
+     */
+    public static String foregroundBrightArg(int index) {
         return String.valueOf(FOREGROUND_BRIGHT_BASE + index);
     }
 
-    public static String background(int index) {
+    /**
+     * Returns the ANSI code for the given basic background color. The index should be between 0-7.
+     * The output is a string that can be used in the styles() method to create the final ANSI
+     * escape sequence.
+     *
+     * @param index the color index (0-7)
+     * @return the ANSI code for the given basic background color
+     */
+    public static String backgroundArg(int index) {
         return String.valueOf(BACKGROUND_BASE + index);
     }
 
-    public static String backgroundDark(int index) {
+    /**
+     * Returns the ANSI code for the given dark background color. The index should be between 0-7.
+     * The output is a string that can be used in the styles() method to create the final ANSI
+     * escape sequence.
+     *
+     * @param index the color index (0-7)
+     * @return the ANSI code for the given dark background color
+     */
+    public static String backgroundDarkArg(int index) {
         return String.valueOf(BACKGROUND_DARK_BASE + index);
     }
 
-    public static String backgroundBright(int index) {
+    /**
+     * Returns the ANSI code for the given bright background color. The index should be between 0-7.
+     * The output is a string that can be used in the styles() method to create the final ANSI
+     * escape sequence.
+     *
+     * @param index the color index (0-7)
+     * @return the ANSI code for the given bright background color
+     */
+    public static String backgroundBrightArg(int index) {
         return String.valueOf(BACKGROUND_BRIGHT_BASE + index);
     }
 
-    public static String foregroundIndexed(int index) {
+    /**
+     * Returns the ANSI code for the given indexed foreground color. The index should be between
+     * 0-255. The indexes 0-7 are the standard colors, 8-15 are the bright versions of the standard
+     * colors, 16-231 are a 6x6x6 color cube, and 232-255 are a grayscale ramp. The output is a
+     * string that can be used in the styles() method to create the final ANSI escape sequence.
+     *
+     * @param index the color index (0-255)
+     * @return the ANSI code for the given indexed foreground color
+     */
+    public static String foregroundIndexedArg(int index) {
         return FOREGROUND_COLORS + ";" + COLORS_INDEXED + ";" + index;
     }
 
-    public static String foregroundRgb(int r, int g, int b) {
-        return FOREGROUND_COLORS + ";" + COLORS_RGB + ";" + r + ";" + g + ";" + b;
-    }
-
-    public static String backgroundIndexed(int index) {
+    /**
+     * Returns the ANSI code for the given indexed background color. The index should be between
+     * 0-255. The indexes 0-7 are the standard colors, 8-15 are the bright versions of the standard
+     * colors, 16-231 are a 6x6x6 color cube, and 232-255 are a grayscale ramp. The output is a
+     * string that can be used in the styles() method to create the final ANSI escape sequence.
+     *
+     * @param index the color index (0-255)
+     * @return the ANSI code for the given indexed background color
+     */
+    public static String backgroundIndexedArg(int index) {
         return BACKGROUND_COLORS + ";" + COLORS_INDEXED + ";" + index;
     }
 
-    public static String backgroundRgb(int r, int g, int b) {
+    /**
+     * Returns the ANSI code for the given RGB foreground color. The r, g, and b values should be
+     * between 0-255. The output is a string that can be used in the styles() method to create the
+     * final ANSI escape sequence.
+     *
+     * @param r the red component (0-255)
+     * @param g the green component (0-255)
+     * @param b the blue component (0-255)
+     * @return the ANSI code for the given RGB foreground color
+     */
+    public static String foregroundRgbArg(int r, int g, int b) {
+        return FOREGROUND_COLORS + ";" + COLORS_RGB + ";" + r + ";" + g + ";" + b;
+    }
+
+    /**
+     * Returns the ANSI code for the given RGB background color. The r, g, and b values should be
+     * between 0-255. The output is a string that can be used in the styles() method to create the
+     * final ANSI escape sequence.
+     *
+     * @param r the red component (0-255)
+     * @param g the green component (0-255)
+     * @param b the blue component (0-255)
+     * @return the ANSI code for the given RGB background color
+     */
+    public static String backgroundRgbArg(int r, int g, int b) {
         return BACKGROUND_COLORS + ";" + COLORS_RGB + ";" + r + ";" + g + ";" + b;
+    }
+
+    /**
+     * Returns the ANSI escape sequence for moving the cursor in the specified direction by 1. The
+     * direction is determined by the command parameter, which can be one of the cursor movement
+     * commands defined in the Constants class, such as CURSOR_UP, CURSOR_DOWN, etc.
+     *
+     * @param command the cursor movement command (e.g. CURSOR_UP, CURSOR_DOWN, etc.)
+     * @return the ANSI escape sequence for moving the cursor
+     */
+    public static String cursorMove(char command) {
+        return cursorMove(command, 1);
+    }
+
+    /**
+     * Returns the ANSI escape sequence for moving the cursor in the specified direction by the
+     * specified amount. The direction is determined by the command parameter, which can be one of
+     * the cursor movement commands defined in the Constants class, such as CURSOR_UP, CURSOR_DOWN,
+     * etc. The amount parameter specifies how many positions to move the cursor.
+     *
+     * @param command the cursor movement command (e.g. CURSOR_UP, CURSOR_DOWN, etc.)
+     * @param amount the number of positions to move the cursor
+     * @return the ANSI escape sequence for moving the cursor
+     */
+    public static String cursorMove(char command, int amount) {
+        return CSI + amount + command;
+    }
+
+    public static String cursorPos(int row, int col) {
+        return CSI + row + ";" + col + CURSOR_POSITION;
+    }
+
+    public static String cursorHome() {
+        return CSI + CURSOR_POSITION;
+    }
+
+    public static String cursorToColumn(int col) {
+        return CSI + col + CURSOR_COLUMN;
+    }
+
+    public static String cursorUp(int amount) {
+        return cursorMove(CURSOR_UP, amount);
+    }
+
+    public static String cursorDown(int amount) {
+        return cursorMove(CURSOR_DOWN, amount);
+    }
+
+    public static String cursorForward(int amount) {
+        return cursorMove(CURSOR_FORWARD, amount);
+    }
+
+    public static String cursorBackward(int amount) {
+        return cursorMove(CURSOR_BACKWARD, amount);
+    }
+
+    public static String cursorHide() {
+        return CSI + CURSOR_HIDE;
+    }
+
+    public static String cursorShow() {
+        return CSI + CURSOR_SHOW;
+    }
+
+    public static String cursorSave() {
+        return "" + ESC + CURSOR_SAVE;
+    }
+
+    public static String cursorRestore() {
+        return "" + ESC + CURSOR_RESTORE;
+    }
+
+    public static String clearScreen() {
+        return CSI + SCREEN_ERASE_FULL;
+    }
+
+    public static String autoWrap(boolean enabled) {
+        return CSI + (enabled ? LINE_WRAP_ON : LINE_WRAP_OFF);
     }
 
     public static String linkStart(String url) {
@@ -87,38 +263,6 @@ public class Ansi {
 
     public static String linkEnd() {
         return OSC + "8;;" + OSC_END;
-    }
-
-    public static String cursorMove(char command) {
-        return cursorMove(command, 1);
-    }
-
-    public static String cursorMove(char command, int amount) {
-        return CSI + amount + command;
-    }
-
-    public static String cursorPos(int row, int col) {
-        return CSI + row + ";" + col + "H";
-    }
-
-    public static String cursorHome() {
-        return CSI + "H";
-    }
-
-    public static String hideCursor() {
-        return CSI + "?25l";
-    }
-
-    public static String showCursor() {
-        return CSI + "?25h";
-    }
-
-    public static String clearScreen() {
-        return CSI + "2J";
-    }
-
-    public static String autoWrap(boolean enabled) {
-        return CSI + (enabled ? "?7h" : "?7l");
     }
 
     private Ansi() {}
