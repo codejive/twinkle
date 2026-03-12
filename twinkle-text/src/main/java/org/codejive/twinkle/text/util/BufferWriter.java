@@ -7,6 +7,7 @@ import java.io.Writer;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Constants;
 import org.codejive.twinkle.ansi.Style;
+import org.codejive.twinkle.ansi.util.AnsiTricks;
 import org.codejive.twinkle.text.Buffer;
 import org.jspecify.annotations.NonNull;
 
@@ -71,17 +72,7 @@ public class BufferWriter extends PrintWriter {
      * @return a reference to this BufferWriter, for chaining
      */
     public @NonNull Buffer printBlock(String text) {
-        String[] parts = text.split("(\r)?\n");
-        for (int i = 0; i < parts.length; i++) {
-            if (i > 0) {
-                print(Ansi.cursorRestore());
-                print(Ansi.cursorDown(1));
-            }
-            if (i < parts.length - 1) {
-                print(Ansi.cursorSave());
-            }
-            print(parts[i]);
-        }
+        AnsiTricks.blockify(this, text);
         return writer.buffer;
     }
 
