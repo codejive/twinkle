@@ -4,9 +4,11 @@ import java.io.IOException;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.ansi.util.Printable;
+import org.codejive.twinkle.text.Buffer.TransparencyPrintOption;
 import org.codejive.twinkle.text.util.BufferWriter;
 import org.codejive.twinkle.text.util.Rect;
 import org.codejive.twinkle.text.util.Size;
+import org.codejive.twinkle.text.util.StyledIterator;
 import org.codejive.twinkle.text.util.Unicode;
 import org.jspecify.annotations.NonNull;
 
@@ -357,7 +359,7 @@ public class Buffer implements Printable {
      * @param style the style to apply to the character
      * @param c the character to print
      */
-    public void printAt(int x, int y, @NonNull Style style, char c) {
+    public void putAt(int x, int y, @NonNull Style style, char c) {
         if (outside(x, y)) {
             return;
         }
@@ -376,7 +378,7 @@ public class Buffer implements Printable {
      * @param style the style to apply to the codepoint
      * @param cp the codepoint to print
      */
-    public void printAt(int x, int y, @NonNull Style style, int cp) {
+    public void putAt(int x, int y, @NonNull Style style, int cp) {
         if (outside(x, y)) {
             return;
         }
@@ -392,7 +394,7 @@ public class Buffer implements Printable {
      * @param style the style to apply to the grapheme
      * @param grapheme the grapheme to print
      */
-    public void printAt(int x, int y, @NonNull Style style, @NonNull CharSequence grapheme) {
+    public void putAt(int x, int y, @NonNull Style style, @NonNull CharSequence grapheme) {
         if (outside(x, y)) {
             return;
         }
@@ -400,6 +402,110 @@ public class Buffer implements Printable {
             return;
         }
         setCharAt_(x, y, style.state(), -1, grapheme.toString());
+    }
+
+    public interface PrintOption {}
+
+    public enum SimplePrintOption implements PrintOption {
+        NOWRAP
+    }
+
+    public static class TransparencyPrintOption implements PrintOption {
+        private final String transparentCharacters;
+
+        public static final TransparencyPrintOption NONE = new TransparencyPrintOption("");
+
+        public static final TransparencyPrintOption NUL = new TransparencyPrintOption("\0");
+
+        public static final TransparencyPrintOption NUL_AND_SPACE =
+                new TransparencyPrintOption("\0 ");
+
+        public static final TransparencyPrintOption DEFAULT = NUL;
+
+        public TransparencyPrintOption(String transparentCharacters) {
+            this.transparentCharacters = transparentCharacters;
+        }
+
+        public String chars() {
+            return transparentCharacters;
+        }
+    }
+
+    /**
+     * Print a string at the specified position in the buffer with the given style. If the string is
+     * fully out of bounds, the string will not be printed.
+     *
+     * @param x the x-coordinate of the string
+     * @param y the y-coordinate of the string
+     * @param style the style to apply to the string
+     * @param str the string to print
+     * @param options the print options to apply
+     */
+    public void printAt(
+            int x, int y, @NonNull Style style, @NonNull CharSequence str, PrintOption... options) {
+        if (outside(x, y, str.length())) {
+            return;
+        }
+        printAt(x, y, StyledIterator.of(str, style), options);
+    }
+
+    /**
+     * Print a styled string at the specified position in the buffer.
+     *
+     * @param x the x-coordinate of the string
+     * @param y the y-coordinate of the string
+     * @param iter a StyledIterator
+     * @param options the print options to apply
+     */
+    public void printAt(int x, int y, @NonNull StyledIterator iter, PrintOption... options) {
+        int curX = x;
+        int curY = y;
+
+        boolean shouldWrap = opt(options, SimplePrintOption.NOWRAP.getClass(), null) == null;
+        String transparency =
+                opt(options, TransparencyPrintOption.class, TransparencyPrintOption.NONE).chars();
+
+        while (iter.hasNext()) {
+            int cp = iter.next();
+            if (cp == '\n' || (curX > rect.right() && shouldWrap)) {
+                curX = 0;
+                curY++;
+                if (curY > rect.bottom()) {
+                    break;
+                }
+                if (cp == '\n') {
+                    continue;
+                }
+            }
+            if (iter.width() == 0) {
+                continue;
+            }
+            Style style = iter.style();
+            int width = iter.width();
+            if (curX <= rect.right()) {
+                if (iter.isComplex()) {
+                    setCharAt_(curX, curY, style.state(), -1, iter.sequence());
+                } else {
+                    if (transparency.indexOf(cp) >= 0) {
+                        width = 1;
+                    } else {
+                        setCharAt_(curX, curY, style.state(), cp, null);
+                    }
+                }
+            }
+            curX += width;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends PrintOption> T opt(
+            PrintOption[] options, Class<T> optionClass, T defaultOpt) {
+        for (PrintOption opt : options) {
+            if (optionClass.isInstance(opt)) {
+                return (T) opt;
+            }
+        }
+        return defaultOpt;
     }
 
     /**
@@ -609,8 +715,12 @@ public class Buffer implements Printable {
     }
 
     private boolean outside(int x, int y) {
+        return outside(x, y, 1);
+    }
+
+    private boolean outside(int x, int y, int length) {
         Size sz = size();
-        return x + 1 <= 0 || x >= sz.width() || y < 0 || y >= sz.height();
+        return x + length <= 0 || x >= sz.width() || y < 0 || y >= sz.height();
     }
 
     @Override
