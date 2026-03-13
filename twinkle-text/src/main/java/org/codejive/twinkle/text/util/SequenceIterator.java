@@ -69,8 +69,8 @@ abstract class BaseSequenceIterator implements SequenceIterator {
         int type = Character.getType(curr);
         if (type == Character.NON_SPACING_MARK
                 || type == Character.COMBINING_SPACING_MARK
-                || curr == 0x200D
-                || prev == 0x200D) return false;
+                || curr == Unicode.ZWJ
+                || prev == Unicode.ZWJ) return false;
         if (Unicode.isRegionalIndicator(prev) && Unicode.isRegionalIndicator(curr))
             return (riCount % 2 == 0);
         return !(Unicode.isPrepend(prev) || Unicode.isVirama(prev));

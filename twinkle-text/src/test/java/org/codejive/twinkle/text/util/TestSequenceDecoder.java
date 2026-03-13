@@ -205,9 +205,9 @@ public class TestSequenceDecoder {
 
         decoder.push(0x1F468);
         assertThat(decoder.canPush(0x1F469)).isFalse();
-        assertThat(decoder.canPush(0x200D)).isTrue();
+        assertThat(decoder.canPush(Unicode.ZWJ)).isTrue();
 
-        decoder.push(0x200D);
+        decoder.push(Unicode.ZWJ);
         assertThat(decoder.isReady()).isFalse();
         assertThat(decoder.canPush(0x1F469)).isTrue();
 
@@ -436,8 +436,8 @@ public class TestSequenceDecoder {
     public void testZwjPreventsBreak() {
         SequenceDecoder decoder = new SequenceDecoder();
         decoder.push(0x1F468); // 👨
-        assertThat(decoder.canPush(0x200D)).isTrue();
-        decoder.push(0x200D);
+        assertThat(decoder.canPush(Unicode.ZWJ)).isTrue();
+        decoder.push(Unicode.ZWJ);
         assertThat(decoder.isReady()).isFalse(); // ZWJ tail — not yet ready
 
         assertThat(decoder.canPush(0x1F469)).isTrue(); // 👩 can follow

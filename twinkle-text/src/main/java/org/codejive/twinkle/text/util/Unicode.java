@@ -2,6 +2,8 @@ package org.codejive.twinkle.text.util;
 
 public class Unicode {
 
+    public static final int ZWJ = 0x200D; // Zero Width Joiner
+
     public static boolean isWide(String grapheme) {
         if (grapheme == null || grapheme.isEmpty()) {
             return false;
