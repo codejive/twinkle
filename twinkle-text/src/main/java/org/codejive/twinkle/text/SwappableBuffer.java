@@ -1,8 +1,7 @@
 package org.codejive.twinkle.text;
 
-import static org.codejive.twinkle.ansi.Constants.*;
-
-import org.codejive.twinkle.text.util.BufferWriter;
+import org.codejive.twinkle.text.io.PrintBufferWriter;
+import org.codejive.twinkle.text.io.SwappableBufferWriter;
 import org.codejive.twinkle.text.util.Size;
 import org.jspecify.annotations.NonNull;
 
@@ -27,8 +26,8 @@ public class SwappableBuffer extends Buffer {
     }
 
     @Override
-    public @NonNull BufferWriter writer() {
-        return new BufferWriter(new InternalWriter(this));
+    public @NonNull PrintBufferWriter writer() {
+        return new PrintBufferWriter(new SwappableBufferWriter(this));
     }
 
     @Override
@@ -75,29 +74,5 @@ public class SwappableBuffer extends Buffer {
             return true;
         }
         return false;
-    }
-
-    private static class InternalWriter extends BufferWriter.InternalWriter {
-
-        public InternalWriter(@NonNull SwappableBuffer buffer) {
-            super(buffer);
-        }
-
-        @Override
-        protected void handleCsiSequence(String sequence) {
-            SwappableBuffer sbuffer = (SwappableBuffer) this.buffer;
-            if ((CSI + SCREEN_SAVE).equals(sequence)) {
-                if (sbuffer.save()) {
-                    sbuffer.clear();
-                }
-            } else if ((CSI + SCREEN_SAVE_ALT).equals(sequence)) {
-                sbuffer.save();
-            } else if ((CSI + SCREEN_RESTORE).equals(sequence)
-                    || (CSI + SCREEN_RESTORE_ALT).equals(sequence)) {
-                sbuffer.restore();
-            } else {
-                super.handleCsiSequence(sequence);
-            }
-        }
     }
 }

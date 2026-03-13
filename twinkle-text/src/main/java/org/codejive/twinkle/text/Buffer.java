@@ -4,8 +4,8 @@ import java.io.IOException;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.ansi.util.Printable;
-import org.codejive.twinkle.text.Buffer.TransparencyPrintOption;
-import org.codejive.twinkle.text.util.BufferWriter;
+import org.codejive.twinkle.text.io.BufferWriter;
+import org.codejive.twinkle.text.io.PrintBufferWriter;
 import org.codejive.twinkle.text.util.Rect;
 import org.codejive.twinkle.text.util.Size;
 import org.codejive.twinkle.text.util.StyledIterator;
@@ -210,8 +210,8 @@ public class Buffer implements Printable {
      *
      * @return a BufferWriter instance for this buffer
      */
-    public @NonNull BufferWriter writer() {
-        return new BufferWriter(new BufferWriter.InternalWriter(this));
+    public @NonNull PrintBufferWriter writer() {
+        return new PrintBufferWriter(new BufferWriter(this));
     }
 
     /**
