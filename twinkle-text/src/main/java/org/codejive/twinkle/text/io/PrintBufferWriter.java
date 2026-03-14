@@ -3,6 +3,7 @@ package org.codejive.twinkle.text.io;
 import java.io.PrintWriter;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.ansi.util.AnsiTricks;
+import org.codejive.twinkle.ansi.util.Fluent;
 import org.codejive.twinkle.text.Buffer;
 import org.codejive.twinkle.text.util.Size;
 import org.jspecify.annotations.NonNull;
@@ -126,5 +127,9 @@ public class PrintBufferWriter extends PrintWriter {
     public @NonNull Buffer printBlock(String text) {
         AnsiTricks.blockify(this, text);
         return writer.buffer;
+    }
+
+    public @NonNull Fluent fluent() {
+        return Fluent.of(this, style());
     }
 }

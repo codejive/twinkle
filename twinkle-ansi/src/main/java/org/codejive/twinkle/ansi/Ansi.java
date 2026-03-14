@@ -269,6 +269,10 @@ public class Ansi {
         return OSC + "8;;" + url + OSC_END;
     }
 
+    public static String linkStart(String url, String id) {
+        return OSC + "8;id=" + id + ";" + url + OSC_END;
+    }
+
     public static String linkEnd() {
         return OSC + "8;;" + OSC_END;
     }
