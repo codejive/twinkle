@@ -253,11 +253,11 @@ public class Ansi {
         return CSI + SCREEN_ERASE_FULL;
     }
 
-    public static String saveScreen() {
+    public static String screenSave() {
         return CSI + SCREEN_SAVE;
     }
 
-    public static String restoreScreen() {
+    public static String screenRestore() {
         return CSI + SCREEN_RESTORE;
     }
 

@@ -26,7 +26,7 @@ public class TestSwappableBufferWriter {
 
         // Write saveScreen sequence - should save and clear
         try (PrintBufferWriter writer = buffer.writer()) {
-            writer.write(Ansi.saveScreen());
+            writer.write(Ansi.screenSave());
         }
 
         // Buffer should be cleared after saveScreen
@@ -47,7 +47,7 @@ public class TestSwappableBufferWriter {
 
         // Save and write new content
         try (PrintBufferWriter writer = buffer.writer()) {
-            writer.write(Ansi.saveScreen());
+            writer.write(Ansi.screenSave());
             writer.style(Style.DEFAULT);
             writer.write("alternate");
         }
@@ -56,7 +56,7 @@ public class TestSwappableBufferWriter {
 
         // Restore
         try (PrintBufferWriter writer = buffer.writer()) {
-            writer.write(Ansi.restoreScreen());
+            writer.write(Ansi.screenRestore());
         }
 
         // Original content should be restored
@@ -78,7 +78,7 @@ public class TestSwappableBufferWriter {
 
         // Save screen and write alternate content
         try (PrintBufferWriter writer = buffer.writer()) {
-            writer.write(Ansi.saveScreen());
+            writer.write(Ansi.screenSave());
             writer.style(Style.DEFAULT);
             writer.write("Alternate screen");
         }
@@ -89,7 +89,7 @@ public class TestSwappableBufferWriter {
 
         // Restore screen
         try (PrintBufferWriter writer = buffer.writer()) {
-            writer.write(Ansi.restoreScreen());
+            writer.write(Ansi.screenRestore());
         }
 
         String restoredContent = buffer.toString();
@@ -142,7 +142,7 @@ public class TestSwappableBufferWriter {
 
         // Save and go to alternate
         try (PrintBufferWriter writer = buffer.writer()) {
-            writer.write(Ansi.saveScreen());
+            writer.write(Ansi.screenSave());
             writer.style(Style.DEFAULT);
             writer.write("state2");
         }
@@ -151,7 +151,7 @@ public class TestSwappableBufferWriter {
 
         // Second save should not work (already saved)
         try (PrintBufferWriter writer = buffer.writer()) {
-            writer.write(Ansi.saveScreen());
+            writer.write(Ansi.screenSave());
             writer.style(Style.DEFAULT);
             writer.write("state3");
         }
@@ -161,7 +161,7 @@ public class TestSwappableBufferWriter {
 
         // Restore
         try (PrintBufferWriter writer = buffer.writer()) {
-            writer.write(Ansi.restoreScreen());
+            writer.write(Ansi.screenRestore());
         }
 
         // Back to original
@@ -169,7 +169,7 @@ public class TestSwappableBufferWriter {
 
         // Second restore should not affect anything
         try (PrintBufferWriter writer = buffer.writer()) {
-            writer.write(Ansi.restoreScreen());
+            writer.write(Ansi.screenRestore());
         }
 
         assertThat(buffer.toString()).contains("state1");
