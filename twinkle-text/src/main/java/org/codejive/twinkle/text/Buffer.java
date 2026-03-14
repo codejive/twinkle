@@ -12,7 +12,7 @@ import org.codejive.twinkle.text.util.StyledIterator;
 import org.codejive.twinkle.text.util.Unicode;
 import org.jspecify.annotations.NonNull;
 
-public class Buffer implements Printable {
+public class Buffer implements Printable, RenderTarget {
     protected @NonNull Rect rect;
     protected InternalBuffers buffers;
 
@@ -219,6 +219,7 @@ public class Buffer implements Printable {
      *
      * @return
      */
+    @Override
     public @NonNull Size size() {
         return rect.size();
     }
@@ -359,6 +360,7 @@ public class Buffer implements Printable {
      * @param style the style to apply to the character
      * @param c the character to print
      */
+    @Override
     public void putAt(int x, int y, @NonNull Style style, char c) {
         if (outside(x, y)) {
             return;
@@ -378,6 +380,7 @@ public class Buffer implements Printable {
      * @param style the style to apply to the codepoint
      * @param cp the codepoint to print
      */
+    @Override
     public void putAt(int x, int y, @NonNull Style style, int cp) {
         if (outside(x, y)) {
             return;
@@ -394,6 +397,7 @@ public class Buffer implements Printable {
      * @param style the style to apply to the grapheme
      * @param grapheme the grapheme to print
      */
+    @Override
     public void putAt(int x, int y, @NonNull Style style, @NonNull CharSequence grapheme) {
         if (outside(x, y)) {
             return;
@@ -403,8 +407,6 @@ public class Buffer implements Printable {
         }
         setCharAt_(x, y, style.state(), -1, grapheme.toString());
     }
-
-    public interface PrintOption {}
 
     public enum SimplePrintOption implements PrintOption {
         NOWRAP
@@ -441,6 +443,7 @@ public class Buffer implements Printable {
      * @param str the string to print
      * @param options the print options to apply
      */
+    @Override
     public void printAt(
             int x, int y, @NonNull Style style, @NonNull CharSequence str, PrintOption... options) {
         if (outside(x, y, str.length())) {
@@ -457,6 +460,7 @@ public class Buffer implements Printable {
      * @param iter a StyledIterator
      * @param options the print options to apply
      */
+    @Override
     public void printAt(int x, int y, @NonNull StyledIterator iter, PrintOption... options) {
         int curX = x;
         int curY = y;
@@ -542,6 +546,7 @@ public class Buffer implements Printable {
      * @param x the x-coordinate of the cell
      * @param y the y-coordinate of the cell
      */
+    @Override
     public void clearAt(int x, int y) {
         if (outside(x, y)) {
             return;
@@ -604,7 +609,7 @@ public class Buffer implements Printable {
      *
      * @return a reference to this Buffer, for chaining
      */
-    public @NonNull Buffer clear() {
+    public @NonNull RenderTarget clear() {
         for (int y = 0; y < rect.height(); y++) {
             for (int x = 0; x < rect.width(); x++) {
                 clearAt_(x, y);
@@ -619,7 +624,7 @@ public class Buffer implements Printable {
      *
      * @return a reference to this Buffer, for chaining
      */
-    public @NonNull Buffer clear(int fromX, int fromY, int toX, int toY) {
+    public @NonNull RenderTarget clear(int fromX, int fromY, int toX, int toY) {
         for (int x = fromX; x < rect.width(); x++) {
             // Using clearAt instead of clearAt_ to handle wide character overlap
             clearAt(x, fromY);
@@ -645,7 +650,7 @@ public class Buffer implements Printable {
      * @param newSize the new size of the buffer
      * @return a reference to this Buffer, for chaining
      */
-    public @NonNull Buffer resize(@NonNull Size newSize) {
+    public @NonNull RenderTarget resize(@NonNull Size newSize) {
         buffers = buffers.resize(newSize);
         return this;
     }
@@ -663,7 +668,7 @@ public class Buffer implements Printable {
      * @param targetY the y-coordinate on the target buffer
      * @return a reference to this Buffer, for chaining
      */
-    public @NonNull Buffer overlayOn(@NonNull Buffer targetBuffer, int targetX, int targetY) {
+    public @NonNull RenderTarget overlayOn(@NonNull Buffer targetBuffer, int targetX, int targetY) {
         buffers.copyTo(targetBuffer.buffers, rect, targetX, targetY, "\0");
         return this;
     }
@@ -682,7 +687,7 @@ public class Buffer implements Printable {
      * @param transparantCharacters the characters to be treated as transparent
      * @return a reference to this Buffer, for chaining
      */
-    public @NonNull Buffer overlayOn(
+    public @NonNull RenderTarget overlayOn(
             @NonNull Buffer targetBuffer, int targetX, int targetY, String transparantCharacters) {
         buffers.copyTo(targetBuffer.buffers, rect, targetX, targetY, transparantCharacters);
         return this;
@@ -704,7 +709,7 @@ public class Buffer implements Printable {
      * @param transparantCharacters the characters to be treated as transparent
      * @return a reference to this Buffer, for chaining
      */
-    public @NonNull Buffer overlayOn(
+    public @NonNull RenderTarget overlayOn(
             @NonNull Buffer targetBuffer,
             Rect sourceRect,
             int targetX,
