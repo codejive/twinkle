@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.codejive.twinkle</groupId>
+        <artifactId>twinkle</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>examples</artifactId>
+    <packaging>jar</packaging>
+
+    <description>Example projects for Twinkle</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.aesh</groupId>
+            <artifactId>terminal-tty</artifactId>
+            <version>3.4-dev</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codejive.twinkle</groupId>
+            <artifactId>twinkle-shapes</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.lalyos</groupId>
+            <artifactId>jfiglet</artifactId>
+            <version>0.0.9</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

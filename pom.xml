@@ -21,6 +21,8 @@
     <modules>
         <module>twinkle-ansi</module>
         <module>twinkle-text</module>
+        <module>twinkle-shapes</module>
+        <module>examples</module>
     </modules>
 
     <dependencies>
@@ -67,6 +69,7 @@
                         </format>
                     </formats>
                     <java>
+                        <toggleOffOn />
                         <googleJavaFormat>
                             <version>${google-java-format.version}</version>
                             <style>AOSP</style>
