@@ -113,9 +113,14 @@ public class BufferWriter extends Writer {
 
     protected void handleCsiSequence(String sequence) {
         int num;
+        int[] nums;
+
         if (Ansi.cursorHome().equals(sequence)) {
             cursorX = 0;
             cursorY = 0;
+        } else if ((nums = numsMatch(CURSOR_POSITION, sequence, null)) != null) {
+            cursorY = Math.max(0, nums[0] - 1);
+            cursorX = Math.max(0, nums[1] - 1);
         } else if ((num = numMatch(CURSOR_UP, sequence, 1)) != -1) {
             cursorY = Math.max(0, cursorY - num);
         } else if ((num = numMatch(CURSOR_DOWN, sequence, 1)) != -1) {
@@ -124,6 +129,14 @@ public class BufferWriter extends Writer {
             cursorX = Math.min(size().width() - 1, cursorX + num);
         } else if ((num = numMatch(CURSOR_BACKWARD, sequence, 1)) != -1) {
             cursorX = Math.max(0, cursorX - num);
+        } else if ((num = numMatch(CURSOR_NEXT_LINE, sequence, 1)) != -1) {
+            cursorY = Math.min(size().height() - 1, cursorY + num);
+            cursorX = 0;
+        } else if ((num = numMatch(CURSOR_PREV_LINE, sequence, 1)) != -1) {
+            cursorY = Math.max(0, cursorY - num);
+            cursorX = 0;
+        } else if ((num = numMatch(CURSOR_COLUMN, sequence, 1)) != -1) {
+            cursorX = Math.min(size().width() - 1, num - 1);
         } else if ((CSI + SCREEN_ERASE_FULL).equals(sequence)) {
             buffer.clear();
         } else if ((CSI + SCREEN_ERASE_START).equals(sequence)) {
@@ -169,5 +182,25 @@ public class BufferWriter extends Writer {
             }
         }
         return -1;
+    }
+
+    private int[] numsMatch(char cursorCmd, String sequence, int[] defaultNums) {
+        if (sequence.startsWith(Constants.CSI) && sequence.endsWith(String.valueOf(cursorCmd))) {
+            String numsStr = sequence.substring(Constants.CSI.length(), sequence.length() - 1);
+            if (numsStr.isEmpty()) {
+                return defaultNums;
+            }
+            String[] parts = numsStr.split(";");
+            int nums[] = new int[parts.length];
+            for (int i = 0; i < parts.length; i++) {
+                try {
+                    nums[i] = Integer.parseInt(parts[i]);
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            }
+            return nums;
+        }
+        return null;
     }
 }
