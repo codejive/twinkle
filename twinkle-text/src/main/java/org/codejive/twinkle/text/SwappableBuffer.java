@@ -2,6 +2,7 @@ package org.codejive.twinkle.text;
 
 import org.codejive.twinkle.text.io.PrintBufferWriter;
 import org.codejive.twinkle.text.io.SwappableBufferWriter;
+import org.codejive.twinkle.text.util.Rect;
 import org.codejive.twinkle.text.util.Size;
 import org.jspecify.annotations.NonNull;
 
@@ -40,6 +41,7 @@ public class SwappableBuffer extends Buffer {
         if (altBuffers != null) {
             altBuffers = altBuffers.resize(newSize);
         }
+        rect = Rect.of(newSize);
         return this;
     }
 

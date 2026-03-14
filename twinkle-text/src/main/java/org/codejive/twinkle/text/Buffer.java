@@ -187,13 +187,15 @@ public class Buffer implements Printable, RenderTarget {
                 return this;
             }
 
-            int[][] newCpBuffer = new int[newSize.height()][newSize.width()];
-            String[][] newGraphemeBuffer = new String[newSize.height()][newSize.width()];
-            long[][] newStyleBuffer = new long[newSize.height()][newSize.width()];
+            int newWidth = newSize.width();
+            int newHeight = newSize.height();
+            int[][] newCpBuffer = new int[newHeight][newWidth];
+            String[][] newGraphemeBuffer = new String[newHeight][newWidth];
+            long[][] newStyleBuffer = new long[newHeight][newWidth];
 
             InternalBuffers newBuffers =
                     new InternalBuffers(newCpBuffer, newGraphemeBuffer, newStyleBuffer);
-            copyTo(newBuffers, Rect.of(size), 0, 0, null);
+            copyTo(newBuffers, Rect.of(newWidth, newHeight), 0, 0, null);
 
             return newBuffers;
         }
@@ -652,6 +654,7 @@ public class Buffer implements Printable, RenderTarget {
      */
     public @NonNull RenderTarget resize(@NonNull Size newSize) {
         buffers = buffers.resize(newSize);
+        rect = Rect.of(newSize);
         return this;
     }
 
