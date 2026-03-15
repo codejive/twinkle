@@ -205,16 +205,33 @@ public class Ansi {
         return CSI + amount + command;
     }
 
-    public static String cursorPos(int row, int col) {
-        return CSI + row + ";" + col + CURSOR_POSITION;
+    /**
+     * Returns the ANSI escape sequence for positioning the cursor at the specified column and row.
+     * Coordinates are 0-based (the top-left corner is 0,0). The ANSI sequence will use 1-based
+     * coordinates internally as per the ANSI standard.
+     *
+     * @param col the column (0-based, 0 is leftmost)
+     * @param row the row (0-based, 0 is topmost)
+     * @return the ANSI escape sequence for positioning the cursor
+     */
+    public static String cursorPos(int col, int row) {
+        return CSI + (row + 1) + ";" + (col + 1) + CURSOR_POSITION;
     }
 
     public static String cursorHome() {
         return CSI + CURSOR_POSITION;
     }
 
+    /**
+     * Returns the ANSI escape sequence for positioning the cursor at the specified column. The
+     * column is 0-based (0 is leftmost). The ANSI sequence will use 1-based coordinates internally
+     * as per the ANSI standard.
+     *
+     * @param col the column (0-based, 0 is leftmost)
+     * @return the ANSI escape sequence for positioning the cursor
+     */
     public static String cursorToColumn(int col) {
-        return CSI + col + CURSOR_COLUMN;
+        return CSI + (col + 1) + CURSOR_COLUMN;
     }
 
     public static String cursorUp(int amount) {

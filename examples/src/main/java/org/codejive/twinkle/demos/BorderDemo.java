@@ -109,15 +109,15 @@ class BorderDemo {
                 Borders.ascii().style(Style.ofFgColor(Color.BasicColor.GREEN)).render(buffer);
 
                 Fluent f = writer.fluent();
-                f.at(3, 1).green().text("[ ").white().text(size).green().text(" ]");
-                f.at(size.width() - 12, 1)
+                f.at(2, 0).green().text("[ ").white().text(size).green().text(" ]");
+                f.at(size.width() - 11, 0)
                         .green()
                         .text("[ ")
                         .white()
                         .text("fps " + Math.round(fps))
                         .green()
                         .text(" ]");
-                f.at(textX + 1, textY + 1).color(textColor).text(text).done();
+                f.at(textX, textY).color(textColor).text(text).done();
 
                 // Write entire frame buffer to connection in one call
                 connection.write(Ansi.cursorHome() + buffer.toAnsi());

@@ -354,8 +354,16 @@ public class Fluent {
         return backgroundColors;
     }
 
+    /**
+     * Positions the cursor at the specified column (x) and row (y). Coordinates are 0-based (the
+     * top-left corner is 0,0).
+     *
+     * @param x the column (0-based, 0 is leftmost)
+     * @param y the row (0-based, 0 is topmost)
+     * @return this Fluent instance for chaining
+     */
     public Fluent at(int x, int y) {
-        return append(Ansi.cursorPos(y, x));
+        return append(Ansi.cursorPos(x, y));
     }
 
     public Fluent up() {
@@ -422,12 +430,26 @@ public class Fluent {
         return append(CSI + n + CURSOR_PREV_LINE);
     }
 
+    /**
+     * Positions the cursor at the specified column on the current row. The column is 0-based (0 is
+     * leftmost).
+     *
+     * @param column the column (0-based, 0 is leftmost)
+     * @return this Fluent instance for chaining
+     */
     public Fluent col(int column) {
         return column(column);
     }
 
+    /**
+     * Positions the cursor at the specified column on the current row. The column is 0-based (0 is
+     * leftmost).
+     *
+     * @param column the column (0-based, 0 is leftmost)
+     * @return this Fluent instance for chaining
+     */
     public Fluent column(int column) {
-        return append(CSI + column + CURSOR_COLUMN);
+        return append(Ansi.cursorToColumn(column));
     }
 
     public Fluent hide() {
