@@ -17,6 +17,7 @@ import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Color;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.ansi.util.AnsiTricks;
+import org.codejive.twinkle.ansi.util.Fluent;
 import org.codejive.twinkle.shapes.Borders;
 import org.codejive.twinkle.text.Buffer;
 import org.codejive.twinkle.text.io.PrintBufferWriter;
@@ -77,7 +78,7 @@ class BorderDemo {
             connection.openNonBlocking();
 
             // Hide cursor and clear screen
-            connection.write(Ansi.cursorHide() + Ansi.clearScreen());
+            Fluent.of(connection).hide().screen().clear().done();
 
             minX = 1;
             minY = 1;
@@ -93,8 +94,9 @@ class BorderDemo {
             Buffer buffer = Buffer.of(size);
             PrintBufferWriter writer = buffer.writer();
 
-            String white = Color.BasicColor.WHITE.toAnsiFg();
-            String green = Color.BasicColor.GREEN.toAnsiFg();
+            // FPS calculation variables
+            long lastFrameTime = System.nanoTime();
+            double fps = 0.0;
 
             while (running) {
                 // Clear buffer for new frame
@@ -105,19 +107,36 @@ class BorderDemo {
                 colorize();
 
                 Borders.ascii().style(Style.ofFgColor(Color.BasicColor.GREEN)).render(buffer);
-                writer.at(2, 0).write(green + "[ " + white + size + green + " ]");
-                writer.write(textColor.toAnsiFg());
-                writer.at(textX, textY).write(text);
+
+                Fluent f = writer.fluent();
+                f.at(3, 1).green().text("[ ").white().text(size).green().text(" ]");
+                f.at(size.width() - 12, 1)
+                        .green()
+                        .text("[ ")
+                        .white()
+                        .text("fps " + Math.round(fps))
+                        .green()
+                        .text(" ]");
+                f.at(textX + 1, textY + 1).color(textColor).text(text).done();
 
                 // Write entire frame buffer to connection in one call
-                writer.flush();
                 connection.write(Ansi.cursorHome() + buffer.toAnsi());
                 frameCount++;
 
+                // Calculate FPS
+                long currentTime = System.nanoTime();
+                long elapsedNanos = currentTime - lastFrameTime;
+                if (elapsedNanos > 0) {
+                    double currentFps = 1_000_000_000.0 / elapsedNanos;
+                    // Smooth FPS using exponential moving average
+                    fps = (fps == 0.0) ? currentFps : (fps * 0.9 + currentFps * 0.1);
+                }
+                lastFrameTime = currentTime;
+
                 Thread.sleep(50);
             }
-            connection.write(Ansi.cursorShow() + Ansi.STYLE_RESET + "\nGoodbye!\n");
-        } catch (InterruptedException e) {
+            Fluent.of(connection).show().reset().text("\nGoodbye!\n").done();
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
