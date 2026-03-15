@@ -24,13 +24,13 @@ import org.codejive.twinkle.text.util.FrameCounter;
 import org.codejive.twinkle.text.util.Size;
 import org.codejive.twinkle.text.util.Sizer;
 
-class BorderDemo {
+class BouncingTwinkleDemo {
 
     private static volatile boolean running = true;
     private static volatile Size size;
     private static volatile Size textSize;
     private static volatile int minX, minY, maxX, maxY, textX, textY, dx, dy;
-    private static FrameCounter fps = new FrameCounter();
+    private static final FrameCounter fps = new FrameCounter();
 
     private static final Color.BasicColor[] textPalette = {
         Color.BasicColor.RED,
@@ -72,7 +72,7 @@ class BorderDemo {
                         }
                     });
 
-            connection.setSizeHandler(BorderDemo::handleResize);
+            connection.setSizeHandler(BouncingTwinkleDemo::handleResize);
 
             // Start input reading in background
             connection.openNonBlocking();
@@ -105,6 +105,16 @@ class BorderDemo {
 
                 Fluent f = writer.fluent();
                 f.at(2, 0).green().text("[ ").white().text(size).green().text(" ]");
+                f.at(size.width() / 2 - 3, 0)
+                        .green()
+                        .text("[ ")
+                        .blue()
+                        .underline()
+                        .link("Twinkle", "https://github.com/codejive/twinkle")
+                        .not()
+                        .underline()
+                        .green()
+                        .text(" ]");
                 f.at(size.width() - 12, 0)
                         .green()
                         .text("[ ")

@@ -1,4 +1,8 @@
 {
   "aliases": {
+    "bounce": {
+      "description": "A simple TUI that demonstrates a bouncing Twinkle.",
+      "script-ref": "examples/src/main/java/org/codejive/twinkle/demos/BouncingTwinkleDemo.java"
+    }
   }
 }
