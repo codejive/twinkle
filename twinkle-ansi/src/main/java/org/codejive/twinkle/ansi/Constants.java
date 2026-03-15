@@ -6,6 +6,7 @@ public class Constants {
     public static final String CSI = ESC + "["; // Control Sequence Introducer
     public static final String OSC = ESC + "]"; // Operating System Command
     public static final String OSC_END = "\u0007"; // Bell character
+    public static final String OSC_END_ALT = ESC + "\\"; // String Terminator (ST)
 
     // Style codes
     public static final int RESET = 0; // Reset all attributes
@@ -83,4 +84,6 @@ public class Constants {
 
     public static final String LINE_WRAP_ON = "=7h";
     public static final String LINE_WRAP_OFF = "=7l";
+
+    public static final String HYPERLINK = "8;";
 }

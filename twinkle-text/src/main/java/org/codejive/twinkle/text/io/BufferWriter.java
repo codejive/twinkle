@@ -4,9 +4,10 @@ import static org.codejive.twinkle.ansi.Constants.*;
 
 import java.io.Writer;
 import org.codejive.twinkle.ansi.Ansi;
-import org.codejive.twinkle.ansi.Constants;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.text.Buffer;
+import org.codejive.twinkle.text.Buffer.LinkPrintOption;
+import org.codejive.twinkle.text.util.Hyperlink;
 import org.codejive.twinkle.text.util.SequenceDecoder;
 import org.codejive.twinkle.text.util.Size;
 import org.jspecify.annotations.NonNull;
@@ -19,6 +20,8 @@ public class BufferWriter extends Writer {
     private int savedCursorX;
     private int savedCursorY;
     @NonNull Style curStyle;
+    Hyperlink currentLink;
+    LinkPrintOption linkPrintOption;
     boolean lineWrap;
     @NonNull String transparantCharacters;
 
@@ -30,6 +33,8 @@ public class BufferWriter extends Writer {
         this.savedCursorX = 0;
         this.savedCursorY = 0;
         this.curStyle = Style.DEFAULT;
+        this.currentLink = null;
+        this.linkPrintOption = LinkPrintOption.NONE;
         this.lineWrap = true;
         this.transparantCharacters = "\0";
     }
@@ -83,7 +88,12 @@ public class BufferWriter extends Writer {
                     cursorX = 0;
                     cursorY++;
                 }
-                buffer.putAt(cursorX, cursorY, decoder.toString(), Buffer.styleOpt(curStyle));
+                buffer.putAt(
+                        cursorX,
+                        cursorY,
+                        decoder.toString(),
+                        Buffer.styleOpt(curStyle),
+                        linkPrintOption);
                 cursorX += decoder.width();
             }
         }
@@ -99,10 +109,10 @@ public class BufferWriter extends Writer {
     protected void handleEscapeSequence(String sequence) {
         if (Style.isStyleSequence(sequence)) {
             curStyle = Style.parse(curStyle, sequence);
-        } else if (sequence.startsWith(Constants.CSI)) {
+        } else if (sequence.startsWith(CSI)) {
             // Handle CSI sequences here
             handleCsiSequence(sequence);
-        } else if (sequence.startsWith(Constants.OSC)) {
+        } else if (sequence.startsWith(OSC)) {
             // Handle OSC sequences here
             handleOscSequence(sequence);
         } else {
@@ -157,7 +167,18 @@ public class BufferWriter extends Writer {
         }
     }
 
-    protected void handleOscSequence(String sequence) {}
+    protected void handleOscSequence(String sequence) {
+        // Handle hyperlink sequences here
+        Hyperlink link = Hyperlink.parse(sequence);
+        if (link != null) {
+            currentLink = link;
+            if (link == Hyperlink.END) {
+                linkPrintOption = LinkPrintOption.NONE;
+            } else {
+                linkPrintOption = new LinkPrintOption(link);
+            }
+        }
+    }
 
     protected void handleOtherSequence(String sequence) {
         if (Ansi.cursorSave().equals(sequence)) {
@@ -170,8 +191,8 @@ public class BufferWriter extends Writer {
     }
 
     private int numMatch(char cursorCmd, String sequence, int defaultNum) {
-        if (sequence.startsWith(Constants.CSI) && sequence.endsWith(String.valueOf(cursorCmd))) {
-            String numStr = sequence.substring(Constants.CSI.length(), sequence.length() - 1);
+        if (sequence.startsWith(CSI) && sequence.endsWith(String.valueOf(cursorCmd))) {
+            String numStr = sequence.substring(CSI.length(), sequence.length() - 1);
             if (numStr.isEmpty()) {
                 return defaultNum;
             }
@@ -185,8 +206,8 @@ public class BufferWriter extends Writer {
     }
 
     private int[] numsMatch(char cursorCmd, String sequence, int[] defaultNums) {
-        if (sequence.startsWith(Constants.CSI) && sequence.endsWith(String.valueOf(cursorCmd))) {
-            String numsStr = sequence.substring(Constants.CSI.length(), sequence.length() - 1);
+        if (sequence.startsWith(CSI) && sequence.endsWith(String.valueOf(cursorCmd))) {
+            String numsStr = sequence.substring(CSI.length(), sequence.length() - 1);
             if (numsStr.isEmpty()) {
                 return defaultNums;
             }
