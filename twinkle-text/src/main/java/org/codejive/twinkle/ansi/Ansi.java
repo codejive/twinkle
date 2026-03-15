@@ -294,5 +294,82 @@ public class Ansi {
         return OSC + HYPERLINK + ";" + OSC_END;
     }
 
+    /**
+     * Returns the ANSI escape sequence to enable SGR extended mouse mode tracking. This should be
+     * combined with one of the mouse tracking modes (e.g., mouseTrackingEnable()). SGR mode
+     * provides a more reliable encoding that supports coordinates beyond 223.
+     *
+     * @return the ANSI escape sequence to enable SGR extended mouse mode
+     */
+    public static String mouseSgrModeEnable() {
+        return CSI + MOUSE_SGR_EXT_MODE_ENABLE;
+    }
+
+    /**
+     * Returns the ANSI escape sequence to disable SGR extended mouse mode tracking.
+     *
+     * @return the ANSI escape sequence to disable SGR extended mouse mode
+     */
+    public static String mouseSgrModeDisable() {
+        return CSI + MOUSE_SGR_EXT_MODE_DISABLE;
+    }
+
+    /**
+     * Returns the ANSI escape sequence to enable basic mouse tracking. This will report button
+     * press and release events.
+     *
+     * @return the ANSI escape sequence to enable basic mouse tracking
+     */
+    public static String mouseTrackingEnable() {
+        return CSI + MOUSE_BUTTON_TRACKING_ENABLE;
+    }
+
+    /**
+     * Returns the ANSI escape sequence to disable basic mouse tracking.
+     *
+     * @return the ANSI escape sequence to disable basic mouse tracking
+     */
+    public static String mouseTrackingDisable() {
+        return CSI + MOUSE_BUTTON_TRACKING_DISABLE;
+    }
+
+    /**
+     * Returns the ANSI escape sequence to enable button event tracking. This will report button
+     * press, release, and drag events.
+     *
+     * @return the ANSI escape sequence to enable button event tracking
+     */
+    public static String mouseButtonTrackingEnable() {
+        return CSI + MOUSE_BUTTON_AND_DRAG_TRACKING_ENABLE;
+    }
+
+    /**
+     * Returns the ANSI escape sequence to disable button event tracking.
+     *
+     * @return the ANSI escape sequence to disable button event tracking
+     */
+    public static String mouseButtonTrackingDisable() {
+        return CSI + MOUSE_BUTTON_AND_DRAG_TRACKING_DISABLE;
+    }
+
+    /**
+     * Returns the ANSI escape sequence to enable any event tracking. This will report all mouse
+     * events, including movement without buttons pressed.
+     *
+     * @return the ANSI escape sequence to enable any event tracking
+     */
+    public static String mouseAnyEventTrackingEnable() {
+        return CSI + MOUSE_ANY_EVENT_TRACKING_ENABLE;
+    }
+
+    /**
+     * Returns the ANSI escape sequence to disable any event tracking.
+     *
+     * @return the ANSI escape sequence to disable any event tracking
+     */
+    public static String mouseAnyEventTrackingDisable() {
+        return CSI + MOUSE_ANY_EVENT_TRACKING_DISABLE;
+    }
+
     private Ansi() {}
 }

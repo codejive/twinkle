@@ -86,4 +86,36 @@ public class Constants {
     public static final String LINE_WRAP_OFF = "=7l";
 
     public static final String HYPERLINK = "8;";
+
+    // Mouse tracking modes
+    public static final String MOUSE_BUTTON_TRACKING_ENABLE =
+            "?1000h"; // Enable basic mouse tracking
+    public static final String MOUSE_BUTTON_TRACKING_DISABLE =
+            "?1000l"; // Disable basic mouse tracking
+    public static final String MOUSE_BUTTON_AND_DRAG_TRACKING_ENABLE =
+            "?1002h"; // Enable button event and drag tracking
+    public static final String MOUSE_BUTTON_AND_DRAG_TRACKING_DISABLE =
+            "?1002l"; // Disable button event and drag tracking
+    public static final String MOUSE_ANY_EVENT_TRACKING_ENABLE =
+            "?1003h"; // Enable any event tracking
+    public static final String MOUSE_ANY_EVENT_TRACKING_DISABLE =
+            "?1003l"; // Disable any event tracking
+    public static final String MOUSE_SGR_EXT_MODE_ENABLE = "?1006h"; // Enable SGR extended mode
+    public static final String MOUSE_SGR_EXT_MODE_DISABLE = "?1006l"; // Disable SGR extended mode
+
+    // Mouse button codes (for SGR mode)
+    public static final int MOUSE_BUTTON_LEFT = 0;
+    public static final int MOUSE_BUTTON_MIDDLE = 1;
+    public static final int MOUSE_BUTTON_RIGHT = 2;
+    public static final int MOUSE_BUTTON_RELEASE = 3;
+    public static final int MOUSE_SCROLL_UP = 64;
+    public static final int MOUSE_SCROLL_DOWN = 65;
+
+    // Mouse modifier flags
+    public static final int MOUSE_MODIFIER_SHIFT = 4;
+    public static final int MOUSE_MODIFIER_ALT = 8;
+    public static final int MOUSE_MODIFIER_CTRL = 16;
+
+    // X10 mouse encoding
+    public static final int MOUSE_X10_OFFSET = 32; // Offset for X10 encoding (button, x, y)
 }
