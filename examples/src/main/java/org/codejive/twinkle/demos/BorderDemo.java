@@ -9,7 +9,6 @@
 package org.codejive.twinkle.demos;
 
 import com.github.lalyos.jfiglet.FigletFont;
-import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 import org.aesh.terminal.tty.Signal;
 import org.aesh.terminal.tty.TerminalConnection;
@@ -21,6 +20,7 @@ import org.codejive.twinkle.ansi.util.Fluent;
 import org.codejive.twinkle.shapes.Borders;
 import org.codejive.twinkle.text.Buffer;
 import org.codejive.twinkle.text.io.PrintBufferWriter;
+import org.codejive.twinkle.text.util.FrameCounter;
 import org.codejive.twinkle.text.util.Size;
 import org.codejive.twinkle.text.util.Sizer;
 
@@ -30,7 +30,7 @@ class BorderDemo {
     private static volatile Size size;
     private static volatile Size textSize;
     private static volatile int minX, minY, maxX, maxY, textX, textY, dx, dy;
-    private static int frameCount;
+    private static FrameCounter fps = new FrameCounter();
 
     private static final Color.BasicColor[] textPalette = {
         Color.BasicColor.RED,
@@ -48,7 +48,7 @@ class BorderDemo {
 
     private static Color.BasicColor textColor = textPalette[0];
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         try (TerminalConnection connection = new TerminalConnection()) {
             connection.enterRawMode();
             size = Size.of(connection.size().getWidth(), connection.size().getHeight());
@@ -88,15 +88,10 @@ class BorderDemo {
             textY = Math.max(minY, Math.min((size.height() - textSize.height()) / 2, maxY));
             dx = 1;
             dy = 1;
-            frameCount = 0;
 
             // Reusable buffer for frame rendering
             Buffer buffer = Buffer.of(size);
             PrintBufferWriter writer = buffer.writer();
-
-            // FPS calculation variables
-            long lastFrameTime = System.nanoTime();
-            double fps = 0.0;
 
             while (running) {
                 // Clear buffer for new frame
@@ -110,34 +105,22 @@ class BorderDemo {
 
                 Fluent f = writer.fluent();
                 f.at(2, 0).green().text("[ ").white().text(size).green().text(" ]");
-                f.at(size.width() - 11, 0)
+                f.at(size.width() - 12, 0)
                         .green()
                         .text("[ ")
                         .white()
-                        .text("fps " + Math.round(fps))
+                        .text("fps %s", Math.round(fps.average()))
                         .green()
                         .text(" ]");
                 f.at(textX, textY).color(textColor).text(text).done();
 
                 // Write entire frame buffer to connection in one call
                 connection.write(Ansi.cursorHome() + buffer.toAnsi());
-                frameCount++;
 
-                // Calculate FPS
-                long currentTime = System.nanoTime();
-                long elapsedNanos = currentTime - lastFrameTime;
-                if (elapsedNanos > 0) {
-                    double currentFps = 1_000_000_000.0 / elapsedNanos;
-                    // Smooth FPS using exponential moving average
-                    fps = (fps == 0.0) ? currentFps : (fps * 0.9 + currentFps * 0.1);
-                }
-                lastFrameTime = currentTime;
-
+                fps.update();
                 Thread.sleep(50);
             }
             Fluent.of(connection).show().reset().text("\nGoodbye!\n").done();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -169,7 +152,7 @@ class BorderDemo {
     }
 
     private static void colorize() {
-        if (frameCount > 0 && frameCount % 10 == 0) {
+        if (fps.frames() > 0 && fps.frames() % 10 == 0) {
             int idx = ThreadLocalRandom.current().nextInt(textPalette.length);
             textColor = textPalette[idx];
         }
