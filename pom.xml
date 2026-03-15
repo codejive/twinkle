@@ -19,8 +19,8 @@
     </properties>
 
     <modules>
-        <module>twinkle-ansi</module>
         <module>twinkle-text</module>
+        <module>twinkle-screen</module>
         <module>twinkle-shapes</module>
         <module>examples</module>
     </modules>

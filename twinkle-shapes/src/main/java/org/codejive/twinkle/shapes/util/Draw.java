@@ -1,7 +1,7 @@
 package org.codejive.twinkle.shapes.util;
 
-import org.codejive.twinkle.text.RenderTarget;
-import org.codejive.twinkle.text.RenderTarget.PrintOption;
+import org.codejive.twinkle.screen.RenderTarget;
+import org.codejive.twinkle.screen.RenderTarget.PrintOption;
 
 public class Draw {
 
