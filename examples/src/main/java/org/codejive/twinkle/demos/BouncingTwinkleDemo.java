@@ -18,6 +18,7 @@ import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.ansi.util.AnsiTricks;
 import org.codejive.twinkle.ansi.util.Fluent;
 import org.codejive.twinkle.screen.Buffer;
+import org.codejive.twinkle.screen.BufferStack;
 import org.codejive.twinkle.screen.io.PrintBufferWriter;
 import org.codejive.twinkle.screen.util.FrameCounter;
 import org.codejive.twinkle.shapes.Borders;
@@ -26,6 +27,8 @@ import org.codejive.twinkle.text.Sizer;
 
 class BouncingTwinkleDemo {
 
+    private static final BufferStack buffers = BufferStack.create();
+    private static final Buffer helpBuffer = initHelp();
     private static volatile boolean running = true;
     private static volatile Size size;
     private static volatile Size textSize;
@@ -67,8 +70,14 @@ class BouncingTwinkleDemo {
             // Handle any key press to exit
             connection.setStdinHandler(
                     input -> {
-                        if (input != null && input.length > 0) {
-                            running = false;
+                        if (input != null) {
+                            for (int ch : input) {
+                                if (ch == 'q') { // Ctrl+C
+                                    running = false;
+                                } else if (ch == 'h') {
+                                    toggleHelp();
+                                }
+                            }
                         }
                     });
 
@@ -92,6 +101,7 @@ class BouncingTwinkleDemo {
             // Reusable buffer for frame rendering
             Buffer buffer = Buffer.of(size);
             PrintBufferWriter writer = buffer.writer();
+            buffers.primary(buffer);
 
             while (running) {
                 // Clear buffer for new frame
@@ -125,12 +135,46 @@ class BouncingTwinkleDemo {
                 f.at(textX, textY).color(textColor).text(text).done();
 
                 // Write entire frame buffer to connection in one call
-                connection.write(Ansi.cursorHome() + buffer.toAnsi());
+                connection.write(Ansi.cursorHome() + buffers.toAnsi());
 
                 fps.update();
                 Thread.sleep(50);
             }
             Fluent.of(connection).show().reset().text("\nGoodbye!\n").done();
+        }
+    }
+
+    private static Buffer initHelp() {
+        Buffer buffer = Buffer.of(30, 10);
+        PrintBufferWriter writer = buffer.writer();
+        Borders.ascii().style(Style.ofFgColor(Color.BasicColor.BRIGHT_MAGENTA)).render(buffer);
+        writer.fluent().at(2, 0).text("[ ").white().text("Help Page").restore().text(" ]").done();
+        Fluent help =
+                Fluent.string()
+                        .white()
+                        .text("q - quit")
+                        .lf()
+                        .text("h - toggle this help")
+                        .lf()
+                        .text("b - cycle border style")
+                        .lf()
+                        .text("s - cycle speeds");
+        writer.fluent().at(3, 2).block(help).done();
+        return buffer;
+    }
+
+    private static void toggleHelp() {
+        BufferStack.BufferElement helpElement = buffers.contains(helpBuffer);
+        if (helpElement == null) {
+            helpElement =
+                    buffers.add(
+                            helpBuffer,
+                            size.width() / 2 - helpBuffer.size().width() / 2,
+                            size.height() / 2 - helpBuffer.size().height() / 2,
+                            Integer.MAX_VALUE);
+            helpElement.transparancy = "";
+        } else {
+            helpElement.visible = !helpElement.visible;
         }
     }
 
