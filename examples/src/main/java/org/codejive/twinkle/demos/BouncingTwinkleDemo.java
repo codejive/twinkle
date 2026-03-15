@@ -17,12 +17,12 @@ import org.codejive.twinkle.ansi.Color;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.ansi.util.AnsiTricks;
 import org.codejive.twinkle.ansi.util.Fluent;
+import org.codejive.twinkle.screen.Buffer;
+import org.codejive.twinkle.screen.io.PrintBufferWriter;
+import org.codejive.twinkle.screen.util.FrameCounter;
 import org.codejive.twinkle.shapes.Borders;
-import org.codejive.twinkle.text.Buffer;
-import org.codejive.twinkle.text.io.PrintBufferWriter;
-import org.codejive.twinkle.text.util.FrameCounter;
-import org.codejive.twinkle.text.util.Size;
-import org.codejive.twinkle.text.util.Sizer;
+import org.codejive.twinkle.text.Size;
+import org.codejive.twinkle.text.Sizer;
 
 class BouncingTwinkleDemo {
 

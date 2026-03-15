@@ -2,10 +2,10 @@ package org.codejive.twinkle.shapes;
 
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.ansi.util.Printable;
+import org.codejive.twinkle.screen.Buffer;
+import org.codejive.twinkle.screen.Buffer.StylePrintOption;
+import org.codejive.twinkle.screen.RenderTarget;
 import org.codejive.twinkle.shapes.util.Draw;
-import org.codejive.twinkle.text.Buffer;
-import org.codejive.twinkle.text.Buffer.StylePrintOption;
-import org.codejive.twinkle.text.RenderTarget;
 import org.jspecify.annotations.NonNull;
 
 public class Borders implements Printable {
