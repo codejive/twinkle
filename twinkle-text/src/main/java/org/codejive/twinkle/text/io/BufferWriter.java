@@ -83,7 +83,7 @@ public class BufferWriter extends Writer {
                     cursorX = 0;
                     cursorY++;
                 }
-                buffer.putAt(cursorX, cursorY, curStyle, decoder.toString());
+                buffer.putAt(cursorX, cursorY, decoder.toString(), Buffer.styleOpt(curStyle));
                 cursorX += decoder.width();
             }
         }

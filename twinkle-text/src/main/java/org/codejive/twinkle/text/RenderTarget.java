@@ -1,6 +1,5 @@
 package org.codejive.twinkle.text;
 
-import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.text.util.Size;
 import org.codejive.twinkle.text.util.StyledIterator;
 import org.jspecify.annotations.NonNull;
@@ -22,10 +21,10 @@ public interface RenderTarget {
      *
      * @param x the x-coordinate of the character
      * @param y the y-coordinate of the character
-     * @param style the style to apply to the character
      * @param c the character to print
+     * @param options the print options to apply
      */
-    void putAt(int x, int y, @NonNull Style style, char c);
+    void putAt(int x, int y, char c, PrintOption... options);
 
     /**
      * Print a codepoint at the specified position in the buffer with the given style. If the
@@ -33,10 +32,10 @@ public interface RenderTarget {
      *
      * @param x the x-coordinate of the codepoint
      * @param y the y-coordinate of the codepoint
-     * @param style the style to apply to the codepoint
      * @param cp the codepoint to print
+     * @param options the print options to apply
      */
-    void putAt(int x, int y, @NonNull Style style, int cp);
+    void putAt(int x, int y, int cp, PrintOption... options);
 
     /**
      * Print a grapheme at the specified position in the buffer with the given style. If the
@@ -44,10 +43,10 @@ public interface RenderTarget {
      *
      * @param x the x-coordinate of the grapheme
      * @param y the y-coordinate of the grapheme
-     * @param style the style to apply to the grapheme
      * @param grapheme the grapheme to print
+     * @param options the print options to apply
      */
-    void putAt(int x, int y, @NonNull Style style, @NonNull CharSequence grapheme);
+    void putAt(int x, int y, @NonNull CharSequence grapheme, PrintOption... options);
 
     /**
      * Print a string at the specified position in the buffer with the given style. If the string is
@@ -55,12 +54,10 @@ public interface RenderTarget {
      *
      * @param x the x-coordinate of the string
      * @param y the y-coordinate of the string
-     * @param style the style to apply to the string
      * @param str the string to print
      * @param options the print options to apply
      */
-    void printAt(
-            int x, int y, @NonNull Style style, @NonNull CharSequence str, PrintOption... options);
+    void printAt(int x, int y, @NonNull CharSequence str, PrintOption... options);
 
     /**
      * Print a styled string at the specified position in the buffer.
