@@ -402,7 +402,7 @@ public class Fluent {
     }
 
     /**
-     * Applies a black foreground color. Alias for {@link #color(Color.BasicColor)} with {@code
+     * Applies a black foreground color. Alias for {@link #color(Color)} with {@code
      * Color.BasicColor.BLACK}.
      *
      * @return this Fluent instance for chaining
@@ -412,7 +412,7 @@ public class Fluent {
     }
 
     /**
-     * Applies a red foreground color. Alias for {@link #color(Color.BasicColor)} with {@code
+     * Applies a red foreground color. Alias for {@link #color(Color)} with {@code
      * Color.BasicColor.RED}.
      *
      * @return this Fluent instance for chaining
@@ -422,7 +422,7 @@ public class Fluent {
     }
 
     /**
-     * Applies a green foreground color. Alias for {@link #color(Color.BasicColor)} with {@code
+     * Applies a green foreground color. Alias for {@link #color(Color)} with {@code
      * Color.BasicColor.GREEN}.
      *
      * @return this Fluent instance for chaining
@@ -432,7 +432,7 @@ public class Fluent {
     }
 
     /**
-     * Applies a yellow foreground color. Alias for {@link #color(Color.BasicColor)} with {@code
+     * Applies a yellow foreground color. Alias for {@link #color(Color)} with {@code
      * Color.BasicColor.YELLOW}.
      *
      * @return this Fluent instance for chaining
@@ -442,7 +442,7 @@ public class Fluent {
     }
 
     /**
-     * Applies a blue foreground color. Alias for {@link #color(Color.BasicColor)} with {@code
+     * Applies a blue foreground color. Alias for {@link #color(Color)} with {@code
      * Color.BasicColor.BLUE}.
      *
      * @return this Fluent instance for chaining
@@ -452,7 +452,7 @@ public class Fluent {
     }
 
     /**
-     * Applies a magenta foreground color. Alias for {@link #color(Color.BasicColor)} with {@code
+     * Applies a magenta foreground color. Alias for {@link #color(Color)} with {@code
      * Color.BasicColor.MAGENTA}.
      *
      * @return this Fluent instance for chaining
@@ -462,7 +462,7 @@ public class Fluent {
     }
 
     /**
-     * Applies a cyan foreground color. Alias for {@link #color(Color.BasicColor)} with {@code
+     * Applies a cyan foreground color. Alias for {@link #color(Color)} with {@code
      * Color.BasicColor.CYAN}.
      *
      * @return this Fluent instance for chaining
@@ -472,7 +472,7 @@ public class Fluent {
     }
 
     /**
-     * Applies a white foreground color. Alias for {@link #color(Color.BasicColor)} with {@code
+     * Applies a white foreground color. Alias for {@link #color(Color)} with {@code
      * Color.BasicColor.WHITE}.
      *
      * @return this Fluent instance for chaining
@@ -761,7 +761,6 @@ public class Fluent {
      * of the terminal will wrap to the next line. When disabled, text will continue on the same
      * line, potentially overflowing and not being visible.
      *
-     * @param enable true to enable auto-wrapping, false to disable
      * @return this Fluent instance for chaining
      */
     public Fluent wrap() {
@@ -924,7 +923,7 @@ public class Fluent {
 
     public class BackgroundColors {
         /**
-         * Applies a black background color. Alias for {@link #color(Color.BasicColor)} with {@code
+         * Applies a black background color. Alias for {@link #color(Color)} with {@code
          * Color.BasicColor.BLACK}.
          *
          * @return this Fluent instance for chaining
@@ -934,7 +933,7 @@ public class Fluent {
         }
 
         /**
-         * Applies a red background color. Alias for {@link #color(Color.BasicColor)} with {@code
+         * Applies a red background color. Alias for {@link #color(Color)} with {@code
          * Color.BasicColor.RED}.
          *
          * @return this Fluent instance for chaining
@@ -944,7 +943,7 @@ public class Fluent {
         }
 
         /**
-         * Applies a green background color. Alias for {@link #color(Color.BasicColor)} with {@code
+         * Applies a green background color. Alias for {@link #color(Color)} with {@code
          * Color.BasicColor.GREEN}.
          *
          * @return this Fluent instance for chaining
@@ -954,7 +953,7 @@ public class Fluent {
         }
 
         /**
-         * Applies a yellow background color. Alias for {@link #color(Color.BasicColor)} with {@code
+         * Applies a yellow background color. Alias for {@link #color(Color)} with {@code
          * Color.BasicColor.YELLOW}.
          *
          * @return this Fluent instance for chaining
@@ -964,7 +963,7 @@ public class Fluent {
         }
 
         /**
-         * Applies a blue background color. Alias for {@link #color(Color.BasicColor)} with {@code
+         * Applies a blue background color. Alias for {@link #color(Color)} with {@code
          * Color.BasicColor.BLUE}.
          *
          * @return this Fluent instance for chaining
@@ -974,8 +973,8 @@ public class Fluent {
         }
 
         /**
-         * Applies a magenta background color. Alias for {@link #color(Color.BasicColor)} with
-         * {@code Color.BasicColor.MAGENTA}.
+         * Applies a magenta background color. Alias for {@link #color(Color)} with {@code
+         * Color.BasicColor.MAGENTA}.
          *
          * @return this Fluent instance for chaining
          */
@@ -984,7 +983,7 @@ public class Fluent {
         }
 
         /**
-         * Applies a cyan background color. Alias for {@link #color(Color.BasicColor)} with {@code
+         * Applies a cyan background color. Alias for {@link #color(Color)} with {@code
          * Color.BasicColor.CYAN}.
          *
          * @return this Fluent instance for chaining
@@ -994,7 +993,7 @@ public class Fluent {
         }
 
         /**
-         * Applies a white background color. Alias for {@link #color(Color.BasicColor)} with {@code
+         * Applies a white background color. Alias for {@link #color(Color)} with {@code
          * Color.BasicColor.WHITE}.
          *
          * @return this Fluent instance for chaining
