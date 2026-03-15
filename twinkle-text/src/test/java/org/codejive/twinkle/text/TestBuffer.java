@@ -24,7 +24,7 @@ public class TestBuffer {
     public void testBufferPutGetChar() {
         Buffer buffer = Buffer.of(10, 1);
         for (int i = 0; i < buffer.size().width(); i++) {
-            buffer.putAt(i, 0, Style.ITALIC, (char) ('a' + i));
+            buffer.putAt(i, 0, (char) ('a' + i), Buffer.styleOpt(Style.ITALIC));
         }
         for (int i = 0; i < buffer.size().width(); i++) {
             assertThat(buffer.charAt(i, 0)).isEqualTo((char) ('a' + i));
@@ -36,7 +36,7 @@ public class TestBuffer {
     public void testBufferPutCharToString() {
         Buffer buffer = Buffer.of(10, 1);
         for (int i = 0; i < buffer.size().width(); i++) {
-            buffer.putAt(i, 0, Style.ITALIC, (char) ('a' + i));
+            buffer.putAt(i, 0, (char) ('a' + i), Buffer.styleOpt(Style.ITALIC));
         }
         assertThat(buffer.toString()).isEqualTo("abcdefghij");
     }
@@ -46,7 +46,7 @@ public class TestBuffer {
         Buffer buffer = Buffer.of(10, 1);
         for (int i = 0; i < buffer.size().width(); i++) {
             Style style = i < 5 ? Style.ITALIC : Style.UNDERLINED;
-            buffer.putAt(i, 0, style, (char) ('a' + i));
+            buffer.putAt(i, 0, (char) ('a' + i), Buffer.styleOpt(style));
         }
         assertThat(buffer.toAnsi())
                 .isEqualTo(
@@ -62,7 +62,7 @@ public class TestBuffer {
         Buffer buffer = Buffer.of(10, 1);
         for (int i = 0; i < buffer.size().width(); i++) {
             Style style = i < 5 ? Style.ITALIC : Style.UNDERLINED;
-            buffer.putAt(i, 0, style, (char) ('a' + i));
+            buffer.putAt(i, 0, (char) ('a' + i), Buffer.styleOpt(style));
         }
         assertThat(buffer.toAnsi(Style.DEFAULT.italic()))
                 .isEqualTo(
@@ -76,7 +76,7 @@ public class TestBuffer {
         Buffer buffer = Buffer.of(10, 1);
         for (int i = 0; i < buffer.size().width() + 10; i++) {
             Style style = i < 10 ? Style.ITALIC : Style.UNDERLINED;
-            buffer.putAt(i - 5, 0, style, (char) ('a' + i));
+            buffer.putAt(i - 5, 0, (char) ('a' + i), Buffer.styleOpt(style));
         }
         assertThat(buffer.toAnsi())
                 .isEqualTo(
@@ -183,7 +183,7 @@ public class TestBuffer {
     @Test
     public void testPrintAtBasic() {
         Buffer buffer = Buffer.of(10, 3);
-        buffer.printAt(2, 1, Style.DEFAULT, "hello");
+        buffer.printAt(2, 1, "hello", Buffer.StylePrintOption.DEFAULT);
 
         assertThat(buffer.graphemeAt(2, 1)).isEqualTo("h");
         assertThat(buffer.graphemeAt(3, 1)).isEqualTo("e");
@@ -194,7 +194,7 @@ public class TestBuffer {
     @Test
     public void testPrintAtWithStyle() {
         Buffer buffer = Buffer.of(10, 3);
-        buffer.printAt(2, 1, Style.BOLD, "test");
+        buffer.printAt(2, 1, "test", Buffer.styleOpt(Style.BOLD));
 
         assertThat(buffer.graphemeAt(2, 1)).isEqualTo("t");
         assertThat(buffer.styleAt(2, 1)).isEqualTo(Style.DEFAULT.bold());
@@ -205,7 +205,7 @@ public class TestBuffer {
     @Test
     public void testPrintAtWithNewline() {
         Buffer buffer = Buffer.of(10, 3);
-        buffer.printAt(2, 0, Style.DEFAULT, "ab\ncd");
+        buffer.printAt(2, 0, "ab\ncd", Buffer.StylePrintOption.DEFAULT);
 
         assertThat(buffer.graphemeAt(2, 0)).isEqualTo("a");
         assertThat(buffer.graphemeAt(3, 0)).isEqualTo("b");
@@ -217,7 +217,7 @@ public class TestBuffer {
     @Test
     public void testPrintAtAtOrigin() {
         Buffer buffer = Buffer.of(5, 2);
-        buffer.printAt(0, 0, Style.DEFAULT, "test");
+        buffer.printAt(0, 0, "test", Buffer.StylePrintOption.DEFAULT);
 
         assertThat(buffer.graphemeAt(0, 0)).isEqualTo("t");
         assertThat(buffer.graphemeAt(3, 0)).isEqualTo("t");
@@ -227,7 +227,7 @@ public class TestBuffer {
     @Test
     public void testPrintAtPartiallyOutOfBounds() {
         Buffer buffer = Buffer.of(5, 2);
-        buffer.printAt(3, 0, Style.DEFAULT, "testing");
+        buffer.printAt(3, 0, "testing", Buffer.StylePrintOption.DEFAULT);
 
         // Only first 2 characters fit at positions 3 and 4
         assertThat(buffer.graphemeAt(3, 0)).isEqualTo("t");
@@ -239,7 +239,8 @@ public class TestBuffer {
     @Test
     public void testPrintAtPartiallyOutOfBoundsNoWrap() {
         Buffer buffer = Buffer.of(5, 2);
-        buffer.printAt(3, 0, Style.DEFAULT, "testing", Buffer.SimplePrintOption.NOWRAP);
+        buffer.printAt(
+                3, 0, "testing", Buffer.SimplePrintOption.NOWRAP, Buffer.StylePrintOption.DEFAULT);
 
         // Only first 2 characters fit at positions 3 and 4
         assertThat(buffer.graphemeAt(3, 0)).isEqualTo("t");
@@ -251,7 +252,7 @@ public class TestBuffer {
     @Test
     public void testPrintAtFullyOutOfBounds() {
         Buffer buffer = Buffer.of(5, 2);
-        buffer.printAt(10, 0, Style.DEFAULT, "test");
+        buffer.printAt(10, 0, "test", Buffer.StylePrintOption.DEFAULT);
 
         assertThat(buffer.toString()).isEqualTo("     \n     ");
     }
@@ -259,7 +260,7 @@ public class TestBuffer {
     @Test
     public void testPrintAtMultipleNewlines() {
         Buffer buffer = Buffer.of(5, 4);
-        buffer.printAt(1, 0, Style.DEFAULT, "a\nb\nc");
+        buffer.printAt(1, 0, "a\nb\nc", Buffer.StylePrintOption.DEFAULT);
 
         assertThat(buffer.graphemeAt(1, 0)).isEqualTo("a");
         assertThat(buffer.graphemeAt(0, 1)).isEqualTo("b");
@@ -270,8 +271,8 @@ public class TestBuffer {
     @Test
     public void testPrintAtOverwritesExistingContent() {
         Buffer buffer = Buffer.of(10, 2);
-        buffer.printAt(0, 0, Style.DEFAULT, "original");
-        buffer.printAt(2, 0, Style.DEFAULT, "new");
+        buffer.printAt(0, 0, "original", Buffer.StylePrintOption.DEFAULT);
+        buffer.printAt(2, 0, "new", Buffer.StylePrintOption.DEFAULT);
 
         // "original" -> o-r-i-g-i-n-a-l at positions 0-7
         // "new" overwrites positions 2-4 -> o-r-n-e-w-n-a-l
@@ -286,8 +287,8 @@ public class TestBuffer {
                 buffer.putAt(
                         x,
                         y,
-                        Style.ofFgColor(Color.indexed(x)),
-                        (char) ('A' + x + y * size.width()));
+                        (char) ('A' + x + y * size.width()),
+                        Buffer.styleOpt(Style.ofFgColor(Color.indexed(x))));
             }
         }
         return buffer;

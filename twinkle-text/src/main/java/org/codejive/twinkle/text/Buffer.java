@@ -338,14 +338,6 @@ public class Buffer implements Printable, RenderTarget {
         }
     }
 
-    /**
-     * Get the style at the specified position in the buffer. If the position is out of bounds, an
-     * unstyled Style will be returned.
-     *
-     * @param x the x-coordinate of the style
-     * @param y the y-coordinate of the style
-     * @return the style at the specified position, or an unstyled Style
-     */
     public @NonNull Style styleAt(int x, int y) {
         if (outside(x, y)) {
             return Style.UNSTYLED;
@@ -353,65 +345,60 @@ public class Buffer implements Printable, RenderTarget {
         return Style.of(buffers.styleBuffer[y][x]);
     }
 
-    /**
-     * Print a character at the specified position in the buffer with the given style. If the
-     * position is out of bounds, the character will not be printed.
-     *
-     * @param x the x-coordinate of the character
-     * @param y the y-coordinate of the character
-     * @param style the style to apply to the character
-     * @param c the character to print
-     */
     @Override
-    public void putAt(int x, int y, @NonNull Style style, char c) {
+    public void putAt(int x, int y, char c, PrintOption... options) {
         if (outside(x, y)) {
             return;
         }
         if (Character.isSurrogate(c)) {
             c = REPLACEMENT_CHAR;
         }
+        Style style = opt(options, StylePrintOption.class, StylePrintOption.UNSTYLED).style();
         setCharAt_(x, y, style.state(), c, null);
     }
 
-    /**
-     * Print a codepoint at the specified position in the buffer with the given style. If the
-     * position is out of bounds, the codepoint will not be printed.
-     *
-     * @param x the x-coordinate of the codepoint
-     * @param y the y-coordinate of the codepoint
-     * @param style the style to apply to the codepoint
-     * @param cp the codepoint to print
-     */
     @Override
-    public void putAt(int x, int y, @NonNull Style style, int cp) {
+    public void putAt(int x, int y, int cp, PrintOption... options) {
         if (outside(x, y)) {
             return;
         }
+        Style style = opt(options, StylePrintOption.class, StylePrintOption.UNSTYLED).style();
         setCharAt_(x, y, style.state(), cp, null);
     }
 
-    /**
-     * Print a grapheme at the specified position in the buffer with the given style. If the
-     * position is out of bounds, the grapheme will not be printed.
-     *
-     * @param x the x-coordinate of the grapheme
-     * @param y the y-coordinate of the grapheme
-     * @param style the style to apply to the grapheme
-     * @param grapheme the grapheme to print
-     */
     @Override
-    public void putAt(int x, int y, @NonNull Style style, @NonNull CharSequence grapheme) {
+    public void putAt(int x, int y, @NonNull CharSequence grapheme, PrintOption... options) {
         if (outside(x, y)) {
             return;
         }
         if (grapheme.length() == 0) {
             return;
         }
+        Style style = opt(options, StylePrintOption.class, StylePrintOption.UNSTYLED).style();
         setCharAt_(x, y, style.state(), -1, grapheme.toString());
     }
 
     public enum SimplePrintOption implements PrintOption {
         NOWRAP
+    }
+
+    public static class StylePrintOption implements PrintOption {
+        private final Style style;
+
+        public static final StylePrintOption DEFAULT = new StylePrintOption(Style.DEFAULT);
+        public static final StylePrintOption UNSTYLED = new StylePrintOption(Style.UNSTYLED);
+
+        public StylePrintOption(Style style) {
+            this.style = style;
+        }
+
+        public Style style() {
+            return style;
+        }
+    }
+
+    public static StylePrintOption styleOpt(Style style) {
+        return new StylePrintOption(style);
     }
 
     public static class TransparencyPrintOption implements PrintOption {
@@ -435,33 +422,19 @@ public class Buffer implements Printable, RenderTarget {
         }
     }
 
-    /**
-     * Print a string at the specified position in the buffer with the given style. If the string is
-     * fully out of bounds, the string will not be printed.
-     *
-     * @param x the x-coordinate of the string
-     * @param y the y-coordinate of the string
-     * @param style the style to apply to the string
-     * @param str the string to print
-     * @param options the print options to apply
-     */
+    public static TransparencyPrintOption transparencyOpt(String transparentCharacters) {
+        return new TransparencyPrintOption(transparentCharacters);
+    }
+
     @Override
-    public void printAt(
-            int x, int y, @NonNull Style style, @NonNull CharSequence str, PrintOption... options) {
+    public void printAt(int x, int y, @NonNull CharSequence str, PrintOption... options) {
         if (outside(x, y, str.length())) {
             return;
         }
+        Style style = opt(options, StylePrintOption.class, StylePrintOption.UNSTYLED).style();
         printAt(x, y, StyledIterator.of(str, style), options);
     }
 
-    /**
-     * Print a styled string at the specified position in the buffer.
-     *
-     * @param x the x-coordinate of the string
-     * @param y the y-coordinate of the string
-     * @param iter a StyledIterator
-     * @param options the print options to apply
-     */
     @Override
     public void printAt(int x, int y, @NonNull StyledIterator iter, PrintOption... options) {
         int curX = x;
@@ -541,13 +514,6 @@ public class Buffer implements Printable, RenderTarget {
         }
     }
 
-    /**
-     * Clear the cell at the specified position in the buffer, setting it to the default state. If
-     * the position is out of bounds, no action will be taken.
-     *
-     * @param x the x-coordinate of the cell
-     * @param y the y-coordinate of the cell
-     */
     @Override
     public void clearAt(int x, int y) {
         if (outside(x, y)) {
@@ -611,7 +577,7 @@ public class Buffer implements Printable, RenderTarget {
      *
      * @return a reference to this Buffer, for chaining
      */
-    public @NonNull RenderTarget clear() {
+    public @NonNull Buffer clear() {
         for (int y = 0; y < rect.height(); y++) {
             for (int x = 0; x < rect.width(); x++) {
                 clearAt_(x, y);
@@ -626,7 +592,7 @@ public class Buffer implements Printable, RenderTarget {
      *
      * @return a reference to this Buffer, for chaining
      */
-    public @NonNull RenderTarget clear(int fromX, int fromY, int toX, int toY) {
+    public @NonNull Buffer clear(int fromX, int fromY, int toX, int toY) {
         for (int x = fromX; x < rect.width(); x++) {
             // Using clearAt instead of clearAt_ to handle wide character overlap
             clearAt(x, fromY);
@@ -652,7 +618,7 @@ public class Buffer implements Printable, RenderTarget {
      * @param newSize the new size of the buffer
      * @return a reference to this Buffer, for chaining
      */
-    public @NonNull RenderTarget resize(@NonNull Size newSize) {
+    public @NonNull Buffer resize(@NonNull Size newSize) {
         buffers = buffers.resize(newSize);
         rect = Rect.of(newSize);
         return this;
@@ -671,7 +637,7 @@ public class Buffer implements Printable, RenderTarget {
      * @param targetY the y-coordinate on the target buffer
      * @return a reference to this Buffer, for chaining
      */
-    public @NonNull RenderTarget overlayOn(@NonNull Buffer targetBuffer, int targetX, int targetY) {
+    public @NonNull Buffer overlayOn(@NonNull Buffer targetBuffer, int targetX, int targetY) {
         buffers.copyTo(targetBuffer.buffers, rect, targetX, targetY, "\0");
         return this;
     }
@@ -690,7 +656,7 @@ public class Buffer implements Printable, RenderTarget {
      * @param transparantCharacters the characters to be treated as transparent
      * @return a reference to this Buffer, for chaining
      */
-    public @NonNull RenderTarget overlayOn(
+    public @NonNull Buffer overlayOn(
             @NonNull Buffer targetBuffer, int targetX, int targetY, String transparantCharacters) {
         buffers.copyTo(targetBuffer.buffers, rect, targetX, targetY, transparantCharacters);
         return this;
@@ -712,7 +678,7 @@ public class Buffer implements Printable, RenderTarget {
      * @param transparantCharacters the characters to be treated as transparent
      * @return a reference to this Buffer, for chaining
      */
-    public @NonNull RenderTarget overlayOn(
+    public @NonNull Buffer overlayOn(
             @NonNull Buffer targetBuffer,
             Rect sourceRect,
             int targetX,

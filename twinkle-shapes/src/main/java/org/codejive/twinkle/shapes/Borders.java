@@ -3,6 +3,8 @@ package org.codejive.twinkle.shapes;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.ansi.util.Printable;
 import org.codejive.twinkle.shapes.util.Draw;
+import org.codejive.twinkle.text.Buffer;
+import org.codejive.twinkle.text.Buffer.StylePrintOption;
 import org.codejive.twinkle.text.RenderTarget;
 import org.jspecify.annotations.NonNull;
 
@@ -156,38 +158,39 @@ public class Borders implements Printable {
     }
 
     public void render(RenderTarget target) {
-        target.putAt(0, 0, style, corner(cornerStyle.topLeftChar, leftLineStyle, topLineStyle));
-        Draw.lineH(target, 1, 0, target.size().width() - 1, style, topLineStyle.horizontalChar);
+        StylePrintOption styleOpt = Buffer.styleOpt(style);
+        target.putAt(0, 0, corner(cornerStyle.topLeftChar, leftLineStyle, topLineStyle), styleOpt);
+        Draw.lineH(target, 1, 0, target.size().width() - 1, topLineStyle.horizontalChar, styleOpt);
         target.putAt(
                 target.size().width() - 1,
                 0,
-                style,
-                corner(cornerStyle.topRightChar, rightLineStyle, topLineStyle));
-        Draw.lineV(target, 0, 1, target.size().height() - 1, style, leftLineStyle.verticalChar);
+                corner(cornerStyle.topRightChar, rightLineStyle, topLineStyle),
+                styleOpt);
+        Draw.lineV(target, 0, 1, target.size().height() - 1, leftLineStyle.verticalChar, styleOpt);
         target.putAt(
                 0,
                 target.size().height() - 1,
-                style,
-                corner(cornerStyle.bottomLeftChar, leftLineStyle, bottomLineStyle));
+                corner(cornerStyle.bottomLeftChar, leftLineStyle, bottomLineStyle),
+                styleOpt);
         Draw.lineH(
                 target,
                 1,
                 target.size().height() - 1,
                 target.size().width() - 1,
-                style,
-                bottomLineStyle.horizontalChar);
+                bottomLineStyle.horizontalChar,
+                styleOpt);
         target.putAt(
                 target.size().width() - 1,
                 target.size().height() - 1,
-                style,
-                corner(cornerStyle.bottomRightChar, rightLineStyle, bottomLineStyle));
+                corner(cornerStyle.bottomRightChar, rightLineStyle, bottomLineStyle),
+                styleOpt);
         Draw.lineV(
                 target,
                 target.size().width() - 1,
                 1,
                 target.size().height() - 1,
-                style,
-                rightLineStyle.verticalChar);
+                rightLineStyle.verticalChar,
+                styleOpt);
     }
 
     @Override
