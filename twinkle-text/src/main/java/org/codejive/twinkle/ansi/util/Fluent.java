@@ -197,6 +197,15 @@ public class Fluent {
     }
 
     /**
+     * Appends a linefeed (newline)
+     *
+     * @return this Fluent instance for chaining
+     */
+    public Fluent lf() {
+        return append("\n");
+    }
+
+    /**
      * Writes a hyperlink with the given URL and link text. This is the equivalent of calling {@code
      * url(url).text(text).lru()}.
      *
@@ -531,6 +540,15 @@ public class Fluent {
      */
     public BackgroundColors background() {
         return backgroundColors;
+    }
+
+    /**
+     * Positions the cursor at the home position (top-left corner, coordinates 0,0).
+     *
+     * @return this Fluent instance for chaining
+     */
+    public Fluent home() {
+        return append(Ansi.cursorHome());
     }
 
     /**
