@@ -1,4 +1,4 @@
-package org.codejive.twinkle.ansi.util;
+package org.codejive.twinkle.ansi.mouse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.codejive.twinkle.ansi.Constants.*;

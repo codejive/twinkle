@@ -1,4 +1,4 @@
-package org.codejive.twinkle.ansi.util;
+package org.codejive.twinkle.ansi.mouse;
 
 /**
  * Interface for handling mouse events decoded from ANSI escape sequences. Implementations can be
