@@ -228,7 +228,7 @@ public class Fluent {
      * @return this Fluent instance for chaining
      */
     public Fluent url(String url) {
-        return append(Ansi.linkStart(url));
+        return append(Ansi.link(url));
     }
 
     /**
@@ -240,7 +240,7 @@ public class Fluent {
      * @return this Fluent instance for chaining
      */
     public Fluent url(String url, String id) {
-        return append(Ansi.linkStart(url, id));
+        return append(Ansi.link(url, id));
     }
 
     /**

@@ -279,6 +279,107 @@ public class TestBuffer {
         assertThat(buffer.toString()).isEqualTo("ornewnal  \n          ");
     }
 
+    @Test
+    public void testPutAtWithHyperlink() {
+        Buffer buffer = Buffer.of(4, 1);
+        buffer.putAt(0, 0, 'a', Buffer.linkOpt("https://example.com"));
+        buffer.putAt(1, 0, 'b', Buffer.linkOpt("https://example.com"));
+        buffer.putAt(2, 0, 'c');
+        assertThat(buffer.toAnsi(Style.DEFAULT))
+                .isEqualTo(Ansi.link("https://example.com") + "ab" + Ansi.linkEnd() + "c ");
+    }
+
+    @Test
+    public void testPutAtWithHyperlinkAndId() {
+        Buffer buffer = Buffer.of(4, 1);
+        buffer.putAt(0, 0, 'a', Buffer.linkOpt("https://example.com", "myid"));
+        buffer.putAt(1, 0, 'b', Buffer.linkOpt("https://example.com", "myid"));
+        assertThat(buffer.toAnsi(Style.DEFAULT))
+                .isEqualTo(Ansi.link("https://example.com", "myid") + "ab" + Ansi.linkEnd() + "  ");
+    }
+
+    @Test
+    public void testPrintAtWithHyperlink() {
+        Buffer buffer = Buffer.of(16, 1);
+        String linkStart = Ansi.link("https://example.com");
+        buffer.printAt(0, 0, linkStart + "link text" + Ansi.linkEnd() + "normal");
+        assertThat(buffer.toAnsi(Style.DEFAULT))
+                .isEqualTo(linkStart + "link text" + Ansi.linkEnd() + "normal ");
+    }
+
+    @Test
+    public void testMultipleHyperlinksInBuffer() {
+        Buffer buffer = Buffer.of(14, 1);
+        String link1Start = Ansi.link("https://first.com");
+        String linkEnd = Ansi.linkEnd();
+        String link2Start = Ansi.link("https://second.com");
+
+        buffer.printAt(
+                0, 0, link1Start + "first" + linkEnd + " " + link2Start + "second" + linkEnd);
+
+        assertThat(buffer.toAnsi(Style.DEFAULT))
+                .isEqualTo(
+                        link1Start
+                                + "first"
+                                + linkEnd
+                                + " "
+                                + link2Start
+                                + "second"
+                                + linkEnd
+                                + "  ");
+    }
+
+    @Test
+    public void testHyperlinkWithStyle() {
+        Buffer buffer = Buffer.of(8, 1);
+        String linkStart = Ansi.link("https://example.com");
+        Color red = Color.BasicColor.RED;
+        String redStyle = red.toAnsiFg();
+
+        buffer.printAt(0, 0, linkStart + redStyle + "styled" + Ansi.linkEnd());
+
+        assertThat(buffer.toAnsi(Style.DEFAULT))
+                .isEqualTo(
+                        redStyle
+                                + linkStart
+                                + "styled"
+                                + Ansi.STYLE_DEFAULT_FOREGROUND
+                                + Ansi.linkEnd()
+                                + "  ");
+    }
+
+    @Test
+    public void testHyperlinkOverwrite() {
+        Buffer buffer = Buffer.of(10, 1);
+        // First write with link
+        buffer.putAt(0, 0, 'a', Buffer.linkOpt("https://first.com"));
+        buffer.putAt(1, 0, 'b', Buffer.linkOpt("https://first.com"));
+
+        // Overwrite with different link
+        buffer.putAt(0, 0, 'x', Buffer.linkOpt("https://second.com"));
+
+        String ansi = buffer.toAnsi(Style.DEFAULT);
+        // First character should have second link, second character should have first link
+        assertThat(ansi).contains("https://second.com");
+        assertThat(ansi).contains("https://first.com");
+        assertThat(ansi).startsWith(Constants.OSC + "8;;https://second.com");
+    }
+
+    @Test
+    public void testClearRemovesHyperlink() {
+        Buffer buffer = Buffer.of(5, 1);
+        buffer.putAt(0, 0, 'a', Buffer.linkOpt("https://example.com"));
+        buffer.putAt(1, 0, 'b', Buffer.linkOpt("https://example.com"));
+
+        buffer.clearAt(0, 0);
+
+        String ansi = buffer.toAnsi(Style.DEFAULT);
+        // Only the second character should still have the link
+        assertThat(ansi).contains("https://example.com");
+        // But not at the start (since first char was cleared)
+        assertThat(ansi).startsWith(" ");
+    }
+
     private Buffer createBuffer() {
         Buffer buffer = Buffer.of(5, 5);
         Size size = buffer.size();

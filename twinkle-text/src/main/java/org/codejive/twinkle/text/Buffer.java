@@ -1,11 +1,13 @@
 package org.codejive.twinkle.text;
 
 import java.io.IOException;
+import java.util.Objects;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.ansi.util.Printable;
 import org.codejive.twinkle.text.io.BufferWriter;
 import org.codejive.twinkle.text.io.PrintBufferWriter;
+import org.codejive.twinkle.text.util.Hyperlink;
 import org.codejive.twinkle.text.util.Rect;
 import org.codejive.twinkle.text.util.Size;
 import org.codejive.twinkle.text.util.StyledIterator;
@@ -43,19 +45,26 @@ public class Buffer implements Printable, RenderTarget {
         public final int[][] cpBuffer;
         public final String[][] graphemeBuffer;
         public final long[][] styleBuffer;
+        public final Hyperlink[][] linkBuffer;
         public final @NonNull Size size;
 
         public InternalBuffers(@NonNull Size size) {
             this(
                     new int[size.height()][size.width()],
                     new String[size.height()][size.width()],
-                    new long[size.height()][size.width()]);
+                    new long[size.height()][size.width()],
+                    new Hyperlink[size.height()][size.width()]);
         }
 
-        public InternalBuffers(int[][] cpBuffer, String[][] graphemeBuffer, long[][] styleBuffer) {
+        public InternalBuffers(
+                int[][] cpBuffer,
+                String[][] graphemeBuffer,
+                long[][] styleBuffer,
+                Hyperlink[][] linkBuffer) {
             this.cpBuffer = cpBuffer;
             this.graphemeBuffer = graphemeBuffer;
             this.styleBuffer = styleBuffer;
+            this.linkBuffer = linkBuffer;
             this.size = Size.of(styleBuffer[0].length, styleBuffer.length);
         }
 
@@ -149,6 +158,12 @@ public class Buffer implements Printable, RenderTarget {
                         targetBuffers.styleBuffer[targetYPos],
                         targetX,
                         copyWidth);
+                System.arraycopy(
+                        linkBuffer[sourceY],
+                        sourceLeft,
+                        targetBuffers.linkBuffer[targetYPos],
+                        targetX,
+                        copyWidth);
             }
         }
 
@@ -177,6 +192,8 @@ public class Buffer implements Printable, RenderTarget {
                                 graphemeBuffer[sourceY][sourceX];
                         targetBuffers.styleBuffer[targetYPos][targetXPos] =
                                 styleBuffer[sourceY][sourceX];
+                        targetBuffers.linkBuffer[targetYPos][targetXPos] =
+                                linkBuffer[sourceY][sourceX];
                     }
                 }
             }
@@ -192,9 +209,11 @@ public class Buffer implements Printable, RenderTarget {
             int[][] newCpBuffer = new int[newHeight][newWidth];
             String[][] newGraphemeBuffer = new String[newHeight][newWidth];
             long[][] newStyleBuffer = new long[newHeight][newWidth];
+            Hyperlink[][] newLinkBuffer = new Hyperlink[newHeight][newWidth];
 
             InternalBuffers newBuffers =
-                    new InternalBuffers(newCpBuffer, newGraphemeBuffer, newStyleBuffer);
+                    new InternalBuffers(
+                            newCpBuffer, newGraphemeBuffer, newStyleBuffer, newLinkBuffer);
             copyTo(newBuffers, Rect.of(newWidth, newHeight), 0, 0, null);
 
             return newBuffers;
@@ -354,7 +373,8 @@ public class Buffer implements Printable, RenderTarget {
             c = REPLACEMENT_CHAR;
         }
         Style style = opt(options, StylePrintOption.class, StylePrintOption.UNSTYLED).style();
-        setCharAt_(x, y, style.state(), c, null);
+        Hyperlink link = opt(options, LinkPrintOption.class, LinkPrintOption.NONE).hyperlink();
+        setCharAt_(x, y, style.state(), c, null, link);
     }
 
     @Override
@@ -363,7 +383,8 @@ public class Buffer implements Printable, RenderTarget {
             return;
         }
         Style style = opt(options, StylePrintOption.class, StylePrintOption.UNSTYLED).style();
-        setCharAt_(x, y, style.state(), cp, null);
+        Hyperlink link = opt(options, LinkPrintOption.class, LinkPrintOption.NONE).hyperlink();
+        setCharAt_(x, y, style.state(), cp, null, link);
     }
 
     @Override
@@ -375,7 +396,8 @@ public class Buffer implements Printable, RenderTarget {
             return;
         }
         Style style = opt(options, StylePrintOption.class, StylePrintOption.UNSTYLED).style();
-        setCharAt_(x, y, style.state(), -1, grapheme.toString());
+        Hyperlink link = opt(options, LinkPrintOption.class, LinkPrintOption.NONE).hyperlink();
+        setCharAt_(x, y, style.state(), -1, grapheme.toString(), link);
     }
 
     public enum SimplePrintOption implements PrintOption {
@@ -397,8 +419,46 @@ public class Buffer implements Printable, RenderTarget {
         }
     }
 
-    public static StylePrintOption styleOpt(Style style) {
+    public static @NonNull StylePrintOption styleOpt(Style style) {
         return new StylePrintOption(style);
+    }
+
+    public static class LinkPrintOption implements PrintOption {
+        private final Hyperlink hyperlink;
+
+        public static final LinkPrintOption NONE = new LinkPrintOption(null);
+
+        public LinkPrintOption(@NonNull String url, String id) {
+            this.hyperlink = Hyperlink.of(url, id);
+        }
+
+        public LinkPrintOption(Hyperlink hyperlink) {
+            this.hyperlink = hyperlink;
+        }
+
+        public String url() {
+            return hyperlink != null ? hyperlink.url : null;
+        }
+
+        public String id() {
+            return hyperlink != null ? hyperlink.id : null;
+        }
+
+        public Hyperlink hyperlink() {
+            return hyperlink;
+        }
+    }
+
+    public static @NonNull LinkPrintOption linkOpt(@NonNull String url) {
+        return new LinkPrintOption(url, null);
+    }
+
+    public static @NonNull LinkPrintOption linkOpt(@NonNull String url, String id) {
+        return new LinkPrintOption(url, id);
+    }
+
+    public static @NonNull LinkPrintOption linkOpt(@NonNull Hyperlink hyperlink) {
+        return new LinkPrintOption(hyperlink);
     }
 
     public static class TransparencyPrintOption implements PrintOption {
@@ -460,15 +520,16 @@ public class Buffer implements Printable, RenderTarget {
                 continue;
             }
             Style style = iter.style();
+            Hyperlink link = iter.link();
             int width = iter.width();
             if (curX <= rect.right()) {
                 if (iter.isComplex()) {
-                    setCharAt_(curX, curY, style.state(), -1, iter.sequence());
+                    setCharAt_(curX, curY, style.state(), -1, iter.sequence(), link);
                 } else {
                     if (transparency.indexOf(cp) >= 0) {
                         width = 1;
                     } else {
-                        setCharAt_(curX, curY, style.state(), cp, null);
+                        setCharAt_(curX, curY, style.state(), cp, null, link);
                     }
                 }
             }
@@ -507,7 +568,7 @@ public class Buffer implements Printable, RenderTarget {
         }
         boolean isWide = (isWideAt(x, y));
         // Set skip state to indicate cell is occupied by wide character from previous cell
-        setCellAt(x, y, -1, -1, null);
+        setCellAt(x, y, -1, -1, null, null);
         if (isWide) {
             // Clear the next cell's skip state if this cell contained a wide character
             clearAt(x + 1, y);
@@ -528,7 +589,7 @@ public class Buffer implements Printable, RenderTarget {
     }
 
     private void clearAt_(int x, int y) {
-        setCellAt(x, y, Style.F_UNSTYLED, '\0', null);
+        setCellAt(x, y, Style.F_UNSTYLED, '\0', null, null);
     }
 
     /**
@@ -550,14 +611,15 @@ public class Buffer implements Printable, RenderTarget {
         return isWide;
     }
 
-    private void setCharAt_(int x, int y, long styleState, int cp, String grapheme) {
+    private void setCharAt_(
+            int x, int y, long styleState, int cp, String grapheme, Hyperlink link) {
         // Handle wide character overlap to the left of this cell
         if (shouldSkipAt(x, y)) {
             // The previous cell contains a wide character that overlaps this cell
             clearAt(x - 1, y);
         }
 
-        setCellAt(x, y, styleState, cp, grapheme);
+        setCellAt(x, y, styleState, cp, grapheme, link);
 
         // Set a skip cell to the right if this is a wide character
         boolean isWide = (grapheme != null) ? Unicode.isWide(grapheme) : Unicode.isWide(cp);
@@ -566,10 +628,11 @@ public class Buffer implements Printable, RenderTarget {
         }
     }
 
-    private void setCellAt(int x, int y, long styleState, int cp, String grapheme) {
+    private void setCellAt(int x, int y, long styleState, int cp, String grapheme, Hyperlink link) {
         buffers.cpBuffer[y][x] = cp;
         buffers.graphemeBuffer[y][x] = grapheme;
         buffers.styleBuffer[y][x] = styleState;
+        buffers.linkBuffer[y][x] = link;
     }
 
     /**
@@ -704,7 +767,7 @@ public class Buffer implements Printable, RenderTarget {
 
     /**
      * Get a string representation of the content of the buffer within the specified rectangle. The
-     * output will contain only plain text without any style information.
+     * output will contain only plain text without any style information or links.
      *
      * @param rect the rectangle defining the area of the buffer to convert to a string
      * @return a string representation of the content within the specified rectangle
@@ -751,6 +814,7 @@ public class Buffer implements Printable, RenderTarget {
 
     public @NonNull Appendable toAnsi(
             @NonNull Rect rect, @NonNull Appendable appendable, @NonNull Style currentStyle) {
+        Hyperlink currentLink = null;
         if (currentStyle == Style.UNKNOWN) {
             currentStyle = Style.DEFAULT;
             appendStr(appendable, Ansi.STYLE_RESET);
@@ -765,6 +829,17 @@ public class Buffer implements Printable, RenderTarget {
                     Style style = Style.of(buffers.styleBuffer[y][x]);
                     style.toAnsi(appendable, currentStyle);
                     currentStyle = Style.of(buffers.styleBuffer[y][x]);
+                }
+                if (!Objects.equals(buffers.linkBuffer[y][x], currentLink)) {
+                    Hyperlink link = buffers.linkBuffer[y][x];
+                    if (currentLink != null) {
+                        // Emit the end of the current hyperlink
+                        Hyperlink.END.toAnsi(appendable);
+                    }
+                    if (link != null) {
+                        link.toAnsi(appendable);
+                    }
+                    currentLink = link;
                 }
                 if (x == limitedRect.right() && isWideAt(x, y)) {
                     // Don't attempt to render a wide character if it would overflow the right

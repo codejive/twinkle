@@ -5,8 +5,8 @@ import org.jspecify.annotations.NonNull;
 
 public interface Printable {
     /**
-     * Converts the object to an ANSI string, including ANSI escape codes for styles. This method
-     * resets the current style to default at the start of the string.
+     * Converts the object to an ANSI string, including ANSI escape codes for styles and links. This
+     * method resets the current style to default at the start of the string.
      *
      * @return The ANSI string representation of the object.
      */
@@ -15,8 +15,8 @@ public interface Printable {
     }
 
     /**
-     * Outputs the object as an ANSI string, including ANSI escape codes for styles. This method
-     * resets the current style to default at the start of the output.
+     * Outputs the object as an ANSI string, including ANSI escape codes for styles and links. This
+     * method resets the current style to default at the start of the output.
      *
      * @param appendable The <code>Appendable</code> to write the ANSI output to.
      * @return The <code>Appendable</code> passed as parameter.
@@ -26,9 +26,9 @@ public interface Printable {
     }
 
     /**
-     * Converts the object to an ANSI string, including ANSI escape codes for styles. This method
-     * takes into account the provided current style to generate a result that is as efficient as
-     * possible in terms of ANSI codes.
+     * Converts the object to an ANSI string, including ANSI escape codes for styles and links. This
+     * method takes into account the provided current style to generate a result that is as
+     * efficient as possible in terms of ANSI codes.
      *
      * @param currentStyle The current style to start with.
      * @return The ANSI string representation of the object.
@@ -38,9 +38,9 @@ public interface Printable {
     }
 
     /**
-     * Outputs the object as an ANSI string, including ANSI escape codes for styles. This method
-     * takes into account the provided current style to generate a result that is as efficient as
-     * possible in terms of ANSI codes.
+     * Outputs the object as an ANSI string, including ANSI escape codes for styles and links. This
+     * method takes into account the provided current style to generate a result that is as
+     * efficient as possible in terms of ANSI codes.
      *
      * @param appendable The <code>Appendable</code> to write the ANSI output to.
      * @param currentStyle The current style to start with.

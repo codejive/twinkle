@@ -12,6 +12,7 @@ import org.codejive.twinkle.ansi.Style;
 public class StyledIterator implements SequenceIterator {
     private final SequenceIterator delegate;
     private Style currentStyle;
+    private Hyperlink currentLink;
     private int nextCodePoint = -1;
     private boolean primed = false;
     private boolean exhausted = false;
@@ -89,13 +90,21 @@ public class StyledIterator implements SequenceIterator {
         return currentStyle;
     }
 
+    /** Returns the current hyperlink based on the ANSI escape sequences encountered so far. */
+    public Hyperlink link() {
+        return currentLink;
+    }
+
     private void primeNext() {
         while (delegate.hasNext()) {
             int cp = delegate.next();
             if (cp == Constants.ESC) {
                 String ansiSequence = delegate.sequence();
-                if (ansiSequence.startsWith(Constants.CSI) && ansiSequence.endsWith("m")) {
+                if (Style.isStyleSequence(ansiSequence)) {
                     currentStyle = currentStyle.apply(Style.parse(ansiSequence));
+                } else if (Hyperlink.isHyperlinkSequence(ansiSequence)) {
+                    Hyperlink link = Hyperlink.parse(ansiSequence);
+                    currentLink = link == Hyperlink.END ? null : link;
                 }
             } else {
                 nextCodePoint = cp;

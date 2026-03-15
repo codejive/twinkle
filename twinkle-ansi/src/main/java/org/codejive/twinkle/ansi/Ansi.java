@@ -282,16 +282,16 @@ public class Ansi {
         return CSI + (enabled ? LINE_WRAP_ON : LINE_WRAP_OFF);
     }
 
-    public static String linkStart(String url) {
-        return OSC + "8;;" + url + OSC_END;
+    public static String link(String url) {
+        return OSC + HYPERLINK + ";" + url + OSC_END;
     }
 
-    public static String linkStart(String url, String id) {
-        return OSC + "8;id=" + id + ";" + url + OSC_END;
+    public static String link(String url, String id) {
+        return OSC + HYPERLINK + "id=" + id + ";" + url + OSC_END;
     }
 
     public static String linkEnd() {
-        return OSC + "8;;" + OSC_END;
+        return OSC + HYPERLINK + ";" + OSC_END;
     }
 
     private Ansi() {}

@@ -2,6 +2,7 @@ package org.codejive.twinkle.text.io;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Color;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.text.Buffer;
@@ -288,5 +289,18 @@ public class TestBufferWriter {
         }
 
         assertThat(buffer.toString()).isEqualTo("       \n Test1 \n Test2 \n Test3 \n       ");
+    }
+
+    @Test
+    public void testHyperlinkWithBufferWriter() {
+        Buffer buffer = Buffer.of(12, 1);
+        String linkStart = Ansi.link("https://example.com");
+        String linkEnd = Ansi.linkEnd();
+        try (PrintBufferWriter writer = buffer.writer()) {
+            writer.write(linkStart + "click here" + linkEnd);
+        }
+
+        assertThat(buffer.toAnsi(Style.DEFAULT))
+                .isEqualTo(linkStart + "click here" + linkEnd + "  ");
     }
 }
