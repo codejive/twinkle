@@ -86,61 +86,65 @@ class BouncingTwinkleDemo {
             // Start input reading in background
             connection.openNonBlocking();
 
-            // Hide cursor and clear screen
-            Fluent.of(connection).hide().screen().clear().done();
+            try {
+                // Hide cursor and clear screen
+                Fluent.of(connection).screen().alternate().hide().screen().clear().done();
 
-            minX = 1;
-            minY = 1;
-            maxX = Math.max(minX, size.width() - textSize.width() - 1);
-            maxY = Math.max(minY, size.height() - textSize.height() - 1);
-            textX = Math.max(minX, Math.min((size.width() - textSize.width()) / 2, maxX));
-            textY = Math.max(minY, Math.min((size.height() - textSize.height()) / 2, maxY));
-            dx = 1;
-            dy = 1;
+                minX = 1;
+                minY = 1;
+                maxX = Math.max(minX, size.width() - textSize.width() - 1);
+                maxY = Math.max(minY, size.height() - textSize.height() - 1);
+                textX = Math.max(minX, Math.min((size.width() - textSize.width()) / 2, maxX));
+                textY = Math.max(minY, Math.min((size.height() - textSize.height()) / 2, maxY));
+                dx = 1;
+                dy = 1;
 
-            // Reusable buffer for frame rendering
-            Buffer buffer = Buffer.of(size);
-            PrintBufferWriter writer = buffer.writer();
-            buffers.primary(buffer);
+                // Reusable buffer for frame rendering
+                Buffer buffer = Buffer.of(size);
+                PrintBufferWriter writer = buffer.writer();
+                buffers.primary(buffer);
 
-            while (running) {
-                // Clear buffer for new frame
-                buffer.resize(size);
-                // buffer.clear();
+                while (running) {
+                    // Clear buffer for new frame
+                    buffer.resize(size);
+                    // buffer.clear();
 
-                bounce();
-                colorize();
+                    bounce();
+                    colorize();
 
-                Borders.ascii().style(Style.ofFgColor(Color.BasicColor.GREEN)).render(buffer);
+                    Borders.ascii().style(Style.ofFgColor(Color.BasicColor.GREEN)).render(buffer);
 
-                Fluent f = writer.fluent();
-                f.at(2, 0).green().text("[ ").white().text(size).green().text(" ]");
-                f.at(size.width() / 2 - 3, 0)
-                        .green()
-                        .text("[ ")
-                        .blue()
-                        .underline()
-                        .link("Twinkle", "https://github.com/codejive/twinkle")
-                        .not()
-                        .underline()
-                        .green()
-                        .text(" ]");
-                f.at(size.width() - 12, 0)
-                        .green()
-                        .text("[ ")
-                        .white()
-                        .text("fps %s", Math.round(fps.average()))
-                        .green()
-                        .text(" ]");
-                f.at(textX, textY).color(textColor).text(text).done();
+                    Fluent f = writer.fluent();
+                    f.at(2, 0).green().text("[ ").white().text(size).green().text(" ]");
+                    f.at(size.width() / 2 - 3, 0)
+                            .green()
+                            .text("[ ")
+                            .blue()
+                            .underline()
+                            .link("Twinkle", "https://github.com/codejive/twinkle")
+                            .not()
+                            .underline()
+                            .green()
+                            .text(" ]");
+                    f.at(size.width() - 12, 0)
+                            .green()
+                            .text("[ ")
+                            .white()
+                            .text("fps %s", Math.round(fps.average()))
+                            .green()
+                            .text(" ]");
+                    f.at(textX, textY).color(textColor).text(text).done();
 
-                // Write entire frame buffer to connection in one call
-                connection.write(Ansi.cursorHome() + buffers.toAnsi());
+                    // Write entire frame buffer to connection in one call
+                    connection.write(Ansi.cursorHome() + buffers.toAnsi());
 
-                fps.update();
-                Thread.sleep(50);
+                    fps.update();
+                    Thread.sleep(50);
+                }
+            } finally {
+                // Show cursor and clear screen on exit
+                Fluent.of(connection).screen().restore().show().reset().text("\nGoodbye!\n").done();
             }
-            Fluent.of(connection).show().reset().text("\nGoodbye!\n").done();
         }
     }
 
