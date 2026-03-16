@@ -18,9 +18,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.aesh</groupId>
-            <artifactId>terminal-tty</artifactId>
-            <version>3.4-dev</version>
+            <groupId>org.codejive.twinkle</groupId>
+            <artifactId>twinkle-terminal-jline</artifactId>
+            <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

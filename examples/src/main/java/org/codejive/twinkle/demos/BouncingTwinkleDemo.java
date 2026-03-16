@@ -1,7 +1,7 @@
 /// usr/bin/env jbang "$0" "$@" ; exit $?
 
 // spotless:off
-//DEPS org.aesh:terminal-tty:3.4-dev
+//DEPS org.codejive.twinkle:twinkle-terminal-jline:1.0-SNAPSHOT
 //DEPS org.codejive.twinkle:twinkle-shapes:1.0-SNAPSHOT
 //DEPS com.github.lalyos:jfiglet:0.0.9
 // spotless:on
@@ -9,9 +9,9 @@
 package org.codejive.twinkle.demos;
 
 import com.github.lalyos.jfiglet.FigletFont;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.concurrent.ThreadLocalRandom;
-import org.aesh.terminal.tty.Signal;
-import org.aesh.terminal.tty.TerminalConnection;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Color;
 import org.codejive.twinkle.ansi.Style;
@@ -22,17 +22,20 @@ import org.codejive.twinkle.screen.BufferStack;
 import org.codejive.twinkle.screen.io.PrintBufferWriter;
 import org.codejive.twinkle.screen.util.FrameCounter;
 import org.codejive.twinkle.shapes.Borders;
+import org.codejive.twinkle.terminal.Terminal;
 import org.codejive.twinkle.text.Size;
 import org.codejive.twinkle.text.Sizer;
 
 class BouncingTwinkleDemo {
 
     private static final BufferStack buffers = BufferStack.create();
-    private static final Buffer helpBuffer = initHelp();
-    private static volatile boolean running = true;
+    private static final Buffer helpBuffer = Buffer.of(30, 10);
     private static volatile Size size;
     private static volatile Size textSize;
     private static volatile int minX, minY, maxX, maxY, textX, textY, dx, dy;
+    private static volatile long currentSleep = 50;
+    private static volatile Borders.LineStyle lineStyle = Borders.LineStyle.ASCII;
+    private static volatile Borders.CornerStyle cornerStyle = Borders.CornerStyle.ASCII;
     private static final FrameCounter fps = new FrameCounter();
 
     private static final Color.BasicColor[] textPalette = {
@@ -52,43 +55,18 @@ class BouncingTwinkleDemo {
     private static Color.BasicColor textColor = textPalette[0];
 
     public static void main(String[] args) throws Exception {
-        try (TerminalConnection connection = new TerminalConnection()) {
-            connection.enterRawMode();
-            size = Size.of(connection.size().getWidth(), connection.size().getHeight());
+        try (Terminal terminal = Terminal.getDefault()) {
+            // terminal.enterRawMode();
+            size = terminal.size();
 
             String text = AnsiTricks.blockify(Sizer.trim(FigletFont.convertOneLine("TWINKLE")));
             textSize = Sizer.measure(text);
 
-            // Handle Ctrl+C
-            connection.setSignalHandler(
-                    signal -> {
-                        if (signal == Signal.INT) {
-                            running = false;
-                        }
-                    });
-
-            // Handle any key press to exit
-            connection.setStdinHandler(
-                    input -> {
-                        if (input != null) {
-                            for (int ch : input) {
-                                if (ch == 'q') { // Ctrl+C
-                                    running = false;
-                                } else if (ch == 'h') {
-                                    toggleHelp();
-                                }
-                            }
-                        }
-                    });
-
-            connection.setSizeHandler(BouncingTwinkleDemo::handleResize);
-
-            // Start input reading in background
-            connection.openNonBlocking();
+            terminal.onResize(BouncingTwinkleDemo::handleResize);
 
             try {
                 // Hide cursor and clear screen
-                Fluent.of(connection).screen().alternate().hide().screen().clear().done();
+                Fluent.of(terminal.writer()).screen().alternate().hide().screen().clear().done();
 
                 minX = 1;
                 minY = 1;
@@ -104,7 +82,8 @@ class BouncingTwinkleDemo {
                 PrintBufferWriter writer = buffer.writer();
                 buffers.primary(buffer);
 
-                while (running) {
+                Reader reader = terminal.reader();
+                while (true) {
                     // Clear buffer for new frame
                     buffer.resize(size);
                     // buffer.clear();
@@ -112,7 +91,8 @@ class BouncingTwinkleDemo {
                     bounce();
                     colorize();
 
-                    Borders.ascii().style(Style.ofFgColor(Color.BasicColor.GREEN)).render(buffer);
+                    Borders b = new Borders().lineStyle(lineStyle).cornerStyle(cornerStyle);
+                    b.render(buffer);
 
                     Fluent f = writer.fluent();
                     f.at(2, 0).green().text("[ ").white().text(size).green().text(" ]");
@@ -136,22 +116,82 @@ class BouncingTwinkleDemo {
                     f.at(textX, textY).color(textColor).text(text).done();
 
                     // Write entire frame buffer to connection in one call
-                    connection.write(Ansi.cursorHome() + buffers.toAnsi());
+                    terminal.writer().write(Ansi.cursorHome() + buffers.toAnsi());
 
                     fps.update();
-                    Thread.sleep(50);
+                    Thread.sleep(currentSleep);
+
+                    if (handleKeys(reader, f) == -1) break;
                 }
             } finally {
                 // Show cursor and clear screen on exit
-                Fluent.of(connection).screen().restore().show().reset().text("\nGoodbye!\n").done();
+                Fluent.of(terminal.writer())
+                        .screen()
+                        .restore()
+                        .show()
+                        .reset()
+                        .text("\nGoodbye!\n")
+                        .done();
             }
         }
     }
 
-    private static Buffer initHelp() {
-        Buffer buffer = Buffer.of(30, 10);
+    private static int handleKeys(Reader reader, Fluent f) throws IOException {
+        int ch = reader.ready() ? reader.read() : -1;
+        while (ch >= 0) {
+            f.text("Key = " + (char) ch);
+            if (ch == 'q' || ch == 'Q') {
+                return -1;
+            } else if (ch == 'h' || ch == 'H') {
+                toggleHelp();
+            } else if (ch == 'b' || ch == 'B') {
+                // Cycle border styles
+                lineStyle =
+                        cycle(
+                                lineStyle,
+                                new Borders.LineStyle[] {
+                                    Borders.LineStyle.ASCII,
+                                    Borders.LineStyle.SINGLE,
+                                    Borders.LineStyle.DOUBLE
+                                });
+                cornerStyle =
+                        cycle(
+                                cornerStyle,
+                                new Borders.CornerStyle[] {
+                                    Borders.CornerStyle.ASCII,
+                                    Borders.CornerStyle.ROUND,
+                                    Borders.CornerStyle.SQUARE
+                                });
+            } else if (ch == 's' || ch == 'S') {
+                // Cycle speeds: 0ms, 1ms, 10ms, 50ms, 100ms
+                long nextSleep = cycle(currentSleep, new Long[] {0L, 1L, 10L, 50L, 100L});
+                currentSleep = nextSleep;
+            }
+            ch = reader.ready() ? reader.read() : -1;
+        }
+        return 0;
+    }
+
+    private static <T> T cycle(T current, T[] values) {
+        int idx = 0;
+        for (int i = 0; i < values.length; i++) {
+            if (values[i].equals(current)) {
+                idx = i;
+                break;
+            }
+        }
+        return values[(idx + 1) % values.length];
+    }
+
+    private static Buffer drawHelp() {
+        Buffer buffer = helpBuffer;
         PrintBufferWriter writer = buffer.writer();
-        Borders.ascii().style(Style.ofFgColor(Color.BasicColor.BRIGHT_MAGENTA)).render(buffer);
+        Borders b =
+                new Borders()
+                        .lineStyle(lineStyle)
+                        .cornerStyle(cornerStyle)
+                        .style(Style.ofFgColor(Color.BasicColor.BRIGHT_MAGENTA));
+        b.render(buffer);
         writer.fluent().at(2, 0).text("[ ").white().text("Help Page").restore().text(" ]").done();
         Fluent help =
                 Fluent.string()
@@ -180,12 +220,14 @@ class BouncingTwinkleDemo {
         } else {
             helpElement.visible = !helpElement.visible;
         }
+        if (helpElement.visible) {
+            drawHelp();
+        }
     }
 
-    private static void handleResize(org.aesh.terminal.tty.Size newSize) {
-        size = Size.of(newSize.getWidth(), newSize.getHeight());
-        maxX = Math.max(minX, size.width() - textSize.width() - 1);
-        maxY = Math.max(minY, size.height() - textSize.height() - 1);
+    private static void handleResize(Size newSize) {
+        maxX = Math.max(minX, newSize.width() - textSize.width() - 1);
+        maxY = Math.max(minY, newSize.height() - textSize.height() - 1);
     }
 
     private static void bounce() {
