@@ -3,6 +3,7 @@ package org.codejive.twinkle.text;
 import java.io.Reader;
 import java.util.NoSuchElementException;
 import org.codejive.twinkle.ansi.Constants;
+import org.codejive.twinkle.ansi.Hyperlink;
 import org.codejive.twinkle.ansi.Style;
 
 /**

@@ -3,6 +3,7 @@ package org.codejive.twinkle.ansi;
 import java.util.ArrayList;
 import java.util.List;
 import org.codejive.twinkle.ansi.util.Printable;
+import org.codejive.twinkle.ansi.util.StyleBuilder;
 import org.jspecify.annotations.NonNull;
 
 public class Style implements Printable {
@@ -480,7 +481,8 @@ public class Style implements Printable {
     }
 
     public static boolean isStyleSequence(@NonNull String ansiSequence) {
-        return ansiSequence.startsWith(Constants.CSI) && ansiSequence.endsWith("m");
+        return ansiSequence.startsWith(Constants.CSI)
+                && ansiSequence.endsWith("" + Constants.STYLE_CMD);
     }
 
     public static Style parse(@NonNull String ansiSequence) {
@@ -734,7 +736,7 @@ public class Style implements Printable {
                 && (!currentStyle.affectsBgColor() || !bgColor().equals(currentStyle.bgColor()))) {
             styles.add(bgColor().toAnsiBgArgs());
         }
-        return Ansi.styles(appendable, styles.toArray());
+        return StyleBuilder.styles(appendable, styles.toArray());
     }
 
     private boolean shouldApply(Style otherStyle, long flag) {

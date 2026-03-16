@@ -68,12 +68,12 @@ public class MouseDecoder {
         }
 
         // Check for SGR format: ESC[<...M or ESC[<...m
-        if (sequence.startsWith("\u001B[<")) {
+        if (sequence.startsWith(CSI + MOUSE_SGR_CMD)) {
             return decodeSgr(sequence);
         }
 
         // Check for X10 format: ESC[M followed by exactly 3 bytes
-        if (sequence.startsWith("\u001B[M") && sequence.length() == 6) {
+        if (sequence.startsWith(CSI + MOUSE_X10_CMD) && sequence.length() == 6) {
             return decodeX10(sequence);
         }
 

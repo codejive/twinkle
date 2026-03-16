@@ -3,6 +3,7 @@ package org.codejive.twinkle.ansi;
 import static org.codejive.twinkle.ansi.Constants.*;
 
 import java.util.Objects;
+import org.codejive.twinkle.ansi.util.StyleBuilder;
 
 public interface Color {
 
@@ -40,7 +41,7 @@ public interface Color {
      * @return ANSI CSI escape code string
      */
     default String toAnsiFg() {
-        return Ansi.styles(toAnsiFgArgs());
+        return StyleBuilder.styles(toAnsiFgArgs());
     }
 
     /**
@@ -59,7 +60,7 @@ public interface Color {
      * @return ANSI CSI escape code string
      */
     default String toAnsiBg() {
-        return Ansi.styles(toAnsiBgArgs());
+        return StyleBuilder.styles(toAnsiBgArgs());
     }
 
     class DefaultColor implements Color {
@@ -239,11 +240,11 @@ public interface Color {
         private static String fgAnsi(int index, Intensity intensity) {
             switch (intensity) {
                 case normal:
-                    return Ansi.foregroundArg(index);
+                    return foregroundArg(index);
                 case dark:
-                    return Ansi.foregroundDarkArg(index);
+                    return foregroundDarkArg(index);
                 case bright:
-                    return Ansi.foregroundBrightArg(index);
+                    return foregroundBrightArg(index);
                 default:
                     throw new IllegalArgumentException("Unknown mode: " + intensity);
             }
@@ -252,11 +253,11 @@ public interface Color {
         private static String bgAnsi(int index, Intensity intensity) {
             switch (intensity) {
                 case normal:
-                    return Ansi.backgroundArg(index);
+                    return backgroundArg(index);
                 case dark:
-                    return Ansi.backgroundDarkArg(index);
+                    return backgroundDarkArg(index);
                 case bright:
-                    return Ansi.backgroundBrightArg(index);
+                    return backgroundBrightArg(index);
                 default:
                     throw new IllegalArgumentException("Unknown mode: " + intensity);
             }
@@ -286,6 +287,30 @@ public interface Color {
                 default:
                     throw new IllegalArgumentException("Unknown mode: " + intensity);
             }
+        }
+
+        static String foregroundArg(int index) {
+            return String.valueOf(FOREGROUND_BASE + index);
+        }
+
+        static String foregroundDarkArg(int index) {
+            return String.valueOf(FOREGROUND_DARK_BASE + index);
+        }
+
+        static String foregroundBrightArg(int index) {
+            return String.valueOf(FOREGROUND_BRIGHT_BASE + index);
+        }
+
+        static String backgroundArg(int index) {
+            return String.valueOf(BACKGROUND_BASE + index);
+        }
+
+        static String backgroundDarkArg(int index) {
+            return String.valueOf(BACKGROUND_DARK_BASE + index);
+        }
+
+        static String backgroundBrightArg(int index) {
+            return String.valueOf(BACKGROUND_BRIGHT_BASE + index);
         }
     }
 
@@ -323,11 +348,11 @@ public interface Color {
         }
 
         private static String fgAnsi(int index) {
-            return Ansi.foregroundIndexedArg(index);
+            return foregroundIndexedArg(index);
         }
 
         private static String bgAnsi(int index) {
-            return Ansi.backgroundIndexedArg(index);
+            return backgroundIndexedArg(index);
         }
 
         @Override
@@ -345,6 +370,14 @@ public interface Color {
         @Override
         public String toString() {
             return "%" + index;
+        }
+
+        static String foregroundIndexedArg(int index) {
+            return FOREGROUND_COLORS + ";" + COLORS_INDEXED + ";" + index;
+        }
+
+        static String backgroundIndexedArg(int index) {
+            return BACKGROUND_COLORS + ";" + COLORS_INDEXED + ";" + index;
         }
     }
 
@@ -392,11 +425,11 @@ public interface Color {
         }
 
         private static String fgAnsi(int r, int g, int b) {
-            return Ansi.foregroundRgbArg(r, g, b);
+            return foregroundRgbArg(r, g, b);
         }
 
         private static String bgAnsi(int r, int g, int b) {
-            return Ansi.backgroundRgbArg(r, g, b);
+            return backgroundRgbArg(r, g, b);
         }
 
         @Override
@@ -414,6 +447,14 @@ public interface Color {
         @Override
         public String toString() {
             return String.format("#%02x%02x%02x", r, g, b);
+        }
+
+        static String foregroundRgbArg(int r, int g, int b) {
+            return FOREGROUND_COLORS + ";" + COLORS_RGB + ";" + r + ";" + g + ";" + b;
+        }
+
+        static String backgroundRgbArg(int r, int g, int b) {
+            return BACKGROUND_COLORS + ";" + COLORS_RGB + ";" + r + ";" + g + ";" + b;
         }
     }
 }

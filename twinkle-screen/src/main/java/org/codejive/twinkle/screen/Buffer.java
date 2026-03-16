@@ -3,12 +3,12 @@ package org.codejive.twinkle.screen;
 import java.io.IOException;
 import java.util.Objects;
 import org.codejive.twinkle.ansi.Ansi;
+import org.codejive.twinkle.ansi.Hyperlink;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.ansi.util.Printable;
 import org.codejive.twinkle.screen.io.BufferWriter;
 import org.codejive.twinkle.screen.io.PrintBufferWriter;
 import org.codejive.twinkle.screen.util.Rect;
-import org.codejive.twinkle.text.Hyperlink;
 import org.codejive.twinkle.text.Size;
 import org.codejive.twinkle.text.StyledIterator;
 import org.codejive.twinkle.text.Unicode;
@@ -817,7 +817,7 @@ public class Buffer implements Printable, RenderTarget {
         Hyperlink currentLink = null;
         if (currentStyle == Style.UNKNOWN) {
             currentStyle = Style.DEFAULT;
-            appendStr(appendable, Ansi.STYLE_RESET);
+            appendStr(appendable, Ansi.reset());
         }
         Rect limitedRect = limitedRect(rect);
         for (int y = limitedRect.top(); y <= limitedRect.bottom(); y++) {

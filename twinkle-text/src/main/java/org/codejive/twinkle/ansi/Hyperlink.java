@@ -1,4 +1,4 @@
-package org.codejive.twinkle.text;
+package org.codejive.twinkle.ansi;
 
 import static org.codejive.twinkle.ansi.Constants.*;
 

@@ -16,13 +16,13 @@ import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Color;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.ansi.util.AnsiTricks;
-import org.codejive.twinkle.ansi.util.Fluent;
 import org.codejive.twinkle.screen.Buffer;
 import org.codejive.twinkle.screen.BufferStack;
 import org.codejive.twinkle.screen.io.PrintBufferWriter;
 import org.codejive.twinkle.screen.util.FrameCounter;
 import org.codejive.twinkle.shapes.Borders;
 import org.codejive.twinkle.terminal.Terminal;
+import org.codejive.twinkle.text.Fluent;
 import org.codejive.twinkle.text.Size;
 import org.codejive.twinkle.text.Sizer;
 
@@ -136,6 +136,16 @@ class BouncingTwinkleDemo {
         }
     }
 
+    private static Borders.LineStyle[] borders =
+            new Borders.LineStyle[] {
+                Borders.LineStyle.ASCII, Borders.LineStyle.SINGLE, Borders.LineStyle.DOUBLE
+            };
+
+    private static Borders.CornerStyle[] corners =
+            new Borders.CornerStyle[] {
+                Borders.CornerStyle.ASCII, Borders.CornerStyle.ROUND, Borders.CornerStyle.SQUARE
+            };
+
     private static int handleKeys(Reader reader, Fluent f) throws IOException {
         int ch = reader.ready() ? reader.read() : -1;
         while (ch >= 0) {
@@ -146,22 +156,8 @@ class BouncingTwinkleDemo {
                 toggleHelp();
             } else if (ch == 'b' || ch == 'B') {
                 // Cycle border styles
-                lineStyle =
-                        cycle(
-                                lineStyle,
-                                new Borders.LineStyle[] {
-                                    Borders.LineStyle.ASCII,
-                                    Borders.LineStyle.SINGLE,
-                                    Borders.LineStyle.DOUBLE
-                                });
-                cornerStyle =
-                        cycle(
-                                cornerStyle,
-                                new Borders.CornerStyle[] {
-                                    Borders.CornerStyle.ASCII,
-                                    Borders.CornerStyle.ROUND,
-                                    Borders.CornerStyle.SQUARE
-                                });
+                lineStyle = cycle(lineStyle, borders);
+                cornerStyle = cycle(cornerStyle, corners);
             } else if (ch == 's' || ch == 'S') {
                 // Cycle speeds: 0ms, 1ms, 10ms, 50ms, 100ms
                 long nextSleep = cycle(currentSleep, new Long[] {0L, 1L, 10L, 50L, 100L});

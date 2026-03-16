@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Color;
-import org.codejive.twinkle.ansi.Constants;
 import org.codejive.twinkle.ansi.Style;
+import org.codejive.twinkle.ansi.util.StyleBuilder;
 import org.codejive.twinkle.screen.Buffer;
 import org.codejive.twinkle.screen.io.PrintBufferWriter;
 import org.junit.jupiter.api.Test;
@@ -50,10 +50,10 @@ public class TestBuffer {
         }
         assertThat(buffer.toAnsi())
                 .isEqualTo(
-                        Ansi.STYLE_RESET
-                                + Ansi.styles(Constants.ITALICIZED)
+                        Ansi.reset()
+                                + Ansi.italic()
                                 + "abcde"
-                                + Ansi.styles(Constants.NOTITALICIZED, Constants.UNDERLINED)
+                                + StyleBuilder.compact(Ansi.italicOff(), Ansi.underlined())
                                 + "fghij");
     }
 
@@ -67,7 +67,7 @@ public class TestBuffer {
         assertThat(buffer.toAnsi(Style.DEFAULT.italic()))
                 .isEqualTo(
                         "abcde"
-                                + Ansi.styles(Constants.NOTITALICIZED, Constants.UNDERLINED)
+                                + StyleBuilder.compact(Ansi.italicOff(), Ansi.underlined())
                                 + "fghij");
     }
 
@@ -80,10 +80,10 @@ public class TestBuffer {
         }
         assertThat(buffer.toAnsi())
                 .isEqualTo(
-                        Ansi.STYLE_RESET
-                                + Ansi.styles(Constants.ITALICIZED)
+                        Ansi.reset()
+                                + Ansi.italic()
                                 + "fghij"
-                                + Ansi.styles(Constants.NOTITALICIZED, Constants.UNDERLINED)
+                                + StyleBuilder.compact(Ansi.italicOff(), Ansi.underlined())
                                 + "klmno");
     }
 
@@ -343,7 +343,7 @@ public class TestBuffer {
                         redStyle
                                 + linkStart
                                 + "styled"
-                                + Ansi.STYLE_DEFAULT_FOREGROUND
+                                + Ansi.defaultForeground()
                                 + Ansi.linkEnd()
                                 + "  ");
     }
@@ -362,7 +362,7 @@ public class TestBuffer {
         // First character should have second link, second character should have first link
         assertThat(ansi).contains("https://second.com");
         assertThat(ansi).contains("https://first.com");
-        assertThat(ansi).startsWith(Constants.OSC + "8;;https://second.com");
+        assertThat(ansi).startsWith(Ansi.link("https://second.com"));
     }
 
     @Test

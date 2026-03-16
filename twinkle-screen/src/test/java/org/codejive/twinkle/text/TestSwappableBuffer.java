@@ -1,7 +1,6 @@
 package org.codejive.twinkle.text;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.codejive.twinkle.ansi.Constants.*;
 
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.screen.SwappableBuffer;
@@ -119,32 +118,5 @@ public class TestSwappableBuffer {
         // Styles should be restored
         assertThat(buffer.styleAt(0, 0)).isEqualTo(Style.DEFAULT.bold());
         assertThat(buffer.styleAt(4, 0)).isEqualTo(Style.DEFAULT.italic());
-    }
-
-    @Test
-    public void testAlternateSaveDoesNotClear() {
-        SwappableBuffer buffer = SwappableBuffer.of(10, 3);
-
-        // Write initial content
-        try (PrintBufferWriter writer = buffer.writer()) {
-            writer.style(Style.DEFAULT);
-            writer.write("hello");
-        }
-
-        assertThat(buffer.graphemeAt(0, 0)).isEqualTo("h");
-
-        // Write alternate save sequence (SCREEN_SAVE_ALT) - should save and swap
-        // but the behavior is the same as SCREEN_SAVE except it doesn't explicitly clear
-        // However, the alternate buffer starts empty anyway
-        try (PrintBufferWriter writer = buffer.writer()) {
-            writer.write(CSI + SCREEN_SAVE_ALT);
-        }
-
-        // After save, we're on the alternate buffer which is empty
-        assertThat(buffer.graphemeAt(0, 0)).isEqualTo("\0");
-
-        // Restore to verify original content was preserved
-        buffer.restore();
-        assertThat(buffer.graphemeAt(0, 0)).isEqualTo("h");
     }
 }

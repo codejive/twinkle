@@ -3,138 +3,147 @@ package org.codejive.twinkle.ansi;
 import static org.assertj.core.api.Assertions.*;
 
 import org.codejive.twinkle.ansi.Color.*;
+import org.codejive.twinkle.ansi.util.StyleBuilder;
 import org.junit.jupiter.api.Test;
 
 public class TestColor {
 
     @Test
     public void testDefaultColorCodes() {
-        assertThat(Color.DEFAULT.toAnsiFg()).isEqualTo(Ansi.styles(Constants.DEFAULT_FOREGROUND));
-        assertThat(Color.DEFAULT.toAnsiBg()).isEqualTo(Ansi.styles(Constants.DEFAULT_BACKGROUND));
+        assertThat(Color.DEFAULT.toAnsiFg())
+                .isEqualTo(StyleBuilder.styles(Constants.DEFAULT_FOREGROUND));
+        assertThat(Color.DEFAULT.toAnsiBg())
+                .isEqualTo(StyleBuilder.styles(Constants.DEFAULT_BACKGROUND));
     }
 
     @Test
     public void testBasicColorCodes() {
         // Basic foreground colors
         assertThat(BasicColor.BLACK.toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundArg(Constants.BLACK)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundArg(Constants.BLACK)));
         assertThat(BasicColor.RED.toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundArg(Constants.RED)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundArg(Constants.RED)));
         assertThat(BasicColor.GREEN.toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundArg(Constants.GREEN)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundArg(Constants.GREEN)));
         assertThat(BasicColor.YELLOW.toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundArg(Constants.YELLOW)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundArg(Constants.YELLOW)));
         assertThat(BasicColor.BLUE.toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundArg(Constants.BLUE)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundArg(Constants.BLUE)));
         assertThat(BasicColor.MAGENTA.toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundArg(Constants.MAGENTA)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundArg(Constants.MAGENTA)));
         assertThat(BasicColor.CYAN.toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundArg(Constants.CYAN)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundArg(Constants.CYAN)));
         assertThat(BasicColor.WHITE.toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundArg(Constants.WHITE)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundArg(Constants.WHITE)));
 
         // Basic foreground colors - dark variants
         assertThat(BasicColor.BLACK.dark().toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundDarkArg(Constants.BLACK)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundDarkArg(Constants.BLACK)));
         assertThat(BasicColor.RED.dark().toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundDarkArg(Constants.RED)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundDarkArg(Constants.RED)));
         assertThat(BasicColor.GREEN.dark().toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundDarkArg(Constants.GREEN)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundDarkArg(Constants.GREEN)));
         assertThat(BasicColor.YELLOW.dark().toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundDarkArg(Constants.YELLOW)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundDarkArg(Constants.YELLOW)));
         assertThat(BasicColor.BLUE.dark().toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundDarkArg(Constants.BLUE)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundDarkArg(Constants.BLUE)));
         assertThat(BasicColor.MAGENTA.dark().toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundDarkArg(Constants.MAGENTA)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundDarkArg(Constants.MAGENTA)));
         assertThat(BasicColor.CYAN.dark().toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundDarkArg(Constants.CYAN)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundDarkArg(Constants.CYAN)));
         assertThat(BasicColor.WHITE.dark().toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundDarkArg(Constants.WHITE)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundDarkArg(Constants.WHITE)));
 
         // Basic foreground colors - bright variants
         assertThat(BasicColor.BLACK.bright().toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundBrightArg(Constants.BLACK)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundBrightArg(Constants.BLACK)));
         assertThat(BasicColor.RED.bright().toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundBrightArg(Constants.RED)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundBrightArg(Constants.RED)));
         assertThat(BasicColor.GREEN.bright().toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundBrightArg(Constants.GREEN)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundBrightArg(Constants.GREEN)));
         assertThat(BasicColor.YELLOW.bright().toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundBrightArg(Constants.YELLOW)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundBrightArg(Constants.YELLOW)));
         assertThat(BasicColor.BLUE.bright().toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundBrightArg(Constants.BLUE)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundBrightArg(Constants.BLUE)));
         assertThat(BasicColor.MAGENTA.bright().toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundBrightArg(Constants.MAGENTA)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundBrightArg(Constants.MAGENTA)));
         assertThat(BasicColor.CYAN.bright().toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundBrightArg(Constants.CYAN)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundBrightArg(Constants.CYAN)));
         assertThat(BasicColor.WHITE.bright().toAnsiFg())
-                .isEqualTo(Ansi.styles(Ansi.foregroundBrightArg(Constants.WHITE)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.foregroundBrightArg(Constants.WHITE)));
 
         // Basic background colors
         assertThat(BasicColor.BLACK.toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundArg(Constants.BLACK)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundArg(Constants.BLACK)));
         assertThat(BasicColor.RED.toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundArg(Constants.RED)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundArg(Constants.RED)));
         assertThat(BasicColor.GREEN.toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundArg(Constants.GREEN)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundArg(Constants.GREEN)));
         assertThat(BasicColor.YELLOW.toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundArg(Constants.YELLOW)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundArg(Constants.YELLOW)));
         assertThat(BasicColor.BLUE.toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundArg(Constants.BLUE)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundArg(Constants.BLUE)));
         assertThat(BasicColor.MAGENTA.toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundArg(Constants.MAGENTA)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundArg(Constants.MAGENTA)));
         assertThat(BasicColor.CYAN.toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundArg(Constants.CYAN)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundArg(Constants.CYAN)));
         assertThat(BasicColor.WHITE.toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundArg(Constants.WHITE)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundArg(Constants.WHITE)));
 
         // Basic background colors - dark variants
         assertThat(BasicColor.BLACK.dark().toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundDarkArg(Constants.BLACK)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundDarkArg(Constants.BLACK)));
         assertThat(BasicColor.RED.dark().toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundDarkArg(Constants.RED)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundDarkArg(Constants.RED)));
         assertThat(BasicColor.GREEN.dark().toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundDarkArg(Constants.GREEN)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundDarkArg(Constants.GREEN)));
         assertThat(BasicColor.YELLOW.dark().toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundDarkArg(Constants.YELLOW)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundDarkArg(Constants.YELLOW)));
         assertThat(BasicColor.BLUE.dark().toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundDarkArg(Constants.BLUE)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundDarkArg(Constants.BLUE)));
         assertThat(BasicColor.MAGENTA.dark().toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundDarkArg(Constants.MAGENTA)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundDarkArg(Constants.MAGENTA)));
         assertThat(BasicColor.CYAN.dark().toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundDarkArg(Constants.CYAN)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundDarkArg(Constants.CYAN)));
         assertThat(BasicColor.WHITE.dark().toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundDarkArg(Constants.WHITE)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundDarkArg(Constants.WHITE)));
 
         // Basic background colors - bright variants
         assertThat(BasicColor.BLACK.bright().toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundBrightArg(Constants.BLACK)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundBrightArg(Constants.BLACK)));
         assertThat(BasicColor.RED.bright().toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundBrightArg(Constants.RED)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundBrightArg(Constants.RED)));
         assertThat(BasicColor.GREEN.bright().toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundBrightArg(Constants.GREEN)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundBrightArg(Constants.GREEN)));
         assertThat(BasicColor.YELLOW.bright().toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundBrightArg(Constants.YELLOW)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundBrightArg(Constants.YELLOW)));
         assertThat(BasicColor.BLUE.bright().toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundBrightArg(Constants.BLUE)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundBrightArg(Constants.BLUE)));
         assertThat(BasicColor.MAGENTA.bright().toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundBrightArg(Constants.MAGENTA)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundBrightArg(Constants.MAGENTA)));
         assertThat(BasicColor.CYAN.bright().toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundBrightArg(Constants.CYAN)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundBrightArg(Constants.CYAN)));
         assertThat(BasicColor.WHITE.bright().toAnsiBg())
-                .isEqualTo(Ansi.styles(Ansi.backgroundBrightArg(Constants.WHITE)));
+                .isEqualTo(StyleBuilder.styles(BasicColor.backgroundBrightArg(Constants.WHITE)));
     }
 
     @Test
     public void testIndexedColorCodes() {
         IndexedColor color = IndexedColor.of(0);
-        assertThat(color.toAnsiFg()).isEqualTo(Ansi.styles(Ansi.foregroundIndexedArg(0)));
-        assertThat(color.toAnsiBg()).isEqualTo(Ansi.styles(Ansi.backgroundIndexedArg(0)));
+        assertThat(color.toAnsiFg())
+                .isEqualTo(StyleBuilder.styles(IndexedColor.foregroundIndexedArg(0)));
+        assertThat(color.toAnsiBg())
+                .isEqualTo(StyleBuilder.styles(IndexedColor.backgroundIndexedArg(0)));
         color = IndexedColor.of(128);
-        assertThat(color.toAnsiFg()).isEqualTo(Ansi.styles(Ansi.foregroundIndexedArg(128)));
-        assertThat(color.toAnsiBg()).isEqualTo(Ansi.styles(Ansi.backgroundIndexedArg(128)));
+        assertThat(color.toAnsiFg())
+                .isEqualTo(StyleBuilder.styles(IndexedColor.foregroundIndexedArg(128)));
+        assertThat(color.toAnsiBg())
+                .isEqualTo(StyleBuilder.styles(IndexedColor.backgroundIndexedArg(128)));
         color = IndexedColor.of(255);
-        assertThat(color.toAnsiFg()).isEqualTo(Ansi.styles(Ansi.foregroundIndexedArg(255)));
-        assertThat(color.toAnsiBg()).isEqualTo(Ansi.styles(Ansi.backgroundIndexedArg(255)));
+        assertThat(color.toAnsiFg())
+                .isEqualTo(StyleBuilder.styles(IndexedColor.foregroundIndexedArg(255)));
+        assertThat(color.toAnsiBg())
+                .isEqualTo(StyleBuilder.styles(IndexedColor.backgroundIndexedArg(255)));
     }
 
     @Test
@@ -160,14 +169,20 @@ public class TestColor {
     @Test
     public void testRgbColorCodes() {
         RgbColor color = RgbColor.of(0, 0, 0);
-        assertThat(color.toAnsiFg()).isEqualTo(Ansi.styles(Ansi.foregroundRgbArg(0, 0, 0)));
-        assertThat(color.toAnsiBg()).isEqualTo(Ansi.styles(Ansi.backgroundRgbArg(0, 0, 0)));
+        assertThat(color.toAnsiFg())
+                .isEqualTo(StyleBuilder.styles(RgbColor.foregroundRgbArg(0, 0, 0)));
+        assertThat(color.toAnsiBg())
+                .isEqualTo(StyleBuilder.styles(RgbColor.backgroundRgbArg(0, 0, 0)));
         color = RgbColor.of(128, 64, 32);
-        assertThat(color.toAnsiFg()).isEqualTo(Ansi.styles(Ansi.foregroundRgbArg(128, 64, 32)));
-        assertThat(color.toAnsiBg()).isEqualTo(Ansi.styles(Ansi.backgroundRgbArg(128, 64, 32)));
+        assertThat(color.toAnsiFg())
+                .isEqualTo(StyleBuilder.styles(RgbColor.foregroundRgbArg(128, 64, 32)));
+        assertThat(color.toAnsiBg())
+                .isEqualTo(StyleBuilder.styles(RgbColor.backgroundRgbArg(128, 64, 32)));
         color = RgbColor.of(255, 255, 255);
-        assertThat(color.toAnsiFg()).isEqualTo(Ansi.styles(Ansi.foregroundRgbArg(255, 255, 255)));
-        assertThat(color.toAnsiBg()).isEqualTo(Ansi.styles(Ansi.backgroundRgbArg(255, 255, 255)));
+        assertThat(color.toAnsiFg())
+                .isEqualTo(StyleBuilder.styles(RgbColor.foregroundRgbArg(255, 255, 255)));
+        assertThat(color.toAnsiBg())
+                .isEqualTo(StyleBuilder.styles(RgbColor.backgroundRgbArg(255, 255, 255)));
     }
 
     @Test
