@@ -158,7 +158,7 @@ public class RobotTerminal implements Terminal {
     @Override
     public void close() {
         stop();
-        writer().print(Ansi.STYLE_RESET + Ansi.cursorShow());
+        writer().print(Ansi.reset() + Ansi.cursorShow());
         writer().flush();
     }
 

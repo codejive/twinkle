@@ -2,6 +2,7 @@ package org.codejive.twinkle.ansi;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.codejive.twinkle.ansi.util.StyleBuilder;
 import org.junit.jupiter.api.Test;
 
 public class TestStyle {
@@ -78,7 +79,7 @@ public class TestStyle {
         Style style = Style.UNSTYLED.underlinedOff();
         assertThat(style.affectsUnderlined()).isTrue();
         assertThat(style.isUnderlined()).isFalse();
-        assertThat(style.toAnsi()).isEqualTo(Ansi.styles(Constants.NOTUNDERLINED));
+        assertThat(style.toAnsi()).isEqualTo(StyleBuilder.styles(Constants.NOTUNDERLINED));
     }
 
     @Test
@@ -215,7 +216,7 @@ public class TestStyle {
         String ansiCode = style.toAnsi();
         assertThat(ansiCode)
                 .isEqualTo(
-                        Ansi.styles(
+                        StyleBuilder.styles(
                                 Constants.BOLD,
                                 Constants.FAINT,
                                 Constants.ITALICIZED,
@@ -241,7 +242,7 @@ public class TestStyle {
         String ansiCode = style.toAnsi(Style.DEFAULT);
         assertThat(ansiCode)
                 .isEqualTo(
-                        Ansi.styles(
+                        StyleBuilder.styles(
                                 Constants.BOLD,
                                 Constants.FAINT,
                                 Constants.ITALICIZED,
@@ -268,7 +269,7 @@ public class TestStyle {
         String ansiCode = style.toAnsi(currentStyle);
         assertThat(ansiCode)
                 .isEqualTo(
-                        Ansi.styles(
+                        StyleBuilder.styles(
                                 Constants.FAINT,
                                 Constants.ITALICIZED,
                                 Constants.BLINK,
@@ -293,7 +294,7 @@ public class TestStyle {
         String ansiCode = style.toAnsi(currentStyle);
         assertThat(ansiCode)
                 .isEqualTo(
-                        Ansi.styles(
+                        StyleBuilder.styles(
                                 Constants.ITALICIZED,
                                 Constants.BLINK,
                                 Constants.INVERSE,
@@ -306,7 +307,7 @@ public class TestStyle {
         Style style = Style.UNSTYLED.faint();
         Style currentStyle = Style.UNSTYLED.bold();
         String ansiCode = style.toAnsi(currentStyle);
-        assertThat(ansiCode).isEqualTo(Ansi.styles(Constants.NORMAL, Constants.FAINT));
+        assertThat(ansiCode).isEqualTo(StyleBuilder.styles(Constants.NORMAL, Constants.FAINT));
     }
 
     @Test
@@ -314,6 +315,6 @@ public class TestStyle {
         Style style = Style.UNSTYLED.bold().faint();
         Style currentStyle = Style.UNSTYLED.bold();
         String ansiCode = style.toAnsi(currentStyle);
-        assertThat(ansiCode).isEqualTo(Ansi.styles(Constants.FAINT));
+        assertThat(ansiCode).isEqualTo(StyleBuilder.styles(Constants.FAINT));
     }
 }

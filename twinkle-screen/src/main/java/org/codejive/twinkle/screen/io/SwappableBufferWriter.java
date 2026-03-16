@@ -1,11 +1,6 @@
 package org.codejive.twinkle.screen.io;
 
-import static org.codejive.twinkle.ansi.Constants.CSI;
-import static org.codejive.twinkle.ansi.Constants.SCREEN_RESTORE;
-import static org.codejive.twinkle.ansi.Constants.SCREEN_RESTORE_ALT;
-import static org.codejive.twinkle.ansi.Constants.SCREEN_SAVE;
-import static org.codejive.twinkle.ansi.Constants.SCREEN_SAVE_ALT;
-
+import org.codejive.twinkle.ansi.util.AnsiOutputParser;
 import org.codejive.twinkle.screen.SwappableBuffer;
 import org.jspecify.annotations.NonNull;
 
@@ -16,19 +11,31 @@ public class SwappableBufferWriter extends BufferWriter {
     }
 
     @Override
-    protected void handleCsiSequence(String sequence) {
-        SwappableBuffer sbuffer = (SwappableBuffer) this.buffer;
-        if ((CSI + SCREEN_SAVE).equals(sequence)) {
+    protected void handleAnsiSequence(String sequence) {
+        AnsiOutputParser.parse(sequence, new SwappableHandler());
+    }
+
+    protected class SwappableHandler extends Handler {
+        private SwappableBuffer sbuffer = (SwappableBuffer) SwappableBufferWriter.this.buffer;
+
+        public boolean onScreenSave() {
             if (sbuffer.save()) {
                 sbuffer.clear();
             }
-        } else if ((CSI + SCREEN_SAVE_ALT).equals(sequence)) {
+            return true;
+        }
+
+        public boolean onScreenSaveAlt() {
             sbuffer.save();
-        } else if ((CSI + SCREEN_RESTORE).equals(sequence)
-                || (CSI + SCREEN_RESTORE_ALT).equals(sequence)) {
-            sbuffer.restore();
-        } else {
-            super.handleCsiSequence(sequence);
+            return true;
+        }
+
+        public boolean onScreenRestore() {
+            return sbuffer.restore();
+        }
+
+        public boolean onScreenRestoreAlt() {
+            return sbuffer.restore();
         }
     }
 }

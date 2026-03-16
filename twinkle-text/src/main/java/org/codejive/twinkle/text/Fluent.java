@@ -1,4 +1,4 @@
-package org.codejive.twinkle.ansi.util;
+package org.codejive.twinkle.text;
 
 import static org.codejive.twinkle.ansi.Constants.*;
 
@@ -9,6 +9,8 @@ import java.util.Deque;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Color;
 import org.codejive.twinkle.ansi.Style;
+import org.codejive.twinkle.ansi.util.AnsiTricks;
+import org.codejive.twinkle.ansi.util.Printable;
 
 /**
  * A utility class that provides a fluent API for building ANSI strings. This class is designed to
@@ -268,7 +270,7 @@ public class Fluent {
      * @return this Fluent instance for chaining
      */
     public Fluent reset() {
-        Ansi.styles(appendable, RESET);
+        append(Ansi.reset());
         currentStyle = Style.DEFAULT;
         return this;
     }
@@ -288,7 +290,7 @@ public class Fluent {
      * @return this Fluent instance for chaining
      */
     public Fluent bold() {
-        Ansi.styles(appendable, BOLD);
+        append(Ansi.bold());
         currentStyle = currentStyle.bold();
         return this;
     }
@@ -299,7 +301,7 @@ public class Fluent {
      * @return this Fluent instance for chaining
      */
     public Fluent faint() {
-        Ansi.styles(appendable, FAINT);
+        append(Ansi.faint());
         currentStyle = currentStyle.faint();
         return this;
     }
@@ -310,7 +312,7 @@ public class Fluent {
      * @return this Fluent instance for chaining
      */
     public Fluent normal() {
-        Ansi.styles(appendable, NORMAL);
+        append(Ansi.normal());
         currentStyle = currentStyle.normal();
         return this;
     }
@@ -330,7 +332,7 @@ public class Fluent {
      * @return this Fluent instance for chaining
      */
     public Fluent italic() {
-        Ansi.styles(appendable, ITALICIZED);
+        append(Ansi.italic());
         currentStyle = currentStyle.italic();
         return this;
     }
@@ -350,7 +352,7 @@ public class Fluent {
      * @return this Fluent instance for chaining
      */
     public Fluent underline() {
-        Ansi.styles(appendable, UNDERLINED);
+        append(Ansi.underlined());
         currentStyle = currentStyle.underlined();
         return this;
     }
@@ -361,7 +363,7 @@ public class Fluent {
      * @return this Fluent instance for chaining
      */
     public Fluent blink() {
-        Ansi.styles(appendable, BLINK);
+        append(Ansi.blink());
         currentStyle = currentStyle.blink();
         return this;
     }
@@ -372,7 +374,7 @@ public class Fluent {
      * @return this Fluent instance for chaining
      */
     public Fluent inverse() {
-        Ansi.styles(appendable, INVERSE);
+        append(Ansi.inverse());
         currentStyle = currentStyle.inverse();
         return this;
     }
@@ -382,8 +384,8 @@ public class Fluent {
      *
      * @return this Fluent instance for chaining
      */
-    public Fluent invisible() {
-        Ansi.styles(appendable, INVISIBLE);
+    public Fluent hidden() {
+        append(Ansi.hidden());
         currentStyle = currentStyle.hidden();
         return this;
     }
@@ -394,7 +396,7 @@ public class Fluent {
      * @return this Fluent instance for chaining
      */
     public Fluent strikethrough() {
-        Ansi.styles(appendable, CROSSEDOUT);
+        append(Ansi.strikethrough());
         currentStyle = currentStyle.strikethrough();
         return this;
     }
@@ -693,7 +695,7 @@ public class Fluent {
      * @return this Fluent instance for chaining
      */
     public Fluent next(int n) {
-        return append(CSI + n + CURSOR_NEXT_LINE);
+        return append(CSI + n + CURSOR_NEXT_LINE_CMD);
     }
 
     /**
@@ -713,7 +715,7 @@ public class Fluent {
      * @return this Fluent instance for chaining
      */
     public Fluent prev(int n) {
-        return append(CSI + n + CURSOR_PREV_LINE);
+        return append(CSI + n + CURSOR_PREV_LINE_CMD);
     }
 
     /**
@@ -782,7 +784,7 @@ public class Fluent {
      * @return this Fluent instance for chaining
      */
     public Fluent wrap() {
-        return append(Ansi.autoWrap(true));
+        return append(Ansi.autoWrap());
     }
 
     /**
@@ -860,7 +862,7 @@ public class Fluent {
          * @return this Fluent instance for chaining
          */
         public Fluent italic() {
-            Ansi.styles(appendable, NOTITALICIZED);
+            append(Ansi.italicOff());
             currentStyle = currentStyle.italicOff();
             return Fluent.this;
         }
@@ -880,7 +882,7 @@ public class Fluent {
          * @return this Fluent instance for chaining
          */
         public Fluent underline() {
-            Ansi.styles(appendable, NOTUNDERLINED);
+            append(Ansi.underlinedOff());
             currentStyle = currentStyle.underlinedOff();
             return Fluent.this;
         }
@@ -891,7 +893,7 @@ public class Fluent {
          * @return this Fluent instance for chaining
          */
         public Fluent blink() {
-            Ansi.styles(appendable, STEADY);
+            append(Ansi.blinkOff());
             currentStyle = currentStyle.blinkOff();
             return Fluent.this;
         }
@@ -902,7 +904,7 @@ public class Fluent {
          * @return this Fluent instance for chaining
          */
         public Fluent inverse() {
-            Ansi.styles(appendable, POSITIVE);
+            append(Ansi.inverseOff());
             currentStyle = currentStyle.inverseOff();
             return Fluent.this;
         }
@@ -912,8 +914,8 @@ public class Fluent {
          *
          * @return this Fluent instance for chaining
          */
-        public Fluent invisible() {
-            Ansi.styles(appendable, VISIBLE);
+        public Fluent hidden() {
+            append(Ansi.hiddenOff());
             currentStyle = currentStyle.hiddenOff();
             return Fluent.this;
         }
@@ -924,7 +926,7 @@ public class Fluent {
          * @return this Fluent instance for chaining
          */
         public Fluent strikethrough() {
-            Ansi.styles(appendable, NOTCROSSEDOUT);
+            append(Ansi.strikethroughOff());
             currentStyle = currentStyle.strikethroughOff();
             return Fluent.this;
         }
@@ -935,7 +937,7 @@ public class Fluent {
          * @return this Fluent instance for chaining
          */
         public Fluent wrap() {
-            return append(Ansi.autoWrap(false));
+            return append(Ansi.autoWrapOff());
         }
     }
 

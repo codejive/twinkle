@@ -1,9 +1,6 @@
 package org.codejive.twinkle.text.io;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.codejive.twinkle.ansi.Constants.CSI;
-import static org.codejive.twinkle.ansi.Constants.SCREEN_RESTORE_ALT;
-import static org.codejive.twinkle.ansi.Constants.SCREEN_SAVE_ALT;
 
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Style;
@@ -111,7 +108,7 @@ public class TestSwappableBufferWriter {
 
         // Save using alternate sequence
         try (PrintBufferWriter writer = buffer.writer()) {
-            writer.write(CSI + SCREEN_SAVE_ALT);
+            writer.write(Ansi.screenSave());
         }
 
         // Write to alternate buffer
@@ -124,7 +121,7 @@ public class TestSwappableBufferWriter {
 
         // Restore using alternate sequence
         try (PrintBufferWriter writer = buffer.writer()) {
-            writer.write(CSI + SCREEN_RESTORE_ALT);
+            writer.write(Ansi.screenRestoreAlt());
         }
 
         // Original content should be restored
@@ -174,5 +171,32 @@ public class TestSwappableBufferWriter {
         }
 
         assertThat(buffer.toString()).contains("state1");
+    }
+
+    @Test
+    public void testAlternateSaveDoesNotClear() {
+        SwappableBuffer buffer = SwappableBuffer.of(10, 3);
+
+        // Write initial content
+        try (PrintBufferWriter writer = buffer.writer()) {
+            writer.style(Style.DEFAULT);
+            writer.write("hello");
+        }
+
+        assertThat(buffer.graphemeAt(0, 0)).isEqualTo("h");
+
+        // Write alternate save sequence (SCREEN_SAVE_ALT) - should save and swap
+        // but the behavior is the same as SCREEN_SAVE except it doesn't explicitly clear
+        // However, the alternate buffer starts empty anyway
+        try (PrintBufferWriter writer = buffer.writer()) {
+            writer.write(Ansi.screenSaveAlt());
+        }
+
+        // After save, we're on the alternate buffer which is empty
+        assertThat(buffer.graphemeAt(0, 0)).isEqualTo("\0");
+
+        // Restore to verify original content was preserved
+        buffer.restore();
+        assertThat(buffer.graphemeAt(0, 0)).isEqualTo("h");
     }
 }

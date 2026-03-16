@@ -49,7 +49,7 @@ public class TestStyledIterator {
 
     @Test
     public void testSkipNonStyleAnsi() {
-        String up = Ansi.cursorMove(Constants.CURSOR_UP);
+        String up = Ansi.cursorMove(Constants.CURSOR_UP_CMD);
         SequenceIterator seqIter = SequenceIterator.of(up + "a");
         StyledIterator it = new StyledIterator(seqIter);
 
@@ -64,7 +64,7 @@ public class TestStyledIterator {
     @Test
     public void testMixedSequences() {
         String red = Constants.CSI + "31m";
-        String reset = Ansi.STYLE_RESET;
+        String reset = Ansi.reset();
         SequenceIterator seqIter = SequenceIterator.of("a" + red + "b" + reset + "c");
         StyledIterator it = new StyledIterator(seqIter);
 
@@ -178,7 +178,7 @@ public class TestStyledIterator {
         String linkStart = Constants.OSC + "8;;https://example.com" + Constants.OSC_END;
         String red = Constants.CSI + "31m";
         String linkEnd = Constants.OSC + "8;;" + Constants.OSC_END;
-        String reset = Ansi.STYLE_RESET;
+        String reset = Ansi.reset();
 
         SequenceIterator seqIter =
                 SequenceIterator.of(linkStart + red + "a" + linkEnd + reset + "b");
@@ -201,7 +201,7 @@ public class TestStyledIterator {
     @Test
     public void testNonHyperlinkAnsiDoesNotAffectLink() {
         String linkStart = Constants.OSC + "8;;https://example.com" + Constants.OSC_END;
-        String up = Ansi.cursorMove(Constants.CURSOR_UP);
+        String up = Ansi.cursorMove(Constants.CURSOR_UP_CMD);
         String linkEnd = Constants.OSC + "8;;" + Constants.OSC_END;
 
         SequenceIterator seqIter = SequenceIterator.of(linkStart + up + "a" + linkEnd);

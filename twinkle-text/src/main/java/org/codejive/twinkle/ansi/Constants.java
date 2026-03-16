@@ -50,34 +50,36 @@ public class Constants {
     public static final int COLORS_RGB = 2;
     public static final int COLORS_INDEXED = 5;
 
-    public static final char CURSOR_UP = 'A';
-    public static final char CURSOR_DOWN = 'B';
-    public static final char CURSOR_FORWARD = 'C';
-    public static final char CURSOR_BACKWARD = 'D';
-    public static final char CURSOR_NEXT_LINE = 'E';
-    public static final char CURSOR_PREV_LINE = 'F';
-    public static final char CURSOR_COLUMN = 'G';
-    public static final char CURSOR_POSITION = 'H';
-    public static final char CURSOR_POSITION_ALT = 'f';
-    public static final char CURSOR_SAVE = '7'; // Note: ESC+7, not CSI+7 !
-    public static final char CURSOR_RESTORE = '8'; // Note: ESC+8, not CSI+8 !
-    public static final char CURSOR_UP_WITH_SCROLL = 'M'; // Note: ESC+M, not CSI+M !
+    public static final char STYLE_CMD = 'm';
 
-    public static final String CURSOR_HIDE = "?25l";
-    public static final String CURSOR_SHOW = "?25h";
+    public static final char CURSOR_UP_CMD = 'A';
+    public static final char CURSOR_DOWN_CMD = 'B';
+    public static final char CURSOR_FORWARD_CMD = 'C';
+    public static final char CURSOR_BACKWARD_CMD = 'D';
+    public static final char CURSOR_NEXT_LINE_CMD = 'E';
+    public static final char CURSOR_PREV_LINE_CMD = 'F';
+    public static final char CURSOR_COLUMN_CMD = 'G';
+    public static final char CURSOR_POSITION_CMD = 'H';
+    public static final char CURSOR_POSITION_ALT_CMD = 'f';
+    public static final char CURSOR_SAVE_CMD = '7'; // Note: ESC+7, not CSI+7 !
+    public static final char CURSOR_RESTORE_CMD = '8'; // Note: ESC+8, not CSI+8 !
+    public static final char CURSOR_UP_WITH_SCROLL_CMD = 'M'; // Note: ESC+M, not CSI+M !
 
-    public static final String SCREEN_ERASE = "J"; // Same as SCREEN_ERASE_END
+    public static final String SCREEN_ERASE_CMD = "J"; // Same as SCREEN_ERASE_END
     public static final String SCREEN_ERASE_END = "0J";
     public static final String SCREEN_ERASE_START = "1J";
     public static final String SCREEN_ERASE_FULL = "2J";
     public static final String SCREEN_ERASE_SAVED_LINES = "3J";
+
+    public static final String CURSOR_HIDE = "?25l";
+    public static final String CURSOR_SHOW = "?25h";
 
     public static final String SCREEN_SAVE = "?1049h";
     public static final String SCREEN_SAVE_ALT = "?47h";
     public static final String SCREEN_RESTORE = "?1049l";
     public static final String SCREEN_RESTORE_ALT = "?47l";
 
-    public static final String LINE_ERASE = "K"; // Same as LINE_ERASE_END
+    public static final String LINE_ERASE_CMD = "K"; // Same as LINE_ERASE_END
     public static final String LINE_ERASE_END = "0K";
     public static final String LINE_ERASE_START = "1K";
     public static final String LINE_ERASE_FULL = "2K";
@@ -102,6 +104,9 @@ public class Constants {
             "?1003l"; // Disable any event tracking
     public static final String MOUSE_SGR_EXT_MODE_ENABLE = "?1006h"; // Enable SGR extended mode
     public static final String MOUSE_SGR_EXT_MODE_DISABLE = "?1006l"; // Disable SGR extended mode
+
+    public static final char MOUSE_SGR_CMD = '<';
+    public static final char MOUSE_X10_CMD = 'M';
 
     // Mouse button codes (for SGR mode)
     public static final int MOUSE_BUTTON_LEFT = 0;

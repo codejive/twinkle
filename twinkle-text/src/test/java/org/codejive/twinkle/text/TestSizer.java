@@ -31,7 +31,7 @@ public class TestSizer {
     @Test
     public void testMeasureIgnoresAnsiEscapeSequenceWidth() {
         String red = Constants.CSI + "31m";
-        String reset = Ansi.STYLE_RESET;
+        String reset = Ansi.reset();
 
         assertThat(Sizer.measure(red + "red" + reset)).isEqualTo(Size.of(3, 1));
     }
@@ -39,7 +39,7 @@ public class TestSizer {
     @Test
     public void testMeasureIgnoresAnsiEscapeSequenceWidthAcrossLines() {
         String green = Constants.CSI + "32m";
-        String reset = Ansi.STYLE_RESET;
+        String reset = Ansi.reset();
         String text = "A" + green + "B" + reset + "\n\n" + green + "CD" + reset;
 
         assertThat(Sizer.measure(text)).isEqualTo(Size.of(2, 3));

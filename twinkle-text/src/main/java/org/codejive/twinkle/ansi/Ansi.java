@@ -2,181 +2,168 @@ package org.codejive.twinkle.ansi;
 
 import static org.codejive.twinkle.ansi.Constants.*;
 
-import java.io.IOException;
-
 public class Ansi {
-    public static final String STYLE_RESET = styles(RESET); // Reset all attributes
-    public static final String STYLE_DEFAULT_FOREGROUND =
-            styles(DEFAULT_FOREGROUND); // Reset foreground color to default
-    public static final String STYLE_DEFAULT_BACKGROUND =
-            styles(DEFAULT_BACKGROUND); // Reset background color
 
     /**
-     * Returns the ANSI escape sequence for the given styles. The styles can be any combination of
-     * the style constants defined in the Constants class, such as BOLD, UNDERLINED, or the output
-     * of the color functions like foregroundArg(). The output is a string that can be used in the
-     * console to apply the specified styles to the text that follows.
+     * Returns the ANSI escape sequence to reset all styles and colors to their defaults.
      *
-     * @param styles the style codes to apply
-     * @return the ANSI escape sequence for the given styles
+     * @return the ANSI escape sequence to reset all styles and colors
      */
-    public static String styles(Object... styles) {
-        if (styles == null || styles.length == 0) {
-            return "";
-        }
-        return styles(new StringBuilder(), styles).toString();
+    public static String reset() {
+        return CSI + RESET + STYLE_CMD;
     }
 
     /**
-     * Appends the ANSI escape sequence for the given styles to the provided Appendable. The styles
-     * can be any combination of the style constants defined in the Constants class, such as BOLD,
-     * UNDERLINED, or the output of the color functions like foregroundArg(). The output will be
-     * passed to the provided Appendable.
+     * Returns the ANSI escape sequence to enable bold text style.
      *
-     * @param appendable the Appendable to which the ANSI escape sequence will be appended
-     * @param styles the style codes to apply
-     * @return the provided Appendable with the ANSI escape sequence appended
+     * @return the ANSI escape sequence to enable bold text style
      */
-    public static Appendable styles(Appendable appendable, Object... styles) {
-        if (styles == null || styles.length == 0) {
-            return appendable;
-        }
-        try {
-            appendable.append(CSI);
-            for (int i = 0; i < styles.length; i++) {
-                appendable.append(styles[i].toString());
-                if (i < styles.length - 1) {
-                    appendable.append(";");
-                }
-            }
-            appendable.append("m");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return appendable;
+    public static String bold() {
+        return CSI + BOLD + STYLE_CMD;
     }
 
     /**
-     * Returns the ANSI code for the given basic color. The index should be between 0-7. The output
-     * is a string that can be used in the styles() method to create the final ANSI escape sequence.
+     * Returns the ANSI escape sequence to enable faint (dim) text style.
      *
-     * @param index the color index (0-7)
-     * @return the ANSI code for the given basic color
+     * @return the ANSI escape sequence to enable faint (dim) text style
      */
-    public static String foregroundArg(int index) {
-        return String.valueOf(FOREGROUND_BASE + index);
+    public static String faint() {
+        return CSI + FAINT + STYLE_CMD;
     }
 
     /**
-     * Returns the ANSI code for the given dark color. The index should be between 0-7. The output
-     * is a string that can be used in the styles() method to create the final ANSI escape sequence.
+     * Returns the ANSI escape sequence to disable bold and faint text styles, returning to normal
      *
-     * @param index the color index (0-7)
-     * @return the ANSI code for the given dark color
+     * @return the ANSI escape sequence to disable bold and faint text styles
      */
-    public static String foregroundDarkArg(int index) {
-        return String.valueOf(FOREGROUND_DARK_BASE + index);
+    public static String normal() {
+        return CSI + NORMAL + STYLE_CMD;
     }
 
     /**
-     * Returns the ANSI code for the given bright color. The index should be between 0-7. The output
-     * is a string that can be used in the styles() method to create the final ANSI escape sequence.
+     * Returns the ANSI escape sequence to enable italic text style.
      *
-     * @param index the color index (0-7)
-     * @return the ANSI code for the given bright color
+     * @return the ANSI escape sequence to enable italic text style
      */
-    public static String foregroundBrightArg(int index) {
-        return String.valueOf(FOREGROUND_BRIGHT_BASE + index);
+    public static String italic() {
+        return CSI + ITALICIZED + STYLE_CMD;
     }
 
     /**
-     * Returns the ANSI code for the given basic background color. The index should be between 0-7.
-     * The output is a string that can be used in the styles() method to create the final ANSI
-     * escape sequence.
+     * Returns the ANSI escape sequence to disable italic text style.
      *
-     * @param index the color index (0-7)
-     * @return the ANSI code for the given basic background color
+     * @return the ANSI escape sequence to disable italic text style
      */
-    public static String backgroundArg(int index) {
-        return String.valueOf(BACKGROUND_BASE + index);
+    public static String italicOff() {
+        return CSI + NOTITALICIZED + STYLE_CMD;
     }
 
     /**
-     * Returns the ANSI code for the given dark background color. The index should be between 0-7.
-     * The output is a string that can be used in the styles() method to create the final ANSI
-     * escape sequence.
+     * Returns the ANSI escape sequence to enable underlined text style.
      *
-     * @param index the color index (0-7)
-     * @return the ANSI code for the given dark background color
+     * @return the ANSI escape sequence to enable underlined text style
      */
-    public static String backgroundDarkArg(int index) {
-        return String.valueOf(BACKGROUND_DARK_BASE + index);
+    public static String underlined() {
+        return CSI + UNDERLINED + STYLE_CMD;
     }
 
     /**
-     * Returns the ANSI code for the given bright background color. The index should be between 0-7.
-     * The output is a string that can be used in the styles() method to create the final ANSI
-     * escape sequence.
+     * Returns the ANSI escape sequence to disable underlined text style.
      *
-     * @param index the color index (0-7)
-     * @return the ANSI code for the given bright background color
+     * @return the ANSI escape sequence to disable underlined text style
      */
-    public static String backgroundBrightArg(int index) {
-        return String.valueOf(BACKGROUND_BRIGHT_BASE + index);
+    public static String underlinedOff() {
+        return CSI + NOTUNDERLINED + STYLE_CMD;
     }
 
     /**
-     * Returns the ANSI code for the given indexed foreground color. The index should be between
-     * 0-255. The indexes 0-7 are the standard colors, 8-15 are the bright versions of the standard
-     * colors, 16-231 are a 6x6x6 color cube, and 232-255 are a grayscale ramp. The output is a
-     * string that can be used in the styles() method to create the final ANSI escape sequence.
+     * Returns the ANSI escape sequence to enable blinking text style.
      *
-     * @param index the color index (0-255)
-     * @return the ANSI code for the given indexed foreground color
+     * @return the ANSI escape sequence to enable blinking text style
      */
-    public static String foregroundIndexedArg(int index) {
-        return FOREGROUND_COLORS + ";" + COLORS_INDEXED + ";" + index;
+    public static String blink() {
+        return CSI + BLINK + STYLE_CMD;
     }
 
     /**
-     * Returns the ANSI code for the given indexed background color. The index should be between
-     * 0-255. The indexes 0-7 are the standard colors, 8-15 are the bright versions of the standard
-     * colors, 16-231 are a 6x6x6 color cube, and 232-255 are a grayscale ramp. The output is a
-     * string that can be used in the styles() method to create the final ANSI escape sequence.
+     * Returns the ANSI escape sequence to disable blinking text style.
      *
-     * @param index the color index (0-255)
-     * @return the ANSI code for the given indexed background color
+     * @return the ANSI escape sequence to disable blinking text style
      */
-    public static String backgroundIndexedArg(int index) {
-        return BACKGROUND_COLORS + ";" + COLORS_INDEXED + ";" + index;
+    public static String blinkOff() {
+        return CSI + STEADY + STYLE_CMD;
     }
 
     /**
-     * Returns the ANSI code for the given RGB foreground color. The r, g, and b values should be
-     * between 0-255. The output is a string that can be used in the styles() method to create the
-     * final ANSI escape sequence.
+     * Returns the ANSI escape sequence to enable double underlined text style.
      *
-     * @param r the red component (0-255)
-     * @param g the green component (0-255)
-     * @param b the blue component (0-255)
-     * @return the ANSI code for the given RGB foreground color
+     * @return the ANSI escape sequence to enable double underlined text style
      */
-    public static String foregroundRgbArg(int r, int g, int b) {
-        return FOREGROUND_COLORS + ";" + COLORS_RGB + ";" + r + ";" + g + ";" + b;
+    public static String inverse() {
+        return CSI + INVERSE + STYLE_CMD;
     }
 
     /**
-     * Returns the ANSI code for the given RGB background color. The r, g, and b values should be
-     * between 0-255. The output is a string that can be used in the styles() method to create the
-     * final ANSI escape sequence.
+     * Returns the ANSI escape sequence to disable inverse text style.
      *
-     * @param r the red component (0-255)
-     * @param g the green component (0-255)
-     * @param b the blue component (0-255)
-     * @return the ANSI code for the given RGB background color
+     * @return the ANSI escape sequence to disable inverse text style
      */
-    public static String backgroundRgbArg(int r, int g, int b) {
-        return BACKGROUND_COLORS + ";" + COLORS_RGB + ";" + r + ";" + g + ";" + b;
+    public static String inverseOff() {
+        return CSI + POSITIVE + STYLE_CMD;
+    }
+
+    /**
+     * Returns the ANSI escape sequence to enable invisible (hidden) text style.
+     *
+     * @return the ANSI escape sequence to enable invisible (hidden) text style
+     */
+    public static String hidden() {
+        return CSI + INVISIBLE + STYLE_CMD;
+    }
+
+    /**
+     * Returns the ANSI escape sequence to disable invisible (hidden) text style.
+     *
+     * @return the ANSI escape sequence to disable invisible (hidden) text style
+     */
+    public static String hiddenOff() {
+        return CSI + VISIBLE + STYLE_CMD;
+    }
+
+    /**
+     * Returns the ANSI escape sequence to enable crossed-out (strikethrough) text style.
+     *
+     * @return the ANSI escape sequence to enable crossed-out (strikethrough) text style
+     */
+    public static String strikethrough() {
+        return CSI + CROSSEDOUT + STYLE_CMD;
+    }
+
+    /**
+     * Returns the ANSI escape sequence to disable crossed-out (strikethrough) text style.
+     *
+     * @return the ANSI escape sequence to disable crossed-out (strikethrough) text style
+     */
+    public static String strikethroughOff() {
+        return CSI + NOTCROSSEDOUT + STYLE_CMD;
+    }
+
+    /**
+     * Returns the ANSI escape sequence to reset the foreground color to the default.
+     *
+     * @return the ANSI escape sequence to reset the foreground color to the default
+     */
+    public static String defaultForeground() {
+        return CSI + DEFAULT_FOREGROUND + STYLE_CMD;
+    }
+
+    /**
+     * Returns the ANSI escape sequence to reset the background color to the default.
+     *
+     * @return the ANSI escape sequence to reset the background color to the default
+     */
+    public static String defaultBackground() {
+        return CSI + DEFAULT_BACKGROUND + STYLE_CMD;
     }
 
     /**
@@ -215,11 +202,11 @@ public class Ansi {
      * @return the ANSI escape sequence for positioning the cursor
      */
     public static String cursorPos(int col, int row) {
-        return CSI + (row + 1) + ";" + (col + 1) + CURSOR_POSITION;
+        return CSI + (row + 1) + ";" + (col + 1) + CURSOR_POSITION_CMD;
     }
 
     public static String cursorHome() {
-        return CSI + CURSOR_POSITION;
+        return CSI + CURSOR_POSITION_CMD;
     }
 
     /**
@@ -231,65 +218,177 @@ public class Ansi {
      * @return the ANSI escape sequence for positioning the cursor
      */
     public static String cursorToColumn(int col) {
-        return CSI + (col + 1) + CURSOR_COLUMN;
+        return CSI + (col + 1) + CURSOR_COLUMN_CMD;
     }
 
+    /**
+     * Returns the ANSI escape sequence for moving the cursor up by the specified amount.
+     *
+     * @param amount the number of positions to move the cursor
+     * @return the ANSI escape sequence for moving the cursor up
+     */
     public static String cursorUp(int amount) {
-        return cursorMove(CURSOR_UP, amount);
+        return cursorMove(CURSOR_UP_CMD, amount);
     }
 
+    /**
+     * Returns the ANSI escape sequence for moving the cursor down by the specified amount.
+     *
+     * @param amount the number of positions to move the cursor
+     * @return the ANSI escape sequence for moving the cursor down
+     */
     public static String cursorDown(int amount) {
-        return cursorMove(CURSOR_DOWN, amount);
+        return cursorMove(CURSOR_DOWN_CMD, amount);
     }
 
+    /**
+     * Returns the ANSI escape sequence for moving the cursor forward by the specified amount.
+     *
+     * @param amount the number of positions to move the cursor
+     * @return the ANSI escape sequence for moving the cursor forward
+     */
     public static String cursorForward(int amount) {
-        return cursorMove(CURSOR_FORWARD, amount);
+        return cursorMove(CURSOR_FORWARD_CMD, amount);
     }
 
+    /**
+     * Returns the ANSI escape sequence for moving the cursor backward by the specified amount.
+     *
+     * @param amount the number of positions to move the cursor
+     * @return the ANSI escape sequence for moving the cursor backward
+     */
     public static String cursorBackward(int amount) {
-        return cursorMove(CURSOR_BACKWARD, amount);
+        return cursorMove(CURSOR_BACKWARD_CMD, amount);
     }
 
+    /**
+     * Returns the ANSI escape sequence to hide the cursor.
+     *
+     * @return the ANSI escape sequence to hide the cursor
+     */
     public static String cursorHide() {
         return CSI + CURSOR_HIDE;
     }
 
+    /**
+     * Returns the ANSI escape sequence to show the cursor.
+     *
+     * @return the ANSI escape sequence to show the cursor
+     */
     public static String cursorShow() {
         return CSI + CURSOR_SHOW;
     }
 
+    /**
+     * Returns the ANSI escape sequence to save the current cursor position.
+     *
+     * @return the ANSI escape sequence to save the current cursor position
+     */
     public static String cursorSave() {
-        return "" + ESC + CURSOR_SAVE;
+        return "" + ESC + CURSOR_SAVE_CMD;
     }
 
+    /**
+     * Returns the ANSI escape sequence to restore the cursor to the last saved position.
+     *
+     * @return the ANSI escape sequence to restore the cursor
+     */
     public static String cursorRestore() {
-        return "" + ESC + CURSOR_RESTORE;
+        return "" + ESC + CURSOR_RESTORE_CMD;
     }
 
+    /**
+     * Returns the ANSI escape sequence to clear the entire screen.
+     *
+     * @return the ANSI escape sequence to clear the entire screen
+     */
     public static String clearScreen() {
         return CSI + SCREEN_ERASE_FULL;
     }
 
+    /**
+     * Returns the ANSI escape sequence to switch to the alternate screen buffer.
+     *
+     * @return the ANSI escape sequence to switch to the alternate screen buffer
+     */
     public static String screenSave() {
         return CSI + SCREEN_SAVE;
     }
 
+    /**
+     * Returns an alternative ANSI escape sequence to switch to the alternate screen buffer.
+     *
+     * @return the ANSI escape sequence to switch to the alternate screen buffer
+     */
+    public static String screenSaveAlt() {
+        return CSI + SCREEN_SAVE_ALT;
+    }
+
+    /**
+     * Returns the ANSI escape sequence to switch back to the main screen buffer.
+     *
+     * @return the ANSI escape sequence to switch back to the main screen buffer
+     */
     public static String screenRestore() {
         return CSI + SCREEN_RESTORE;
     }
 
-    public static String autoWrap(boolean enabled) {
-        return CSI + (enabled ? LINE_WRAP_ON : LINE_WRAP_OFF);
+    /**
+     * Returns an alternative ANSI escape sequence to switch back to the main screen buffer.
+     *
+     * @return the ANSI escape sequence to switch back to the main screen buffer
+     */
+    public static String screenRestoreAlt() {
+        return CSI + SCREEN_RESTORE_ALT;
     }
 
+    /**
+     * Returns the ANSI escape sequence to enable automatic line wrapping. When enabled, the cursor
+     * will automatically move to the beginning of the next line when it reaches the end of the
+     * current line.
+     *
+     * @return the ANSI escape sequence to enable automatic line wrapping
+     */
+    public static String autoWrap() {
+        return CSI + LINE_WRAP_ON;
+    }
+
+    /**
+     * Returns the ANSI escape sequence to disable automatic line wrapping. When disabled, the
+     * cursor will stay on the same line when it reaches the end.
+     *
+     * @return the ANSI escape sequence to disable automatic line wrapping
+     */
+    public static String autoWrapOff() {
+        return CSI + LINE_WRAP_OFF;
+    }
+
+    /**
+     * Returns the ANSI escape sequence to create a hyperlink with the specified URL.
+     *
+     * @param url the URL for the hyperlink
+     * @return the ANSI escape sequence to create a hyperlink
+     */
     public static String link(String url) {
         return OSC + HYPERLINK + ";" + url + OSC_END;
     }
 
+    /**
+     * Returns the ANSI escape sequence to create a hyperlink with the specified URL and ID.
+     *
+     * @param url the URL for the hyperlink
+     * @param id the ID for the hyperlink
+     * @return the ANSI escape sequence to create a hyperlink with an ID
+     */
     public static String link(String url, String id) {
         return OSC + HYPERLINK + "id=" + id + ";" + url + OSC_END;
     }
 
+    /**
+     * Returns the ANSI escape sequence to end a hyperlink.
+     *
+     * @return the ANSI escape sequence to end a hyperlink
+     */
     public static String linkEnd() {
         return OSC + HYPERLINK + ";" + OSC_END;
     }
