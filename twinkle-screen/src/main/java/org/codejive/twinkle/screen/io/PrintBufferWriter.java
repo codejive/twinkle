@@ -3,8 +3,8 @@ package org.codejive.twinkle.screen.io;
 import java.io.PrintWriter;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.ansi.util.AnsiTricks;
+import org.codejive.twinkle.fluent.impl.FluentImpl;
 import org.codejive.twinkle.screen.Buffer;
-import org.codejive.twinkle.text.Fluent;
 import org.codejive.twinkle.text.Size;
 import org.jspecify.annotations.NonNull;
 
@@ -129,7 +129,7 @@ public class PrintBufferWriter extends PrintWriter {
         return writer.buffer;
     }
 
-    public @NonNull Fluent fluent() {
-        return Fluent.of(this, style());
+    public @NonNull FluentImpl fluent() {
+        return FluentImpl.of(this, style());
     }
 }

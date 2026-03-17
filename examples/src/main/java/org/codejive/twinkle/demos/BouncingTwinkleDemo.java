@@ -16,13 +16,13 @@ import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Color;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.ansi.util.AnsiTricks;
+import org.codejive.twinkle.fluent.Fluent;
 import org.codejive.twinkle.screen.Buffer;
 import org.codejive.twinkle.screen.BufferStack;
 import org.codejive.twinkle.screen.io.PrintBufferWriter;
 import org.codejive.twinkle.screen.util.FrameCounter;
 import org.codejive.twinkle.shapes.Borders;
 import org.codejive.twinkle.terminal.Terminal;
-import org.codejive.twinkle.text.Fluent;
 import org.codejive.twinkle.text.Size;
 import org.codejive.twinkle.text.Sizer;
 
@@ -37,6 +37,8 @@ class BouncingTwinkleDemo {
     private static volatile Borders.LineStyle lineStyle = Borders.LineStyle.ASCII;
     private static volatile Borders.CornerStyle cornerStyle = Borders.CornerStyle.ASCII;
     private static final FrameCounter fps = new FrameCounter();
+
+    private static final String URL = "https://github.com/codejive/twinkle";
 
     private static final Color.BasicColor[] textPalette = {
         Color.BasicColor.RED,
@@ -91,28 +93,19 @@ class BouncingTwinkleDemo {
                     bounce();
                     colorize();
 
-                    Borders b = new Borders().lineStyle(lineStyle).cornerStyle(cornerStyle);
+                    Borders b =
+                            new Borders()
+                                    .style(Style.ofFgColor(Color.BasicColor.GREEN))
+                                    .lineStyle(lineStyle)
+                                    .cornerStyle(cornerStyle);
                     b.render(buffer);
 
                     Fluent f = writer.fluent();
-                    f.at(2, 0).green().text("[ ").white().text(size).green().text(" ]");
+                    f.at(2, 0).markup("{green}[ {white}%s{green} ]", size);
                     f.at(size.width() / 2 - 3, 0)
-                            .green()
-                            .text("[ ")
-                            .blue()
-                            .underline()
-                            .link("Twinkle", "https://github.com/codejive/twinkle")
-                            .not()
-                            .underline()
-                            .green()
-                            .text(" ]");
+                            .markup("{green}[ {blue}{ul}{%s}Twinkle{/}{/ul}{green} ]", URL);
                     f.at(size.width() - 12, 0)
-                            .green()
-                            .text("[ ")
-                            .white()
-                            .text("fps %s", Math.round(fps.average()))
-                            .green()
-                            .text(" ]");
+                            .markup("{green}[ {+}{white}fps %s{-} ]", Math.round(fps.average()));
                     f.at(textX, textY).color(textColor).text(text).done();
 
                     // Write entire frame buffer to connection in one call
@@ -121,7 +114,7 @@ class BouncingTwinkleDemo {
                     fps.update();
                     Thread.sleep(currentSleep);
 
-                    if (handleKeys(reader, f) == -1) break;
+                    if (handleKeys(reader) == -1) break;
                 }
             } finally {
                 // Show cursor and clear screen on exit
@@ -146,10 +139,9 @@ class BouncingTwinkleDemo {
                 Borders.CornerStyle.ASCII, Borders.CornerStyle.ROUND, Borders.CornerStyle.SQUARE
             };
 
-    private static int handleKeys(Reader reader, Fluent f) throws IOException {
+    private static int handleKeys(Reader reader) throws IOException {
         int ch = reader.ready() ? reader.read() : -1;
         while (ch >= 0) {
-            f.text("Key = " + (char) ch);
             if (ch == 'q' || ch == 'Q') {
                 return -1;
             } else if (ch == 'h' || ch == 'H') {
@@ -188,7 +180,7 @@ class BouncingTwinkleDemo {
                         .cornerStyle(cornerStyle)
                         .style(Style.ofFgColor(Color.BasicColor.BRIGHT_MAGENTA));
         b.render(buffer);
-        writer.fluent().at(2, 0).text("[ ").white().text("Help Page").restore().text(" ]").done();
+        writer.fluent().at(2, 0).markup("{brightmagenta}{+}[ {white}Help Page{-} ]").done();
         Fluent help =
                 Fluent.string()
                         .white()
@@ -224,6 +216,7 @@ class BouncingTwinkleDemo {
     private static void handleResize(Size newSize) {
         maxX = Math.max(minX, newSize.width() - textSize.width() - 1);
         maxY = Math.max(minY, newSize.height() - textSize.height() - 1);
+        size = newSize;
     }
 
     private static void bounce() {

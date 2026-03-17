@@ -151,17 +151,17 @@ public interface Color {
         public static final BasicColor BRIGHT_WHITE =
                 BasicColor.of("white", Constants.WHITE, Intensity.bright);
 
-        private static final BasicColor[] normalColors = {
+        public static final BasicColor[] normalColors = {
             BLACK, RED, GREEN, YELLOW,
             BLUE, MAGENTA, CYAN, WHITE
         };
 
-        private static final BasicColor[] darkColors = {
+        public static final BasicColor[] darkColors = {
             DARK_BLACK, DARK_RED, DARK_GREEN, DARK_YELLOW,
             DARK_BLUE, DARK_MAGENTA, DARK_CYAN, DARK_WHITE
         };
 
-        private static final BasicColor[] brightColors = {
+        public static final BasicColor[] brightColors = {
             BRIGHT_BLACK, BRIGHT_RED, BRIGHT_GREEN, BRIGHT_YELLOW,
             BRIGHT_BLUE, BRIGHT_MAGENTA, BRIGHT_CYAN, BRIGHT_WHITE
         };
@@ -195,6 +195,10 @@ public interface Color {
             this.intensity = intensity;
             fgAnsi = fgAnsi(index, intensity);
             bgAnsi = bgAnsi(index, intensity);
+        }
+
+        public String name() {
+            return name;
         }
 
         public int index() {

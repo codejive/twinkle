@@ -2,6 +2,8 @@ package org.codejive.twinkle.ansi;
 
 import static org.codejive.twinkle.ansi.Constants.*;
 
+import org.jspecify.annotations.NonNull;
+
 public class Ansi {
 
     /**
@@ -369,7 +371,7 @@ public class Ansi {
      * @param url the URL for the hyperlink
      * @return the ANSI escape sequence to create a hyperlink
      */
-    public static String link(String url) {
+    public static String link(@NonNull String url) {
         return OSC + HYPERLINK + ";" + url + OSC_END;
     }
 
@@ -380,7 +382,10 @@ public class Ansi {
      * @param id the ID for the hyperlink
      * @return the ANSI escape sequence to create a hyperlink with an ID
      */
-    public static String link(String url, String id) {
+    public static String link(@NonNull String url, String id) {
+        if (id == null) {
+            return link(url);
+        }
         return OSC + HYPERLINK + "id=" + id + ";" + url + OSC_END;
     }
 
