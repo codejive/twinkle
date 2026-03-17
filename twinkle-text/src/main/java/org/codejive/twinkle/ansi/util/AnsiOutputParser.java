@@ -141,7 +141,7 @@ public class AnsiOutputParser {
         if (Ansi.cursorHome().equals(sequence)) {
             return handler.onHome();
         } else if ((nums = numsMatch(CURSOR_POSITION_CMD, sequence, null)) != null) {
-            return handler.onCursorPosition(nums[0], nums[1]);
+            return handler.onCursorPosition(nums[1], nums[0]);
         } else if ((num = numMatch(CURSOR_UP_CMD, sequence, 1)) != -1) {
             return handler.onCursorUp(num);
         } else if ((num = numMatch(CURSOR_DOWN_CMD, sequence, 1)) != -1) {
