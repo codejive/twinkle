@@ -380,6 +380,85 @@ public class TestBuffer {
         assertThat(ansi).startsWith(" ");
     }
 
+    @Test
+    public void testResizeLargerPreservesContentAndInitializesNewArea() {
+        Buffer buffer = createBuffer();
+
+        buffer.resize(Size.of(7, 6));
+
+        assertThat(buffer.size()).isEqualTo(Size.of(7, 6));
+
+        // Existing 5x5 region should remain unchanged.
+        for (int y = 0; y < 5; y++) {
+            for (int x = 0; x < 5; x++) {
+                assertThat(buffer.charAt(x, y)).isEqualTo((char) ('A' + x + y * 5));
+                assertThat(buffer.styleAt(x, y)).isEqualTo(Style.DEFAULT.fgColor(Color.indexed(x)));
+            }
+        }
+
+        // Newly added area should be in default state.
+        for (int y = 0; y < 6; y++) {
+            for (int x = 0; x < 7; x++) {
+                if (x < 5 && y < 5) {
+                    continue;
+                }
+                assertThat(buffer.charAt(x, y)).isEqualTo('\0');
+                assertThat(buffer.styleAt(x, y)).isEqualTo(Style.DEFAULT);
+            }
+        }
+    }
+
+    @Test
+    public void testResizeSmallerTruncatesAndKeepsVisibleRegion() {
+        Buffer buffer = createBuffer();
+
+        buffer.resize(Size.of(3, 2));
+
+        assertThat(buffer.size()).isEqualTo(Size.of(3, 2));
+
+        // Top-left region that still fits should remain unchanged.
+        for (int y = 0; y < 2; y++) {
+            for (int x = 0; x < 3; x++) {
+                assertThat(buffer.charAt(x, y)).isEqualTo((char) ('A' + x + y * 5));
+                assertThat(buffer.styleAt(x, y)).isEqualTo(Style.DEFAULT.fgColor(Color.indexed(x)));
+            }
+        }
+
+        // Data outside the new bounds should no longer be addressable.
+        assertThat(buffer.charAt(3, 0)).isEqualTo(Buffer.REPLACEMENT_CHAR);
+        assertThat(buffer.charAt(0, 2)).isEqualTo(Buffer.REPLACEMENT_CHAR);
+        assertThat(buffer.styleAt(3, 0)).isEqualTo(Style.UNSTYLED);
+        assertThat(buffer.styleAt(0, 2)).isEqualTo(Style.UNSTYLED);
+    }
+
+    @Test
+    public void testResizeBoundaryWritesUseNewDimensions() {
+        Buffer buffer = Buffer.of(2, 2);
+
+        buffer.resize(Size.of(4, 3));
+
+        // New bottom-right coordinate should be writable after growing.
+        buffer.putAt(3, 2, 'Z', Buffer.styleOpt(Style.BOLD));
+        assertThat(buffer.charAt(3, 2)).isEqualTo('Z');
+        assertThat(buffer.styleAt(3, 2)).isEqualTo(Style.DEFAULT.bold());
+
+        // Out-of-bounds writes must still be ignored.
+        buffer.putAt(4, 2, 'X');
+        buffer.putAt(3, 3, 'Y');
+        assertThat(buffer.charAt(3, 2)).isEqualTo('Z');
+
+        buffer.resize(Size.of(2, 1));
+
+        // New bottom-right coordinate after shrinking should be writable.
+        buffer.putAt(1, 0, 'Q');
+        assertThat(buffer.charAt(1, 0)).isEqualTo('Q');
+
+        // Writes past shrunken bounds should be ignored.
+        buffer.putAt(2, 0, 'R');
+        buffer.putAt(1, 1, 'S');
+        assertThat(buffer.charAt(1, 0)).isEqualTo('Q');
+    }
+
     private Buffer createBuffer() {
         Buffer buffer = Buffer.of(5, 5);
         Size size = buffer.size();

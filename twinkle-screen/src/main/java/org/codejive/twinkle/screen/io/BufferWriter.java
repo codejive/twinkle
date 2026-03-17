@@ -238,8 +238,9 @@ public class BufferWriter extends Writer {
 
         @Override
         public boolean onCursorRestore() {
-            cursorX = savedCursorX;
-            cursorY = savedCursorY;
+            // The limits are in case the screen was resized between save and restore
+            cursorX = Math.min(size().width() - 1, Math.max(savedCursorX, 0));
+            cursorY = Math.min(size().height() - 1, Math.max(savedCursorY, 0));
             return true;
         }
     }
