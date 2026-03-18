@@ -1,7 +1,7 @@
 /// usr/bin/env jbang "$0" "$@" ; exit $?
 
 // spotless:off
-//DEPS org.codejive.twinkle:twinkle-terminal-jline:1.0-SNAPSHOT
+//DEPS org.codejive.twinkle:twinkle-terminal-aesh:1.0-SNAPSHOT
 //DEPS org.codejive.twinkle:twinkle-shapes:1.0-SNAPSHOT
 //DEPS com.github.lalyos:jfiglet:0.0.9
 // spotless:on
@@ -40,6 +40,16 @@ class BouncingTwinkleDemo {
 
     private static final String URL = "https://github.com/codejive/twinkle";
 
+    private static final Borders.LineStyle[] borders =
+            new Borders.LineStyle[] {
+                Borders.LineStyle.ASCII, Borders.LineStyle.SINGLE, Borders.LineStyle.DOUBLE
+            };
+
+    private static final Borders.CornerStyle[] corners =
+            new Borders.CornerStyle[] {
+                Borders.CornerStyle.ASCII, Borders.CornerStyle.ROUND, Borders.CornerStyle.SQUARE
+            };
+
     private static final Color.BasicColor[] textPalette = {
         Color.BasicColor.RED,
         Color.BasicColor.YELLOW,
@@ -58,7 +68,6 @@ class BouncingTwinkleDemo {
 
     public static void main(String[] args) throws Exception {
         try (Terminal terminal = Terminal.getDefault()) {
-            // terminal.enterRawMode();
             size = terminal.size();
 
             String text = AnsiTricks.blockify(Sizer.trim(FigletFont.convertOneLine("TWINKLE")));
@@ -85,20 +94,18 @@ class BouncingTwinkleDemo {
                 buffers.primary(buffer);
 
                 Reader reader = terminal.reader();
-                while (true) {
-                    // Clear buffer for new frame
+                while (handleKeys(reader)) {
                     buffer.resize(size);
-                    // buffer.clear();
 
                     bounce();
                     colorize();
 
-                    Borders b =
+                    Borders border =
                             new Borders()
                                     .style(Style.ofFgColor(Color.BasicColor.GREEN))
                                     .lineStyle(lineStyle)
                                     .cornerStyle(cornerStyle);
-                    b.render(buffer);
+                    border.render(buffer);
 
                     Fluent f = writer.fluent();
                     f.at(2, 0).markup("{green}[ {white}%s{green} ]", size);
@@ -113,8 +120,6 @@ class BouncingTwinkleDemo {
 
                     fps.update();
                     Thread.sleep(currentSleep);
-
-                    if (handleKeys(reader) == -1) break;
                 }
             } finally {
                 // Show cursor and clear screen on exit
@@ -129,21 +134,11 @@ class BouncingTwinkleDemo {
         }
     }
 
-    private static Borders.LineStyle[] borders =
-            new Borders.LineStyle[] {
-                Borders.LineStyle.ASCII, Borders.LineStyle.SINGLE, Borders.LineStyle.DOUBLE
-            };
-
-    private static Borders.CornerStyle[] corners =
-            new Borders.CornerStyle[] {
-                Borders.CornerStyle.ASCII, Borders.CornerStyle.ROUND, Borders.CornerStyle.SQUARE
-            };
-
-    private static int handleKeys(Reader reader) throws IOException {
+    private static boolean handleKeys(Reader reader) throws IOException {
         int ch = reader.ready() ? reader.read() : -1;
         while (ch >= 0) {
             if (ch == 'q' || ch == 'Q') {
-                return -1;
+                return false;
             } else if (ch == 'h' || ch == 'H') {
                 toggleHelp();
             } else if (ch == 'b' || ch == 'B') {
@@ -157,7 +152,7 @@ class BouncingTwinkleDemo {
             }
             ch = reader.ready() ? reader.read() : -1;
         }
-        return 0;
+        return true;
     }
 
     private static <T> T cycle(T current, T[] values) {
@@ -169,30 +164,6 @@ class BouncingTwinkleDemo {
             }
         }
         return values[(idx + 1) % values.length];
-    }
-
-    private static Buffer drawHelp() {
-        Buffer buffer = helpBuffer;
-        PrintBufferWriter writer = buffer.writer();
-        Borders b =
-                new Borders()
-                        .lineStyle(lineStyle)
-                        .cornerStyle(cornerStyle)
-                        .style(Style.ofFgColor(Color.BasicColor.BRIGHT_MAGENTA));
-        b.render(buffer);
-        writer.fluent().at(2, 0).markup("{brightmagenta}{+}[ {white}Help Page{-} ]").done();
-        Fluent help =
-                Fluent.string()
-                        .white()
-                        .text("q - quit")
-                        .lf()
-                        .text("h - toggle this help")
-                        .lf()
-                        .text("b - cycle border style")
-                        .lf()
-                        .text("s - cycle speeds");
-        writer.fluent().at(3, 2).block(help).done();
-        return buffer;
     }
 
     private static void toggleHelp() {
@@ -211,6 +182,25 @@ class BouncingTwinkleDemo {
         if (helpElement.visible) {
             drawHelp();
         }
+    }
+
+    private static void drawHelp() {
+        PrintBufferWriter writer = helpBuffer.writer();
+        Borders b =
+                new Borders()
+                        .lineStyle(lineStyle)
+                        .cornerStyle(cornerStyle)
+                        .style(Style.ofFgColor(Color.BasicColor.BRIGHT_MAGENTA));
+        b.render(helpBuffer);
+        writer.fluent().at(2, 0).markup("{brightmagenta}{+}[ {white}Help Page{-} ]").done();
+        Fluent help =
+                Fluent.string()
+                        .white()
+                        .text("q - quit\n")
+                        .text("h - toggle this help\n")
+                        .text("b - cycle border style\n")
+                        .text("s - cycle speeds");
+        writer.fluent().at(3, 2).block(help).done();
     }
 
     private static void handleResize(Size newSize) {
