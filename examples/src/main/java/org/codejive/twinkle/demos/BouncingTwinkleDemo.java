@@ -103,7 +103,7 @@ class BouncingTwinkleDemo {
                     Fluent f = writer.fluent();
                     f.at(2, 0).markup("{green}[ {white}%s{green} ]", size);
                     f.at(size.width() / 2 - 3, 0)
-                            .markup("{green}[ {blue}{ul}{%s}Twinkle{/}{/ul}{green} ]", URL);
+                            .markup("{green}[ {blue}{ul}{$1}Twinkle{/}{/ul}{green} ]", URL);
                     f.at(size.width() - 12, 0)
                             .markup("{green}[ {+}{white}fps %s{-} ]", Math.round(fps.average()));
                     f.at(textX, textY).color(textColor).text(text).done();

@@ -109,7 +109,7 @@ public class FluentImpl implements Fluent {
     public Fluent markup(@NonNull Object obj, Object... args) {
         StringBuilder sb = new StringBuilder();
         FluentImpl f = new FluentImpl(sb, currentStyle);
-        f.markupParser.parse(f, obj.toString());
+        f.markupParser.parse(f, obj.toString(), args);
 
         Formatter fmt = new Formatter(appendable);
         fmt.format(sb.toString(), args);

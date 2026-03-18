@@ -571,6 +571,23 @@ public class TestFluent {
     }
 
     @Test
+    public void testTextWithFormattingInMarkup() {
+        Fluent stringFluent = Fluent.string();
+        // Markup is invalid so will be ignored (removed)
+        stringFluent.markup("{i}{%s}{/i}", "bold");
+        assertThat(stringFluent.toString()).isEqualTo(Ansi.italic() + Ansi.italicOff());
+    }
+
+    @Test
+    public void testTextWithArgumentInMarkup() {
+        Fluent stringFluent = Fluent.string();
+        // Markup is invalid so will be ignored (removed)
+        stringFluent.markup("{i}{$1}{/i}", "bold");
+        assertThat(stringFluent.toString())
+                .isEqualTo(Ansi.italic() + Ansi.bold() + Ansi.italicOff());
+    }
+
+    @Test
     public void testMarkupAppendable() {
         RecordingAppendable recapp = new RecordingAppendable();
         Fluent fluent = Fluent.of(recapp);
