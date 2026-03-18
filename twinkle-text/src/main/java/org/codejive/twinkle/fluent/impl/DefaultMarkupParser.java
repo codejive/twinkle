@@ -23,7 +23,7 @@ public class DefaultMarkupParser implements MarkupParser {
     private static Map<String, Color.BasicColor> colors;
 
     private static final Pattern markupPattern = Pattern.compile("(?<!\\{)\\{([^{}]+)}");
-    private static final Pattern varPattern = Pattern.compile("(?<!\\$)\\$(/?\\d+)");
+    private static final Pattern varPattern = Pattern.compile("(?<!\\$)\\$(\\d+)");
 
     @Override
     public void parse(Fluent fluent, String textWithMarkup, Object... args) {
@@ -95,11 +95,7 @@ public class DefaultMarkupParser implements MarkupParser {
 
     protected void applyVar(Appendable appendable, String varName, Object... args) {
         try {
-            if (varName.startsWith("/")) {
-                appendable.append("/").append(getVar(varName.substring(1), args));
-            } else {
-                appendable.append(getVar(varName, args));
-            }
+            appendable.append(getVar(varName, args));
         } catch (IOException e) {
             // Ignore
         }

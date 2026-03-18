@@ -448,4 +448,11 @@ public class TestDefaultMarkupParser {
         s.parse("{i}{$1}{/i}", "bold");
         assertThat(s.result()).isEqualTo(Ansi.italic() + Ansi.bold() + Ansi.italicOff());
     }
+
+    @Test
+    public void testTextWithArgumentInMarkup2() {
+        Setup s = new Setup();
+        s.parse("{i}{/$1}{/i}", "ul");
+        assertThat(s.result()).isEqualTo(Ansi.italic() + Ansi.underlinedOff() + Ansi.italicOff());
+    }
 }
