@@ -2,6 +2,7 @@ package org.codejive.twinkle.fluent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.ArrayList;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Color;
 import org.codejive.twinkle.ansi.Constants;
@@ -559,5 +560,47 @@ public class TestFluent {
         Fluent stringFluent = Fluent.string();
         stringFluent.bold().text("Hello").not().bold();
         assertThat(stringFluent.toString()).isEqualTo(Ansi.bold() + "Hello" + Ansi.normal());
+    }
+
+    @Test
+    public void testFormatMarkupOrdering() {
+        Fluent stringFluent = Fluent.string();
+        // Markup is applied first, then formatting, so markup is invalid and should be ignored
+        stringFluent.markup("{%s}", "bold");
+        assertThat(stringFluent.toString()).isEqualTo("");
+    }
+
+    @Test
+    public void testMarkupAppendable() {
+        RecordingAppendable recapp = new RecordingAppendable();
+        Fluent fluent = Fluent.of(recapp);
+        String txt = "this could be a very large string";
+        fluent.markup("{i}%s{/i}", txt);
+        assertThat(recapp.calls).hasSize(3);
+        assertThat(recapp.calls.get(0)).isEqualTo(Ansi.italic());
+        assertThat(recapp.calls.get(1)).isEqualTo(txt);
+        assertThat(recapp.calls.get(2)).isEqualTo(Ansi.italicOff());
+    }
+
+    public static class RecordingAppendable implements Appendable {
+        public ArrayList<CharSequence> calls = new ArrayList<>();
+
+        @Override
+        public Appendable append(CharSequence csq) {
+            calls.add(csq);
+            return this;
+        }
+
+        @Override
+        public Appendable append(CharSequence csq, int start, int end) {
+            calls.add(csq.subSequence(start, end));
+            return this;
+        }
+
+        @Override
+        public Appendable append(char c) {
+            calls.add("" + c);
+            return this;
+        }
     }
 }

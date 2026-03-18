@@ -6,7 +6,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.codejive.twinkle.ansi.Color;
 import org.codejive.twinkle.ansi.Hyperlink;
-import org.codejive.twinkle.fluent.Markup;
+import org.codejive.twinkle.fluent.Fluent;
+import org.codejive.twinkle.fluent.MarkupParser;
 import org.codejive.twinkle.fluent.commands.ColorCommands;
 import org.codejive.twinkle.fluent.commands.NegatableCommands;
 
@@ -16,46 +17,40 @@ import org.codejive.twinkle.fluent.commands.NegatableCommands;
  * like `{red}` applying a red color. While others can have parameters, like `{~10,5}` moving the
  * cursor to column 10 and row 5.
  */
-public class DefaultMarkup implements Markup {
-    protected final FluentImpl fluent;
-
+public class DefaultMarkupParser implements MarkupParser {
     private static Map<String, Color.BasicColor> colors;
 
     private static final Pattern markupPattern = Pattern.compile("(?<!\\{)\\{([^{}]*)}");
 
-    public DefaultMarkup(FluentImpl fluent) {
-        this.fluent = fluent;
-    }
-
     @Override
-    public void parse(Appendable appendable, String textWithMarkup) {
+    public void parse(Fluent fluent, String textWithMarkup) {
         // Call handleMarkup() for each markup pattern found in the text
         int lastIndex = 0;
         Matcher matcher = markupPattern.matcher(textWithMarkup);
         while (matcher.find()) {
             // Append text before the markup
             if (matcher.start() > lastIndex) {
-                append(appendable, textWithMarkup.substring(lastIndex, matcher.start()));
+                append(fluent, textWithMarkup.substring(lastIndex, matcher.start()));
             }
             // Handle the markup content
             String markupContent = matcher.group(1);
-            handleMarkup(appendable, markupContent);
+            handleMarkup(fluent, markupContent);
             lastIndex = matcher.end();
         }
         // Append any remaining text after the last markup
         if (lastIndex < textWithMarkup.length()) {
-            append(appendable, textWithMarkup.substring(lastIndex, textWithMarkup.length()));
+            append(fluent, textWithMarkup.substring(lastIndex, textWithMarkup.length()));
         }
     }
 
-    protected void handleMarkup(Appendable appendable, String markup) {
-        if (tryStyles(markup, fluent)) {
+    protected void handleMarkup(Fluent fluent, String markup) {
+        if (tryStyles(fluent, markup)) {
             return;
         }
 
         if (markup.startsWith("/") && markup.length() > 1) {
             String closeMarkup = markup.substring(1);
-            if (tryStyles(closeMarkup, fluent.not())) {
+            if (tryStyles(fluent.not(), closeMarkup)) {
                 return;
             }
         }
@@ -81,26 +76,20 @@ public class DefaultMarkup implements Markup {
                 return;
         }
 
-        if (tryPosition(markup)) {
+        if (tryPosition(fluent, markup)) {
             return;
         }
 
-        Hyperlink link = tryHyperlink(markup);
-        if (link != null) {
-            if (link == Hyperlink.END) {
-                fluent.lru();
-            } else {
-                fluent.url(link.url, link.id);
-            }
+        if (tryHyperlink(fluent, markup)) {
             return;
         }
 
-        if (tryColors(markup)) {
+        if (tryColors(fluent, markup)) {
             return;
         }
     }
 
-    private boolean tryStyles(String markup, NegatableCommands fluentNeg) {
+    private boolean tryStyles(NegatableCommands fluentNeg, String markup) {
         switch (markup.toLowerCase()) {
             case "bold":
             case "b":
@@ -135,7 +124,7 @@ public class DefaultMarkup implements Markup {
         return false;
     }
 
-    private boolean tryPosition(String markup) {
+    private boolean tryPosition(Fluent fluent, String markup) {
         switch (markup.toLowerCase()) {
             case "mark":
             case "@":
@@ -217,24 +206,27 @@ public class DefaultMarkup implements Markup {
         return Integer.parseInt(pos.trim());
     }
 
-    private Hyperlink tryHyperlink(String markup) {
+    private boolean tryHyperlink(Fluent fluent, String markup) {
         if (markup.equals("/")) {
-            return Hyperlink.END;
+            fluent.lru();
+            return true;
         } else if (markup.startsWith("http://") || markup.startsWith("https://")) {
-            return Hyperlink.of(markup);
+            Hyperlink link = Hyperlink.of(markup);
+            fluent.url(link.url, link.id);
+            return true;
         }
-        return null;
+        return false;
     }
 
-    private boolean tryColors(String markup) {
+    private boolean tryColors(Fluent fluent, String markup) {
         if (markup.startsWith("bg:")) {
-            return tryColors(markup.substring(3), fluent.bg());
+            return tryColorsFgBg(fluent.bg(), markup.substring(3));
         } else {
-            return tryColors(markup, fluent);
+            return tryColorsFgBg(fluent, markup);
         }
     }
 
-    private boolean tryColors(String markup, ColorCommands fluentColors) {
+    private boolean tryColorsFgBg(ColorCommands fluentColors, String markup) {
         // Try #RRGGBB format first
         Color color = tryRgbColor(markup);
         if (color == null) {
@@ -289,9 +281,9 @@ public class DefaultMarkup implements Markup {
         return colors.get(lmarkup);
     }
 
-    protected void append(Appendable appendable, String text) {
+    protected void append(Fluent fluent, String text) {
         try {
-            appendable.append(text);
+            fluent.plain(text);
         } catch (Exception e) {
             // We simply ignore errors
         }

@@ -13,7 +13,7 @@ import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.ansi.util.AnsiTricks;
 import org.codejive.twinkle.ansi.util.Printable;
 import org.codejive.twinkle.fluent.Fluent;
-import org.codejive.twinkle.fluent.Markup;
+import org.codejive.twinkle.fluent.MarkupParser;
 import org.codejive.twinkle.fluent.commands.ColorCommands;
 import org.codejive.twinkle.fluent.commands.LineCommands;
 import org.codejive.twinkle.fluent.commands.NegatableCommands;
@@ -33,7 +33,7 @@ public class FluentImpl implements Fluent {
     protected final Style startingStyle;
     protected Style currentStyle;
     protected Deque<Style> styleStack;
-    protected Markup markup;
+    protected MarkupParser markupParser;
 
     public static FluentImpl of(Appendable appendable, Style startingStyle) {
         return new FluentImpl(appendable, startingStyle);
@@ -48,12 +48,12 @@ public class FluentImpl implements Fluent {
         this.startingStyle = startingStyle;
         this.currentStyle = startingStyle;
         this.styleStack = new ArrayDeque<>();
-        this.markup = new DefaultMarkup(this);
+        this.markupParser = new DefaultMarkupParser();
     }
 
     @Override
-    public Fluent markupParser(Markup markup) {
-        this.markup = markup;
+    public Fluent markupParser(MarkupParser markupParser) {
+        this.markupParser = markupParser;
         return this;
     }
 
@@ -101,9 +101,18 @@ public class FluentImpl implements Fluent {
     }
 
     @Override
+    public FluentImpl plain(@NonNull String text) {
+        return append(text);
+    }
+
+    @Override
     public Fluent markup(@NonNull Object obj, Object... args) {
+        StringBuilder sb = new StringBuilder();
+        FluentImpl f = new FluentImpl(sb, currentStyle);
+        f.markupParser.parse(f, obj.toString());
+
         Formatter fmt = new Formatter(appendable);
-        fmt.format(markup.parse(obj.toString()), args);
+        fmt.format(sb.toString(), args);
         return this;
     }
 

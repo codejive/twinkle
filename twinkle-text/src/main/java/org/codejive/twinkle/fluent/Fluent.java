@@ -58,10 +58,10 @@ public interface Fluent
      * Sets the Markup parser to use for parsing markup patterns in text. This is useful for
      * allowing users to define their own custom markup syntax.
      *
-     * @param markup the Markup parser to use
+     * @param markupParser the Markup parser to use
      * @return this Fluent instance for chaining
      */
-    Fluent markupParser(Markup markup);
+    Fluent markupParser(MarkupParser markupParser);
 
     /**
      * Returns the current style combining the styles that have been applied since the creation of
