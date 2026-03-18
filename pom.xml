@@ -22,6 +22,7 @@
         <module>twinkle-text</module>
         <module>twinkle-screen</module>
         <module>twinkle-shapes</module>
+        <module>twinkle-image</module>
         <module>twinkle-terminal</module>
         <module>twinkle-terminal-aesh</module>
         <module>twinkle-terminal-jline</module>
