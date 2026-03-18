@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import org.codejive.twinkle.ansi.Style;
 import org.codejive.twinkle.ansi.util.Printable;
+import org.codejive.twinkle.text.Position;
 import org.codejive.twinkle.text.Size;
 import org.jspecify.annotations.NonNull;
 
@@ -16,16 +17,14 @@ public class BufferStack implements Printable {
 
     public static class BufferElement {
         public Buffer buffer;
-        public int xPos;
-        public int yPos;
+        public Position pos;
         public int zIndex;
         public boolean visible;
         public String transparancy;
 
-        public BufferElement(Buffer buffer, int xPos, int yPos, int zIndex) {
+        public BufferElement(Buffer buffer, Position pos, int zIndex) {
             this.buffer = buffer;
-            this.xPos = xPos;
-            this.yPos = yPos;
+            this.pos = pos;
             this.zIndex = zIndex;
             this.visible = true;
             this.transparancy = "\0";
@@ -73,7 +72,7 @@ public class BufferStack implements Printable {
 
     public List<BufferElement> list() {
         List<BufferElement> elems = list_();
-        elems.add(0, new BufferElement(primary, 0, 0, Integer.MIN_VALUE));
+        elems.add(0, new BufferElement(primary, Position.ZERO, Integer.MIN_VALUE));
         return elems;
     }
 
@@ -85,13 +84,19 @@ public class BufferStack implements Printable {
     }
 
     public BufferElement add(Buffer buffer) {
-        BufferElement element = new BufferElement(buffer, 0, 0, bufferStack.size());
+        BufferElement element = new BufferElement(buffer, Position.ZERO, bufferStack.size());
+        bufferStack.add(element);
+        return element;
+    }
+
+    public BufferElement add(Buffer buffer, Position pos, int zIndex) {
+        BufferElement element = new BufferElement(buffer, pos, zIndex);
         bufferStack.add(element);
         return element;
     }
 
     public BufferElement add(Buffer buffer, int xPos, int yPos, int zIndex) {
-        BufferElement element = new BufferElement(buffer, xPos, yPos, zIndex);
+        BufferElement element = new BufferElement(buffer, Position.of(xPos, yPos), zIndex);
         bufferStack.add(element);
         return element;
     }
@@ -121,7 +126,7 @@ public class BufferStack implements Printable {
         for (BufferElement element : list_()) {
             if (element.visible) {
                 element.buffer.overlayOn(
-                        combined, element.xPos, element.yPos, element.transparancy);
+                        combined, element.pos.x(), element.pos.y(), element.transparancy);
             }
         }
         return combined;

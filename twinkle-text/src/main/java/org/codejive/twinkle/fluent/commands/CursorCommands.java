@@ -1,6 +1,7 @@
 package org.codejive.twinkle.fluent.commands;
 
 import org.codejive.twinkle.fluent.Fluent;
+import org.codejive.twinkle.text.Position;
 
 public interface CursorCommands {
     /**
@@ -9,6 +10,17 @@ public interface CursorCommands {
      * @return this Fluent instance for chaining
      */
     Fluent home();
+
+    /**
+     * Positions the cursor at the specified column (x) and row (y). Coordinates are 0-based (the
+     * top-left corner is 0,0).
+     *
+     * @param pos the position (0-based)
+     * @return this Fluent instance for chaining
+     */
+    default Fluent at(Position pos) {
+        return at(pos.x(), pos.y());
+    }
 
     /**
      * Positions the cursor at the specified column (x) and row (y). Coordinates are 0-based (the
