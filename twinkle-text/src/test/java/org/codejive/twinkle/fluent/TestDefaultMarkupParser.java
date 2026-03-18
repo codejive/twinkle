@@ -28,8 +28,8 @@ public class TestDefaultMarkupParser {
         final FluentImpl fluent = FluentImpl.of(sb, Style.DEFAULT);
         final DefaultMarkupParser markup = new DefaultMarkupParser();
 
-        void parse(String text) {
-            markup.parse(fluent, text);
+        void parse(String text, Object... args) {
+            markup.parse(fluent, text, args);
         }
 
         String result() {
@@ -440,5 +440,12 @@ public class TestDefaultMarkupParser {
         Setup s = new Setup();
         s.parse("{i}%s{/i}");
         assertThat(s.result()).isEqualTo(Ansi.italic() + "%s" + Ansi.italicOff());
+    }
+
+    @Test
+    public void testTextWithArgumentInMarkup() {
+        Setup s = new Setup();
+        s.parse("{i}{$1}{/i}", "bold");
+        assertThat(s.result()).isEqualTo(Ansi.italic() + Ansi.bold() + Ansi.italicOff());
     }
 }

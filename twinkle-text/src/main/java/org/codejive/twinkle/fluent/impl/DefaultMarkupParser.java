@@ -1,7 +1,9 @@
 package org.codejive.twinkle.fluent.impl;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.codejive.twinkle.ansi.Color;
@@ -20,30 +22,23 @@ import org.codejive.twinkle.fluent.commands.NegatableCommands;
 public class DefaultMarkupParser implements MarkupParser {
     private static Map<String, Color.BasicColor> colors;
 
-    private static final Pattern markupPattern = Pattern.compile("(?<!\\{)\\{([^{}]*)}");
+    private static final Pattern markupPattern = Pattern.compile("(?<!\\{)\\{([^{}]+)}");
+    private static final Pattern varPattern = Pattern.compile("(?<!\\$)\\$(/?\\d+)");
 
     @Override
-    public void parse(Fluent fluent, String textWithMarkup) {
+    public void parse(Fluent fluent, String textWithMarkup, Object... args) {
         // Call handleMarkup() for each markup pattern found in the text
-        int lastIndex = 0;
-        Matcher matcher = markupPattern.matcher(textWithMarkup);
-        while (matcher.find()) {
-            // Append text before the markup
-            if (matcher.start() > lastIndex) {
-                append(fluent, textWithMarkup.substring(lastIndex, matcher.start()));
-            }
-            // Handle the markup content
-            String markupContent = matcher.group(1);
-            handleMarkup(fluent, markupContent);
-            lastIndex = matcher.end();
-        }
-        // Append any remaining text after the last markup
-        if (lastIndex < textWithMarkup.length()) {
-            append(fluent, textWithMarkup.substring(lastIndex, textWithMarkup.length()));
-        }
+        applyPattern(
+                fluent::plain,
+                markupPattern,
+                "{",
+                textWithMarkup,
+                markup -> handleMarkup(fluent, markup, args));
     }
 
-    protected void handleMarkup(Fluent fluent, String markup) {
+    protected void handleMarkup(Fluent fluent, String markup, Object... args) {
+        markup = applySubstitutions(markup, args);
+
         if (tryStyles(fluent, markup)) {
             return;
         }
@@ -87,6 +82,48 @@ public class DefaultMarkupParser implements MarkupParser {
         if (tryColors(fluent, markup)) {
             return;
         }
+    }
+
+    private String applySubstitutions(String markup, Object... args) {
+        if (markup.contains("$")) {
+            StringBuilder sb = new StringBuilder();
+            applyPattern(sb::append, varPattern, "$", markup, vn -> applyVar(sb, vn, args));
+            return sb.toString();
+        }
+        return markup;
+    }
+
+    protected void applyVar(Appendable appendable, String varName, Object... args) {
+        try {
+            if (varName.startsWith("/")) {
+                appendable.append("/").append(getVar(varName.substring(1), args));
+            } else {
+                appendable.append(getVar(varName, args));
+            }
+        } catch (IOException e) {
+            // Ignore
+        }
+    }
+
+    protected String getVar(String varName, Object... args) {
+        try {
+            int num = Integer.parseInt(varName) - 1;
+            if (num >= args.length) {
+                throw new IndexOutOfBoundsException(
+                        "Variable substitution index out of bounds: "
+                                + num
+                                + " is larger than the number of provided arguments: "
+                                + args.length);
+            }
+            if (num < 0) {
+                throw new IndexOutOfBoundsException(
+                        "Variable substitution index must be 1 or higher");
+            }
+            return String.valueOf(args[num]);
+        } catch (NumberFormatException e) {
+            // Ignore
+        }
+        return "";
     }
 
     private boolean tryStyles(NegatableCommands fluentNeg, String markup) {
@@ -281,11 +318,31 @@ public class DefaultMarkupParser implements MarkupParser {
         return colors.get(lmarkup);
     }
 
-    protected void append(Fluent fluent, String text) {
-        try {
-            fluent.plain(text);
-        } catch (Exception e) {
-            // We simply ignore errors
+    protected void applyPattern(
+            Consumer<String> appendable,
+            Pattern pattern,
+            String token,
+            String textWithMarkup,
+            Consumer<String> handler) {
+        int lastIndex = 0;
+        Matcher matcher = pattern.matcher(textWithMarkup);
+        while (matcher.find()) {
+            // Append text before the markup
+            if (matcher.start() > lastIndex) {
+                String txt = textWithMarkup.substring(lastIndex, matcher.start());
+                txt = txt.replace(token + token, token);
+                appendable.accept(txt);
+            }
+            // Handle the markup content
+            String markupContent = matcher.group(1);
+            handler.accept(markupContent);
+            lastIndex = matcher.end();
+        }
+        // Append any remaining text after the last markup
+        if (lastIndex < textWithMarkup.length()) {
+            String txt = textWithMarkup.substring(lastIndex);
+            txt = txt.replace(token + token, token);
+            appendable.accept(txt);
         }
     }
 }
