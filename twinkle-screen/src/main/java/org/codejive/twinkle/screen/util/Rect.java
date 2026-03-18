@@ -1,11 +1,12 @@
 package org.codejive.twinkle.screen.util;
 
+import org.codejive.twinkle.text.Position;
 import org.codejive.twinkle.text.Size;
 import org.jspecify.annotations.NonNull;
 
 public class Rect implements Sized {
-    private final int left, top;
-    private final Size size;
+    private final @NonNull Position pos;
+    private final @NonNull Size size;
 
     public static @NonNull Rect of(int width, int height) {
         return of(0, 0, width, height);
@@ -16,33 +17,44 @@ public class Rect implements Sized {
     }
 
     public static @NonNull Rect of(int left, int top, int width, int height) {
-        return new Rect(left, top, Size.of(width, height));
+        return new Rect(Position.of(left, top), Size.of(width, height));
     }
 
     public static @NonNull Rect of(int left, int top, @NonNull Size size) {
-        return new Rect(left, top, size);
+        return new Rect(Position.of(left, top), size);
     }
 
-    public Rect(int left, int top, @NonNull Size size) {
-        this.left = left;
-        this.top = top;
+    public static @NonNull Rect of(@NonNull Position pos, @NonNull Size size) {
+        return new Rect(pos, size);
+    }
+
+    public Rect(@NonNull Position pos, @NonNull Size size) {
+        this.pos = pos;
         this.size = size;
     }
 
+    public int x() {
+        return pos.x();
+    }
+
+    public int y() {
+        return pos.y();
+    }
+
     public int left() {
-        return left;
+        return pos.x();
     }
 
     public int right() {
-        return left + width() - 1;
+        return left() + width() - 1;
     }
 
     public int top() {
-        return top;
+        return pos.y();
     }
 
     public int bottom() {
-        return top + height() - 1;
+        return top() + height() - 1;
     }
 
     public int width() {
@@ -51,6 +63,10 @@ public class Rect implements Sized {
 
     public int height() {
         return size.height();
+    }
+
+    public @NonNull Position position() {
+        return pos;
     }
 
     @Override
@@ -78,31 +94,31 @@ public class Rect implements Sized {
 
     public Rect grow(int leftAmount, int topAmount, int rightAmount, int bottomAmount) {
         return Rect.of(
-                left - leftAmount,
-                top - topAmount,
+                left() - leftAmount,
+                top() - topAmount,
                 Math.max(width() + leftAmount + rightAmount, 0),
                 Math.max(height() + topAmount + bottomAmount, 0));
     }
 
     public Rect limited(@NonNull Rect availableRect) {
-        int l = Math.max(left, availableRect.left());
-        int t = Math.max(top, availableRect.top());
+        int l = Math.max(left(), availableRect.left());
+        int t = Math.max(top(), availableRect.top());
         int r = Math.min(right(), availableRect.right());
         int b = Math.min(bottom(), availableRect.bottom());
         return Rect.of(l, t, r - l + 1, b - t + 1);
     }
 
     public Rect appliedTo(@NonNull Rect rect) {
-        return of(rect.left() + left, rect.top() + top, size);
+        return of(rect.left() + left(), rect.top() + top(), size);
     }
 
     @Override
     public String toString() {
         return "Rect{"
                 + "left="
-                + left
+                + left()
                 + ", top="
-                + top
+                + top()
                 + ", width="
                 + width()
                 + ", height="
