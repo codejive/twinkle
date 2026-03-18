@@ -5,19 +5,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Color;
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.fluent.impl.DefaultMarkup;
+import org.codejive.twinkle.fluent.impl.DefaultMarkupParser;
 import org.codejive.twinkle.fluent.impl.FluentImpl;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests for {@link DefaultMarkup}.
+ * Tests for {@link DefaultMarkupParser}.
  *
  * <p>Each test creates a {@link FluentImpl} backed by a {@link StringBuilder} and passes it to a
- * {@link DefaultMarkup} instance. The same {@link StringBuilder} is used as the target appendable
- * for {@code parse()}, so plain text and ANSI escape sequences land in the same buffer in the
- * correct order.
+ * {@link DefaultMarkupParser} instance. The same {@link StringBuilder} is used as the target
+ * appendable for {@code parse()}, so plain text and ANSI escape sequences land in the same buffer
+ * in the correct order.
  */
-public class TestDefaultMarkup {
+public class TestDefaultMarkupParser {
 
     /**
      * Creates a fresh FluentImpl + DefaultMarkup pair that both write to the returned
@@ -26,10 +26,10 @@ public class TestDefaultMarkup {
     private static class Setup {
         final StringBuilder sb = new StringBuilder();
         final FluentImpl fluent = FluentImpl.of(sb, Style.DEFAULT);
-        final DefaultMarkup markup = new DefaultMarkup(fluent);
+        final DefaultMarkupParser markup = new DefaultMarkupParser();
 
         void parse(String text) {
-            markup.parse(sb, text);
+            markup.parse(fluent, text);
         }
 
         String result() {
@@ -193,10 +193,6 @@ public class TestDefaultMarkup {
         assertThat(s.result()).isEqualTo(Ansi.italic() + "on" + Ansi.italicOff() + "off");
     }
 
-    // -------------------------------------------------------------------------
-    // Color markup
-    // -------------------------------------------------------------------------
-
     @Test
     public void testRedColorMarkup() {
         Setup s = new Setup();
@@ -274,6 +270,21 @@ public class TestDefaultMarkup {
     @Test
     public void testMultipleMarkupInOneString2() {
         Setup s = new Setup();
+        s.parse("A{brightmagenta}B{white}C{brightmagenta}D");
+        assertThat(s.result())
+                .isEqualTo(
+                        "A"
+                                + Color.BasicColor.MAGENTA.bright().toAnsiFg()
+                                + "B"
+                                + Color.BasicColor.WHITE.toAnsiFg()
+                                + "C"
+                                + Color.BasicColor.MAGENTA.bright().toAnsiFg()
+                                + "D");
+    }
+
+    @Test
+    public void testMarkupPushPopInOneString() {
+        Setup s = new Setup();
         s.parse("A{brightmagenta}{+}B{white}C{-}D");
         assertThat(s.result())
                 .isEqualTo(
@@ -312,10 +323,6 @@ public class TestDefaultMarkup {
                                 + Ansi.underlinedOff()
                                 + Ansi.italicOff());
     }
-
-    // -------------------------------------------------------------------------
-    // Cursor position markup
-    // -------------------------------------------------------------------------
 
     @Test
     public void testPositionMarkup() {
@@ -373,10 +380,6 @@ public class TestDefaultMarkup {
         assertThat(s.result()).isEqualTo(Ansi.cursorRestore());
     }
 
-    // -------------------------------------------------------------------------
-    // Hyperlink markup
-    // -------------------------------------------------------------------------
-
     @Test
     public void testHyperlinkMarkup() {
         Setup s = new Setup();
@@ -391,10 +394,6 @@ public class TestDefaultMarkup {
         s.parse("{/}");
         assertThat(s.result()).isEqualTo(Ansi.linkEnd());
     }
-
-    // -------------------------------------------------------------------------
-    // Push / Pop markup
-    // -------------------------------------------------------------------------
 
     @Test
     public void testPushPlusShorthand() {
@@ -415,10 +414,6 @@ public class TestDefaultMarkup {
         assertThat(s.fluent.style()).isEqualTo(styleBeforePush);
     }
 
-    // -------------------------------------------------------------------------
-    // Unknown / invalid markup is silently ignored
-    // -------------------------------------------------------------------------
-
     @Test
     public void testUnknownMarkupIsIgnored() {
         Setup s = new Setup();
@@ -438,5 +433,12 @@ public class TestDefaultMarkup {
         Setup s = new Setup();
         s.parse("{~abc,def}text");
         assertThat(s.result()).isEqualTo("text");
+    }
+
+    @Test
+    public void testTextWithFormatting() {
+        Setup s = new Setup();
+        s.parse("{i}%s{/i}");
+        assertThat(s.result()).isEqualTo(Ansi.italic() + "%s" + Ansi.italicOff());
     }
 }

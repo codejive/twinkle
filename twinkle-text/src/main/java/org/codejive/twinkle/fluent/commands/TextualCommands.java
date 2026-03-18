@@ -27,6 +27,14 @@ public interface TextualCommands {
      */
     Fluent text(@NonNull Object obj, Object... args);
 
+    /**
+     * Writes the given string
+     *
+     * @param text the text to output
+     * @return this Fluent instance for chaining
+     */
+    Fluent plain(@NonNull String text);
+
     Fluent markup(@NonNull Object obj, Object... args);
 
     /**
