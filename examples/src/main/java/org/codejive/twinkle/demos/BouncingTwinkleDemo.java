@@ -12,31 +12,36 @@ import com.github.lalyos.jfiglet.FigletFont;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Supplier;
 import org.codejive.twinkle.ansi.Ansi;
 import org.codejive.twinkle.ansi.Color;
 import org.codejive.twinkle.ansi.Style;
-import org.codejive.twinkle.ansi.util.AnsiTricks;
+import org.codejive.twinkle.ansi.util.Printable;
 import org.codejive.twinkle.fluent.Fluent;
 import org.codejive.twinkle.screen.Buffer;
 import org.codejive.twinkle.screen.BufferStack;
 import org.codejive.twinkle.screen.io.PrintBufferWriter;
 import org.codejive.twinkle.screen.util.FrameCounter;
+import org.codejive.twinkle.screen.util.Sized;
 import org.codejive.twinkle.shapes.Borders;
 import org.codejive.twinkle.terminal.Terminal;
+import org.codejive.twinkle.text.Position;
 import org.codejive.twinkle.text.Size;
 import org.codejive.twinkle.text.Sizer;
+import org.jspecify.annotations.NonNull;
 
 class BouncingTwinkleDemo {
 
     private static final BufferStack buffers = BufferStack.create();
     private static final Buffer helpBuffer = Buffer.of(30, 10);
     private static volatile Size size;
-    private static volatile Size textSize;
-    private static volatile int minX, minY, maxX, maxY, textX, textY, dx, dy;
+    private static volatile Position textPos;
+    private static volatile int dx, dy;
     private static volatile long currentSleep = 50;
     private static volatile Borders.LineStyle lineStyle = Borders.LineStyle.ASCII;
     private static volatile Borders.CornerStyle cornerStyle = Borders.CornerStyle.ASCII;
     private static final FrameCounter fps = new FrameCounter();
+    private static final FigletShape text = new FigletShape("TWINKLE");
 
     private static final String URL = "https://github.com/codejive/twinkle";
 
@@ -70,21 +75,13 @@ class BouncingTwinkleDemo {
         try (Terminal terminal = Terminal.getDefault()) {
             size = terminal.size();
 
-            String text = AnsiTricks.blockify(Sizer.trim(FigletFont.convertOneLine("TWINKLE")));
-            textSize = Sizer.measure(text);
-
             terminal.onResize(BouncingTwinkleDemo::handleResize);
 
             try {
                 // Hide cursor and clear screen
                 Fluent.of(terminal.writer()).screen().alternate().hide().screen().clear().done();
 
-                minX = 1;
-                minY = 1;
-                maxX = Math.max(minX, size.width() - textSize.width() - 1);
-                maxY = Math.max(minY, size.height() - textSize.height() - 1);
-                textX = Math.max(minX, Math.min((size.width() - textSize.width()) / 2, maxX));
-                textY = Math.max(minY, Math.min((size.height() - textSize.height()) / 2, maxY));
+                textPos = size.center(text.size());
                 dx = 1;
                 dy = 1;
 
@@ -113,7 +110,7 @@ class BouncingTwinkleDemo {
                             .markup("{green}[ {blue}{ul}{$1}Twinkle{/}{/ul}{green} ]", URL);
                     f.at(size.width() - 12, 0)
                             .markup("{green}[ {+}{white}fps %s{-} ]", Math.round(fps.average()));
-                    f.at(textX, textY).color(textColor).text(text).done();
+                    f.at(textPos).color(textColor).text(text).done();
 
                     // Write entire frame buffer to connection in one call
                     terminal.writer().write(Ansi.cursorHome() + buffers.toAnsi());
@@ -170,11 +167,7 @@ class BouncingTwinkleDemo {
         BufferStack.BufferElement helpElement = buffers.contains(helpBuffer);
         if (helpElement == null) {
             helpElement =
-                    buffers.add(
-                            helpBuffer,
-                            size.width() / 2 - helpBuffer.size().width() / 2,
-                            size.height() / 2 - helpBuffer.size().height() / 2,
-                            Integer.MAX_VALUE);
+                    buffers.add(helpBuffer, size.center(helpBuffer.size()), Integer.MAX_VALUE);
             helpElement.transparancy = "";
         } else {
             helpElement.visible = !helpElement.visible;
@@ -204,30 +197,31 @@ class BouncingTwinkleDemo {
     }
 
     private static void handleResize(Size newSize) {
-        maxX = Math.max(minX, newSize.width() - textSize.width() - 1);
-        maxY = Math.max(minY, newSize.height() - textSize.height() - 1);
         size = newSize;
+        BufferStack.BufferElement helpElement = buffers.contains(helpBuffer);
+        if (helpElement != null) {
+            helpElement.pos = size.center(helpBuffer.size());
+        }
     }
 
     private static void bounce() {
-        textX = Math.max(minX, Math.min(textX, maxX));
-        textY = Math.max(minY, Math.min(textY, maxY));
+        Size bounceSize = size.shrink(text.size()).shrink(1, 1);
+        int textX = textPos.x();
+        int textY = textPos.y();
 
-        if (maxX > minX) {
-            textX += dx;
-            if (textX <= minX || textX >= maxX) {
-                textX = Math.max(minX, Math.min(textX, maxX));
-                dx = -dx;
-            }
+        textX += dx;
+        if (textX <= 1 || textX >= bounceSize.width()) {
+            textX = Math.max(1, Math.min(textX, bounceSize.width()));
+            dx = -dx;
         }
 
-        if (maxY > minY) {
-            textY += dy;
-            if (textY <= minY || textY >= maxY) {
-                textY = Math.max(minY, Math.min(textY, maxY));
-                dy = -dy;
-            }
+        textY += dy;
+        if (textY <= 1 || textY >= bounceSize.height()) {
+            textY = Math.max(1, Math.min(textY, bounceSize.height()));
+            dy = -dy;
         }
+
+        textPos = Position.of(textX, textY);
     }
 
     private static void colorize() {
@@ -235,5 +229,98 @@ class BouncingTwinkleDemo {
             int idx = ThreadLocalRandom.current().nextInt(textPalette.length);
             textColor = textPalette[idx];
         }
+    }
+
+    static class FigletShape extends CachingSupplierShape {
+        private String text;
+
+        public FigletShape(String initialText) {
+            super(null);
+            text(initialText);
+        }
+
+        public void text(String text) {
+            this.text = text;
+            update();
+        }
+
+        protected String getUpdated() {
+            try {
+                return Sizer.trim(FigletFont.convertOneLine(text));
+            } catch (Exception e) {
+                return "???";
+            }
+        }
+    }
+
+    static class CachingSupplierShape extends SupplierShape {
+        protected volatile String contents;
+        protected volatile Size size;
+
+        public CachingSupplierShape(Supplier<String> supplier) {
+            super(supplier);
+            this.contents = null;
+            this.size = null;
+        }
+
+        public String get() {
+            if (contents == null) {
+                contents = getUpdated();
+                size = null;
+            }
+            return contents;
+        }
+
+        protected void update() {
+            contents = null;
+            size = null;
+        }
+
+        @Override
+        public @NonNull Size size() {
+            if (size == null) {
+                size = Sizer.measure(get());
+            }
+            return size;
+        }
+    }
+
+    abstract static class SupplierShape implements Supplier<String>, Printable, Shape {
+        protected final Supplier<String> supplier;
+
+        public SupplierShape(Supplier<String> supplier) {
+            this.supplier = supplier;
+        }
+
+        public String get() {
+            if (supplier == null) {
+                throw new IllegalStateException(
+                        "Internal error: either provide a Supplier or override get()");
+            }
+            return getUpdated();
+        }
+
+        protected String getUpdated() {
+            return supplier.get();
+        }
+
+        @Override
+        public @NonNull Appendable toAnsi(
+                @NonNull Appendable appendable, @NonNull Style currentStyle) {
+            try {
+                return appendable.append(get());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    interface Shape extends Sized {
+
+        default @NonNull Size size() {
+            return Size.MAX;
+        }
+
+        default void resize(@NonNull Size availableSize) {}
     }
 }
