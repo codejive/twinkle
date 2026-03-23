@@ -17,7 +17,7 @@
     <description>Terminal implementation using Aesh</description>
 
     <properties>
-        <version.jline>3.30.6</version.jline>
+        <version.aesh>3.4</version.aesh>
     </properties>
 
     <dependencies>
@@ -30,7 +30,7 @@
         <dependency>
             <groupId>org.aesh</groupId>
             <artifactId>terminal-tty</artifactId>
-            <version>3.4-dev</version>
+            <version>${version.aesh}</version>
         </dependency>
     </dependencies>
 
