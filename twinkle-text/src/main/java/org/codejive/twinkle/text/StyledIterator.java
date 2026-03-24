@@ -72,16 +72,6 @@ public class StyledIterator implements SequenceIterator {
     }
 
     @Override
-    public int begin() {
-        return delegate.begin();
-    }
-
-    @Override
-    public int end() {
-        return delegate.end();
-    }
-
-    @Override
     public String sequence() {
         return delegate.sequence();
     }

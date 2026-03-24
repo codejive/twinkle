@@ -7,13 +7,13 @@ import org.codejive.twinkle.ansi.util.AnsiOutputParser;
 import org.codejive.twinkle.ansi.util.AnsiOutputParser.AnsiSequenceHandler;
 import org.codejive.twinkle.screen.Buffer;
 import org.codejive.twinkle.screen.Buffer.LinkPrintOption;
-import org.codejive.twinkle.text.SequenceDecoder;
 import org.codejive.twinkle.text.Size;
+import org.codejive.twinkle.text.UnicodeDecoder;
 import org.jspecify.annotations.NonNull;
 
 public class BufferWriter extends Writer {
     protected Buffer buffer;
-    protected SequenceDecoder decoder;
+    protected UnicodeDecoder decoder;
     int cursorX;
     int cursorY;
     private int savedCursorX;
@@ -26,7 +26,7 @@ public class BufferWriter extends Writer {
 
     public BufferWriter(@NonNull Buffer buffer) {
         this.buffer = buffer;
-        this.decoder = new SequenceDecoder();
+        this.decoder = new UnicodeDecoder();
         this.cursorX = 0;
         this.cursorY = 0;
         this.savedCursorX = 0;
@@ -73,7 +73,7 @@ public class BufferWriter extends Writer {
         }
         decoder.finish();
         if (decoder.isReady()) {
-            if (decoder.state() == SequenceDecoder.State.ANSI_ESCAPE_SEQUENCE) {
+            if (decoder.state() == UnicodeDecoder.ANSI) {
                 handleAnsiSequence(decoder.toString());
             } else if (decoder.codepoint() == '\n') {
                 cursorX = 0;
