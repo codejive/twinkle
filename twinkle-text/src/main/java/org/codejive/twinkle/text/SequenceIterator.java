@@ -39,12 +39,6 @@ public interface SequenceIterator {
     /** Returns the full sequence of the last returned codepoint from {@link #next()}. */
     String sequence();
 
-    /** Returns the start index of the current sequence in characters. */
-    int begin();
-
-    /** Returns the end index of the current sequence in characters. */
-    int end();
-
     static SequenceIterator of(CharSequence text) {
         return new CharSequenceSequenceIterator(text);
     }
@@ -104,7 +98,7 @@ abstract class BaseSequenceIterator implements SequenceIterator {
 class CharSequenceSequenceIterator extends BaseSequenceIterator {
     private final CharSequence text;
     private final int length;
-    private final SequenceDecoder decoder = new SequenceDecoder();
+    private final UnicodeDecoder decoder = new UnicodeDecoder();
 
     private int cursor = 0;
     private int sequenceStart = 0;
@@ -144,16 +138,6 @@ class CharSequenceSequenceIterator extends BaseSequenceIterator {
         return text.subSequence(sequenceStart, sequenceEnd).toString();
     }
 
-    @Override
-    public int begin() {
-        return sequenceStart;
-    }
-
-    @Override
-    public int end() {
-        return sequenceEnd;
-    }
-
     private void primeNext() {
         if (cursor >= length) {
             nextLeadCodePoint = -1;
@@ -184,12 +168,12 @@ class CharSequenceSequenceIterator extends BaseSequenceIterator {
             cursor += cpChars;
         }
 
-        if (cursor >= length || decoder.state() == SequenceDecoder.State.INCOMPLETE) {
+        if (cursor >= length || decoder.state() == UnicodeDecoder.INCOMPLETE) {
             decoder.finish();
         }
 
         sequenceEnd = cursor;
-        if (decoder.state() == SequenceDecoder.State.ANSI_ESCAPE_SEQUENCE) {
+        if (decoder.state() == UnicodeDecoder.ANSI) {
             nextLeadCodePoint = Constants.ESC;
             currentWidth = 0;
         } else {
@@ -212,12 +196,10 @@ class CharSequenceSequenceIterator extends BaseSequenceIterator {
 class ReaderSequenceIterator extends BaseSequenceIterator {
     private final PushbackReader reader;
     private final StringBuilder currentSequence = new StringBuilder();
-    private final SequenceDecoder decoder = new SequenceDecoder();
+    private final UnicodeDecoder decoder = new UnicodeDecoder();
     private int nextLeadCodePoint = -1;
     private boolean primed = false;
     private boolean exhausted = false;
-    private int position = 0;
-    private int sequenceStart = 0;
 
     /** Creates a SequenceIterator that reads from the given Reader. */
     ReaderSequenceIterator(Reader reader) {
@@ -251,21 +233,8 @@ class ReaderSequenceIterator extends BaseSequenceIterator {
         return currentSequence.toString();
     }
 
-    /** Returns the start index of the current sequence in characters. */
-    @Override
-    public int begin() {
-        return sequenceStart;
-    }
-
-    /** Returns the end index of the current sequence in characters. */
-    @Override
-    public int end() {
-        return sequenceStart + currentSequence.length();
-    }
-
     private void primeNext() {
         currentSequence.setLength(0);
-        sequenceStart = position;
         nextLeadCodePoint = -1;
 
         try {
@@ -299,12 +268,12 @@ class ReaderSequenceIterator extends BaseSequenceIterator {
             }
 
             if (currentSequence.length() > 0
-                    && (cp == -1 || decoder.state() == SequenceDecoder.State.INCOMPLETE)) {
+                    && (cp == -1 || decoder.state() == UnicodeDecoder.INCOMPLETE)) {
                 decoder.finish();
             }
 
             if (currentSequence.length() > 0 && nextLeadCodePoint == -1) {
-                if (decoder.state() == SequenceDecoder.State.ANSI_ESCAPE_SEQUENCE) {
+                if (decoder.state() == UnicodeDecoder.ANSI) {
                     nextLeadCodePoint = Constants.ESC;
                     currentWidth = 0;
                 } else {
@@ -340,15 +309,10 @@ class ReaderSequenceIterator extends BaseSequenceIterator {
     }
 
     private int read() throws IOException {
-        int c = reader.read();
-        if (c != -1) {
-            position++;
-        }
-        return c;
+        return reader.read();
     }
 
     private void unread(int c) throws IOException {
         reader.unread(c);
-        position--;
     }
 }
