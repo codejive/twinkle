@@ -15,7 +15,7 @@
         <google-java-format.version>1.22.0</google-java-format.version>
         <version.jspecify>1.0.0</version.jspecify>
         <version.junit>6.0.1</version.junit>
-        <version.assertj>3.27.6</version.assertj>
+        <version.assertj>3.27.7</version.assertj>
     </properties>
 
     <modules>
