@@ -17,7 +17,7 @@
     <description>Terminal implementation using JLine</description>
 
     <properties>
-        <version.jline>3.30.9</version.jline>
+        <version.jline>4.0.9</version.jline>
     </properties>
 
     <dependencies>
