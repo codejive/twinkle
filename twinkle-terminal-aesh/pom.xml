@@ -17,7 +17,7 @@
     <description>Terminal implementation using Aesh</description>
 
     <properties>
-        <version.aesh>3.4</version.aesh>
+        <version.aesh>3.5</version.aesh>
     </properties>
 
     <dependencies>
